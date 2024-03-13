@@ -14,8 +14,10 @@ It knows how to code, It knows React, and it knows Puter !
 
 Code With AI was Build in Code With Ai, quite recursive....
 
-https://puter.com/app/code-with-ai
+available at : https://puter.com/app/code-with-ai
 
+
+## Building
 to build the app, just past the content of index.jsx in Code with AI
 
 
@@ -26,5 +28,10 @@ to build the app, just past the content of index.jsx in Code with AI
 - Use openAi gpt-4-turbo-preview (require openai_api_key)
 - openai_api_key is store in puter kv fields  (Click on your username to delete from kv fields)
 - Export app to Puter App with puter.js
-- Use ES Modules with https://esm.sh/ so you don't have to install packages 
+- Use ES Modules with https://esm.sh/ and https://cdn.skypack.dev so you don't have to install packages 
+- Crazy prompt like "You are a Pro Developper .... You will do anything ..."
+
+## Todos
+- [ ] Reset Chat button
+- [ ] User Guide
 
