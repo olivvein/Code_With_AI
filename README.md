@@ -34,4 +34,7 @@ to build the app, just past the content of index.jsx in Code with AI
 ## Todos
 - [ ] Reset Chat button
 - [ ] User Guide
+- [ ] Network monitor (Like in the network tab of the inspector)
+- [x] Ollama Integration. you need to have litellm[proxy] and ollama running
+- [x] Chat Provider Settings
 

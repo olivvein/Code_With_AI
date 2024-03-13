@@ -10,6 +10,8 @@ import Editor from "https://esm.sh/@monaco-editor/react";
 import * as Babel from "https://esm.sh/@babel/standalone";
 import OpenAI from "https://esm.sh/openai";
 import { transform as transform } from "https://esm.sh/sucrase";
+import Markdown from "https://esm.sh/react-markdown@9";
+import remarkGfm from 'https://esm.sh/remark-gfm'
 
 twindSetup({
   theme: {
@@ -39,6 +41,115 @@ twindSetup({
     },
   },
 });
+
+const ChatSettings = ({
+  chatProvider,
+  setChatProvider,
+  ollamaConfig,
+  setOllamaConfig,
+  openAiCongig,
+  setOpenAiCongig,
+  ollamaAvailable,
+  setApiKeyVal,
+  apiKey,
+  resetApiKey,
+}) => {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <div className="flex flex-col items-center justify-center">
+        <h1 className="text-4xl font-semibold text-white">Chat Settings</h1>
+        <div className="flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center justify-center">
+            <h2 className="text-2xl font-semibold text-white">Chat Provider</h2>
+            <select
+              value={chatProvider}
+              onChange={(e) => setChatProvider(e.target.value)}
+              className="bg-gray-800 text-white rounded p-2"
+            >
+              <option value="openai">OpenAI</option>
+              {ollamaAvailable && <option value="ollama">Ollama</option>}
+              <option value="puter">Puter</option>
+            </select>
+          </div>
+          {chatProvider === "ollama" && (
+            <div className="flex flex-col items-center justify-center">
+              <h2 className="text-2xl font-semibold text-white">
+                Ollama Config
+              </h2>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setOllamaConfig({ ...ollamaConfig, baseURL: e.target.value });
+                }}
+              >
+                <input
+                  //onChange={(e) => setOllamaConfig({ ...ollamaConfig, baseURL: e.target.value })}
+                  className="bg-gray-800 text-white rounded p-2"
+                  placeholder="Base URL"
+                />
+              </form>
+
+              <select
+                value={ollamaConfig.selectedModel}
+                onChange={(e) =>
+                  setOllamaConfig({
+                    ...ollamaConfig,
+                    selectedModel: e.target.value,
+                  })
+                }
+                className="bg-gray-800 text-white rounded p-2"
+              >
+                {ollamaConfig.models.map((model) => (
+                  <option value={model.id}>{model.id}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {chatProvider === "openai" && (
+            <div className="flex flex-col items-center justify-center">
+              <h2 className="text-2xl font-semibold text-white">
+                OpenAI Config
+              </h2>
+              {apiKey === "" && (
+                <input
+                  value={apiKey}
+                  onChange={setApiKeyVal}
+                  className="bg-gray-800 text-white rounded p-2"
+                  placeholder="OpenAI API Key"
+                />
+              )}
+
+              {apiKey !== "" && (
+                <>
+                  <select
+                    value={openAiCongig.selectedModel}
+                    onChange={(e) =>
+                      setOpenAiCongig({
+                        ...openAiCongig,
+                        selectedModel: e.target.value,
+                      })
+                    }
+                    className="bg-gray-800 text-white rounded p-2"
+                  >
+                    {openAiCongig.models.map((model) => (
+                      <option value={model.id}>{model.id}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={resetApiKey}
+                    className="bg-gray-800 text-white rounded p-2"
+                  >
+                    Reset API Key
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const LogSection = () => {
   return (
@@ -80,11 +191,7 @@ function CustomIframe({
   );
 }
 
-const TheEditorJs = ({
-  handleEditorDidMount,
-  jsCode,
-  onChange
-}) => {
+const TheEditorJs = ({ handleEditorDidMount, jsCode, onChange }) => {
   return (
     <Editor
       height="90%"
@@ -103,11 +210,7 @@ const TheEditorJs = ({
   );
 };
 
-const TheEditorHtml = ({
-  handleEditorDidMount,
-  htmlCode,
-  onChange
-}) => {
+const TheEditorHtml = ({ handleEditorDidMount, htmlCode, onChange }) => {
   return (
     <Editor
       height="90%"
@@ -164,8 +267,6 @@ const CodeEditor = ({
         </button>
       </div>
 
-      
-
       {selectedCode === "js" ? (
         <TheEditorJs
           handleEditorDidMount={handleEditorDidMountJs}
@@ -192,6 +293,9 @@ const NavBar = ({
   username,
   inputMessage,
   setInputVal,
+  chatProvider,
+  setChatProvider,
+  ollamaConfig,
 }) => {
   return (
     <nav className="bg-gray-800 text-white px-4 py-2 flex justify-between items-center dark:bg-gray-900">
@@ -215,16 +319,13 @@ const NavBar = ({
         value={inputMessage}
         onChange={setInputVal}
       />
-      <button className="bg-gray-700  w-20 p-2 rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-800 dark:text-white">
-        {gptVal ? "gpt-4" : "puter ai"}
-      </button>
-      <div className="bg-gray-700  w-20 p-2 rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-800 dark:text-white">
+
+      <div className="bg-gray-700  items-center justify-center p-2 rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-800 dark:text-white flex flex-row items-centered">
         <input
-          onChange={setGptValue}
           id="default-checkbox"
           type="checkbox"
-          value={gptVal}
-          checked={gptVal}
+          value={chatProvider === "openai" && visibleApiKey != ""}
+          checked={chatProvider === "openai" && visibleApiKey != ""}
           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
         ></input>
         <label
@@ -232,6 +333,32 @@ const NavBar = ({
           class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
         >
           GPT-4
+        </label>
+        <input
+          id="default-checkbox"
+          type="checkbox"
+          value={chatProvider === "ollama" && ollamaConfig.models.length > 0}
+          checked={chatProvider === "ollama" && ollamaConfig.models.length > 0}
+          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+        ></input>
+        <label
+          for="default-checkbox"
+          class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+        >
+          Ollama
+        </label>
+        <input
+          id="default-checkbox"
+          type="checkbox"
+          value={chatProvider === "puter"}
+          checked={chatProvider === "puter"}
+          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+        ></input>
+        <label
+          for="default-checkbox"
+          class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+        >
+          puter
         </label>
       </div>
 
@@ -268,36 +395,6 @@ const Clock = () => {
   );
 };
 
-const Counter = () => {
-  const [time, setTime] = useState(0);
-
-  useEffect(() => {
-    const timerID = setInterval(() => tick(), 1000);
-
-    return function cleanup() {
-      clearInterval(timerID);
-    };
-  });
-
-  const tick = () => {
-    setTime((prev) => prev + 1);
-  };
-
-  return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <div className="text-6xl font-semibold text-white">{time}</div>
-    </div>
-  );
-};
-
-const Counter2 = ({ time }) => {
-  return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <div className="text-6xl font-semibold text-white">{time}</div>
-    </div>
-  );
-};
-
 const DraggableUI = ({
   id,
   onDragStart,
@@ -322,12 +419,10 @@ const DraggableUI = ({
         onDrop={(e) => onDrop(e, id)}
         className={`left-0 top-0  border rounded shadow-lg   ${
           draggingId === id ? "opacity-10" : "opacity-100"
-        } ${
-            (draggingId !== id &&  draggingId)? "bg-red-700" : "bg-gray-700"
-          }`}
+        } ${draggingId !== id && draggingId ? "bg-red-700" : "bg-gray-700"}`}
         style={{ cursor: "grab" }}
       >
-        DRAG 
+        DRAG
       </button>
       {getDivContent(id)}
     </div>
@@ -376,6 +471,7 @@ const DraggableApp = () => {
     or
     import Highcharts from "https://esm.sh/highcharts/highstock";
     
+    never import css
     
     for 3d, use THREE.js
     
@@ -456,6 +552,15 @@ const DraggableApp = () => {
     
     \`\`\`
 
+    allways imports React and ReactDOM
+
+    always finish the app this way : 
+    \`\`\`
+    ReactDOM.render(<TheAppYouMade />, document.getElementById("the_id_of_the_div"));
+    \`\`\`
+    
+    
+
     ${ContextInfos}
 
     `;
@@ -465,22 +570,34 @@ const DraggableApp = () => {
   ]);
 
   const [messageFinished, setMessageFinished] = useState(true);
+
+  const availableChatProviders = ["openai", "ollama", "puter"];
+
+  const [chatProvider, setChatProvider] = useState("puter");
+
+  const [ollamaConfig, setOllamaConfig] = useState({
+    baseURL: "http://localhost:8000",
+    models: [],
+    selectedModel: "",
+  });
+
+  const [openAiCongig, setOpenAiCongig] = useState({
+    models: [],
+    selectedModel: "gpt-4-turbo-preview",
+  });
+
   async function sendMessage(message) {
     setMessageFinished(false);
     setFullMessage("");
     try {
-      const openai = new OpenAI({
-        apiKey: apiKey,
-        dangerouslyAllowBrowser: true, // This is the default and can be omitted
-      });
-      const newMessage = [...chatMessages, { role: "user", content: message }];
+      
+      if (chatProvider === "puter") {
+        const newMessage = [...chatMessages, { role: "user", content: message }];
       newMessage[0].content = systemPrompt;
       console.log(newMessage);
-      const putai = !gptVal;
-      if (putai) {
         console.log("chat with puter");
         puter.ai.chat(newMessage).then((response) => {
-          console.log(response.toString() );
+          console.log(response.toString());
           setFullMessage(response.toString());
           setChatMessages([
             ...newMessage,
@@ -492,27 +609,70 @@ const DraggableApp = () => {
         return;
       }
 
-      const stream = await openai.chat.completions.create({
-        model: "gpt-4-turbo-preview",
-        messages: newMessage,
-        stream: true,
-      });
-      
+      if (chatProvider === "ollama" && ollamaConfig.models.length > 0) {
+        const newMessage = [...chatMessages, { role: "user", content: message+"\nProvide only html and jsx snippet in Markdown.\n No explaination needed. Give me the 2 code snipet in markdown." }];
+      newMessage[0].content = systemPrompt;
+      console.log(newMessage);
+        const ollama = new OpenAI({
+          baseURL: ollamaConfig.baseURL,
 
-      let fullResponse="";
-      for await (const chunk of stream) {
-        const theChunk = chunk.choices[0]?.delta?.content;
-        if (theChunk != undefined) {
+          // required but ignored
+          apiKey: "ollama",
+          dangerouslyAllowBrowser: true,
+        });
+
+        const stream = await ollama.chat.completions.create({
+          messages: newMessage,
+          model: ollamaConfig.selectedModel,
+          stream: true,
+        });
+
+        let fullResponse = "";
+        for await (const chunk of stream) {
+          const theChunk = chunk.choices[0]?.delta?.content;
+          if (theChunk != undefined) {
             //console.log(theChunk);
-            fullResponse=fullResponse+theChunk;
-          setFullMessage((prev) => prev + theChunk);
+            fullResponse = fullResponse + theChunk;
+            setFullMessage((prev) => prev + theChunk);
+          }
         }
+        console.log("Message Finished");
+        console.log(fullResponse);
+        newMessage.push({ role: "assistant", content: fullResponse });
+        setChatMessages(newMessage);
+        setMessageFinished(true);
+        return;
       }
-      console.log("Message Finished");
-      console.log(fullResponse);
-      newMessage.push({ role: "assistant", content: fullResponse });
-      setChatMessages(newMessage);
-      setMessageFinished(true);
+
+      if (chatProvider === "openai" && apiKey !== "") {
+        const newMessage = [...chatMessages, { role: "user", content: message }];
+      newMessage[0].content = systemPrompt;
+      console.log(newMessage);
+        const openai = new OpenAI({
+          apiKey: apiKey,
+          dangerouslyAllowBrowser: true, // This is the default and can be omitted
+        });
+        const stream = await openai.chat.completions.create({
+          model: openAiCongig.selectedModel,
+          messages: newMessage,
+          stream: true,
+        });
+
+        let fullResponse = "";
+        for await (const chunk of stream) {
+          const theChunk = chunk.choices[0]?.delta?.content;
+          if (theChunk != undefined) {
+            //console.log(theChunk);
+            fullResponse = fullResponse + theChunk;
+            setFullMessage((prev) => prev + theChunk);
+          }
+        }
+        console.log("Message Finished");
+        console.log(fullResponse);
+        newMessage.push({ role: "assistant", content: fullResponse });
+        setChatMessages(newMessage);
+        setMessageFinished(true);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -561,6 +721,7 @@ const DraggableApp = () => {
     return codeSnippets;
   };
 
+  //handle fullMessage
   useEffect(() => {
     //console.log(fullMessage);
 
@@ -584,6 +745,54 @@ const DraggableApp = () => {
         codeSnippet.language === "jsx" ||
         codeSnippet.language === "tsx"
       ) {
+        
+
+        if(codeSnippet.status=="completed" || true){
+          codeSnippet.code = codeSnippet.code.replace(
+            "import twindSetup",
+            "import { setup as twindSetup }"
+          );
+
+          codeSnippet.code = codeSnippet.code.replace(
+            `from "react"`,
+            `from "https://esm.sh/react"`
+          );
+
+          codeSnippet.code = codeSnippet.code.replace(
+            "\`\`\`",
+            ""
+          );
+
+          codeSnippet.code = codeSnippet.code.replace(
+            "/tailwind/'",
+            "/tailwind/shim'"
+          );
+
+          codeSnippet.code = codeSnippet.code.replace(
+            '/tailwind/"',
+            '/tailwind/shim"'
+          );
+
+          if (codeSnippet.code.indexOf("import ReactDOM") === -1) {
+            codeSnippet.code =
+              'import ReactDOM from "https://esm.sh/react-dom"; //imported automatically\n' + codeSnippet.code;
+          }
+
+          if (codeSnippet.code.indexOf("import React ") == -1 && codeSnippet.code.indexOf("import React, ") == -1) {
+            codeSnippet.code =
+              'import React, { useState, useEffect, useRef } from "https://esm.sh/react"; //imported automatically\n' + codeSnippet.code;
+          }
+
+          if (
+            codeSnippet.code.indexOf("import { setup as twindSetup }") == -1
+          ) {
+            codeSnippet.code =
+              'import { setup as twindSetup } from "https://cdn.skypack.dev/twind/shim"; //imported automatically\ntwindSetup();\n' + codeSnippet.code;
+          }
+        }
+          
+        
+
         setJsCode(codeSnippet.code);
         editorJsRef.current?.setValue(codeSnippet.code);
         // if (editorJsRef.current) {
@@ -605,7 +814,7 @@ const DraggableApp = () => {
     setInputMessage(e.target.value);
   };
   const [inputMessage, setInputMessage] = useState("");
-  const setApKeyVal = (e) => {
+  const setApiKeyVal = (e) => {
     puter.kv.set("openai_api_key", e.target.value).then((success) => {
       console.log("api Key updated");
     });
@@ -731,6 +940,49 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     logElement.scrollTop = logElement.scrollHeight;
   };`;
 
+  const [ollamaModels, setOllamaModels] = useState([]);
+
+  const [ollamaAvailable, setOllamaAvailable] = useState(true);
+
+  //get ollama models
+  useEffect(() => {
+    const getOllamaModel = async () => {
+      const ollama = new OpenAI({
+        baseURL: ollamaConfig.baseURL,
+        apiKey: "ollama",
+        dangerouslyAllowBrowser: true,
+      });
+      const modelList = await ollama.models.list();
+      const theModels = modelList.data;
+      console.log(modelList);
+      console.log(theModels);
+      setOllamaConfig({ ...ollamaConfig, models: theModels });
+    };
+
+    getOllamaModel();
+  }, []);
+
+  //get openai models
+  useEffect(() => {
+    const getOpenAiModel = async () => {
+      if (apiKey == "" || apiKey == undefined) {
+        return;
+      }
+      const ollama = new OpenAI({
+        apiKey: apiKey,
+        dangerouslyAllowBrowser: true,
+      });
+      const modelList = await ollama.models.list();
+      const theModels = modelList.data;
+      console.log(modelList);
+      console.log(theModels);
+      setOpenAiCongig({ ...openAiCongig, models: theModels });
+    };
+
+    getOpenAiModel();
+  }, [apiKey]);
+
+  //get openai api key
   useEffect(() => {
     const updateUser = async () => {
       const isSignedIn = puter.auth.isSignedIn();
@@ -750,11 +1002,13 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     };
     updateUser();
   }, []);
+
+  //match selected code
   useEffect(() => {
-    
     editorHtmlRef.current?.setValue(htmlCode);
     editorJsRef.current?.setValue(jsCode);
   }, [selectedCode]);
+
   function transformImports(code) {
     const regex =
       /import\s+((\*\s+as\s+\w+)|(\{\s[^}]+\s\})|(\w+))\s+from\s+"([^"]+)";/g;
@@ -968,7 +1222,23 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
         />
       ),
     },
-    { id: 2, content: <Counter /> },
+    {
+      id: 2,
+      content: (
+        <ChatSettings
+          chatProvider={chatProvider}
+          setChatProvider={setChatProvider}
+          ollamaConfig={ollamaConfig}
+          setOllamaConfig={setOllamaConfig}
+          openAiCongig={openAiCongig}
+          setOpenAiCongig={setOpenAiCongig}
+          ollamaAvailable={ollamaAvailable}
+          setApiKeyVal={setApiKeyVal}
+          apiKey={apiKey}
+          resetApiKey={resetApiKey}
+        />
+      ),
+    },
     {
       id: 3,
       content: (
@@ -988,17 +1258,66 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     setTime((prev) => prev + 1);
   };
 
+  //update divs Navbar
   useEffect(() => {
     setDivs((prevDivs) =>
       prevDivs.map((div) => {
-        if (div.content.type === Counter2) {
-          return { ...div, content: <Counter2 time={time} /> };
+        if (div.content.type === NavBar) {
+          return {
+            ...div,
+            content: (
+              <NavBar
+                inputSubmit={inputSubmit}
+                setGptValue={setGptValue}
+                gptVal={gptVal}
+                resetApiKey={resetApiKey}
+                visibleApiKey={visibleApiKey}
+                username={username}
+                inputMessage={inputMessage}
+                setInputVal={setInputVal}
+                setChatProvider={setChatProvider}
+                chatProvider={chatProvider}
+                ollamaConfig={ollamaConfig}
+              />
+            ),
+          };
         }
         return div;
       })
     );
-  }, [time]);
+  }, [inputMessage, gptVal, apiKey, chatProvider, username]);
 
+  //update divs ChatSettings
+  useEffect(() => {
+    setDivs((prevDivs) =>
+      prevDivs.map((div) => {
+        if (div.content.type === ChatSettings) {
+          return {
+            ...div,
+            content: (
+              <ChatSettings
+                chatProvider={chatProvider}
+                setChatProvider={setChatProvider}
+                ollamaConfig={ollamaConfig}
+                setOllamaConfig={setOllamaConfig}
+                openAiCongig={openAiCongig}
+                setOpenAiCongig={setOpenAiCongig}
+                ollamaAvailable={ollamaAvailable}
+                setApiKeyVal={setApiKeyVal}
+                apiKey={apiKey}
+                resetApiKey={resetApiKey}
+              />
+            ),
+          };
+        }
+        return div;
+      })
+    );
+  }, [chatProvider, ollamaConfig, openAiCongig, apiKey]);
+
+  //update divs LogSection
+
+  //update divs CodeEditor
   useEffect(() => {
     setDivs((prevDivs) =>
       prevDivs.map((div) => {
@@ -1027,6 +1346,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     );
   }, [jsCode, htmlCode, appName, selectedCode]);
 
+  //update divs CustomIframe
   useEffect(() => {
     setDivs((prevDivs) =>
       prevDivs.map((div) => {
@@ -1048,10 +1368,6 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
       })
     );
   }, [jsCode, htmlCode, messageFinished]);
-
-  useEffect(() => {
-    console.log("starting");
-  }, []);
 
   const onDragStart = (e, id) => {
     e.dataTransfer.setData("id", id);
@@ -1086,14 +1402,21 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
 
   return (
     <Space.ViewPort className="w-full">
-      {messageFinished==0 && <div className="absolute z-50 w-full h-full flex justify-center items-center bg-black opacity-50">
-            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white">ok</div>
-        </div>}
+      {messageFinished == 0 && (
+        <div className="absolute z-50 w-full h-full flex justify-center items-center bg-black opacity-80 text-white">
+          <Markdown remarkPlugins={[remarkGfm]} className=" p-4 m-4 w-full h-3/4 opacity-100 ">
+            {fullMessage}
+          </Markdown>
+          <div className="absolute z-50 w-full h-full flex justify-center items-center bg-black opacity-50 text-white">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"></div>
+          </div>
+        </div>
+      )}
       {apiKey == "" && gptVal == 1 && (
         <div className="absolute flex flex-col z-50 top-0 w-full h-full bg-black flex">
           <input
             className="mx-4 py-2 px-3 bg-gray-700 text-white rounded outline-none"
-            onChange={setApKeyVal}
+            onChange={setApiKeyVal}
             placeholder="you openai api key : sk-************"
           ></input>
           <button
@@ -1107,8 +1430,8 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
         </div>
       )}
       <Space.Top
-        size="10%"
-        touchHandleSize={20}
+        size="30%"
+        touchHandleSize={40}
         trackSize={false}
         scrollable={true}
       >
@@ -1122,19 +1445,22 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
             username={username}
             inputMessage={inputMessage}
             setInputVal={setInputVal}
+            setChatProvider={setChatProvider}
+            chatProvider={chatProvider}
+            ollamaConfig={ollamaConfig}
           />
         </Space.Fill>
       </Space.Top>
       <Space.Bottom
         size="90%"
-        touchHandleSize={20}
+        touchHandleSize={40}
         trackSize={false}
         scrollable={true}
       >
         <Space.Fill trackSize={true}>
           <Space.LeftResizable
             size="50%"
-            touchHandleSize={20}
+            touchHandleSize={40}
             trackSize={false}
             scrollable={true}
           >
@@ -1150,8 +1476,8 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
               />
             </Space.Fill>
             <Space.BottomResizable
-              size="0%"
-              touchHandleSize={20}
+              size="10%"
+              touchHandleSize={40}
               trackSize={true}
               scrollable={true}
             >
@@ -1170,7 +1496,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           </Space.LeftResizable>
           <Space.Fill
             size="50%"
-            touchHandleSize={20}
+            touchHandleSize={40}
             trackSize={true}
             scrollable={true}
           >
@@ -1186,8 +1512,8 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
               />
             </Space.Fill>
             <Space.BottomResizable
-              size="20%"
-              touchHandleSize={20}
+              size="40%"
+              touchHandleSize={40}
               trackSize={true}
               scrollable={true}
             >
