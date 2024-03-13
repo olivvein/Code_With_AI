@@ -26,4 +26,5 @@ to build the app, just past the content of index.jsx in Code with AI
 - Use openAi gpt-4-turbo-preview (require openai_api_key)
 - openai_api_key is store in puter kv fields  (Click on your username to delete from kv fields)
 - Export app to Puter App with puter.js
+- Use ES Modules with https://esm.sh/ so you don't have to install packages 
 
