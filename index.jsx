@@ -239,7 +239,7 @@ function CustomIframe({
       {messageFinished == 0 && (
         <img
           src="https://c.tenor.com/y2JXkY1pXkwAAAAC/tenor.gif"
-          className="w-full h-full bg-black opacity-50"
+          className="w-full h-full bg-black"
         />
       )}
       {messageFinished == 1 && (
@@ -1323,12 +1323,11 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
   };
 
   console.error = function (message) {
-    if (typeof message == 'object') {
-        logElement.innerHTML += '<span style="color:red">'+JSON.stringify(message).split(",").join(",\\n")+'</span> '+ '<br />';
-    } else {
+
+   
       var stack = new Error().stack;
         logElement.innerHTML +=  '<span style="color:red">'+message+"\\n"+ stack.split("\\n").slice(2).join("\\n")+'</span> ' + '<br />';
-    }
+    
     oldError.apply(console, arguments);
     logElement.scrollTop = logElement.scrollHeight;
   };`;
