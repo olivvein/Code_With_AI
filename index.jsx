@@ -24,7 +24,7 @@ twindSetup({
       },
       animation: {
         fade: "fadeOut 5s ease-in-out",
-        appear: "fadeIn 0.3s ease-in-out",
+        appear: "fadeIn 0.2s ease-in-out",
       },
 
       // that is actual animation
@@ -544,10 +544,7 @@ const NavBar = ({
   const [openMenu, setOpenMenu] = useState("");
   const toggleMenu = (menu) => {
     setOpenMenu(openMenu === menu ? "" : menu);
-    //in 5 seconds, close the menu
-    setTimeout(() => {
-      setOpenMenu("");
-    }, 5000);
+   
   };
 
   const menuConfig = [
@@ -591,12 +588,16 @@ const NavBar = ({
     <nav className="absolute w-full top-0 left-0 bg-gray-800 text-white top-0 px-0 h-5 flex dark:bg-gray-900  z-50">
       <div className=" w-full top-0 bg-gray-800 text-white  px-0 flex justify-between">
         <div className="w-3/4 top-0 bg-gray-800 text-white py-2 px-0">
-          <span className="left-0 py-4 px-2 cursor-pointer hover:bg-gray-700">
-            <b>Code With Ai</b>
+          <span className="left-0 py-4 px-2">
+           <span><b>Code With Ai</b></span> 
+           <span className="absolute left-0 top-6 text-sm px-2">By SamLePirate</span> 
           </span>
-          {menuConfig.map((menu) => (
+          {menuConfig.map((menu,index) => (
             <div className="relative inline-block">
               <span
+                tabIndex={index} // Makes the div focusable
+                 // Handles focus event
+                onBlur={() => {setTimeout(() => toggleMenu(menu.name), 100)}}
                 className={`${
                   openMenu == menu.name ? "bg-gray-700" : ""
                 } cursor-pointer pt-3 pb-2 px-2 active:bg-gray-700  hover:bg-gray-700 hover:shadow-lg rounded-lg`}
@@ -1822,7 +1823,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
         appName={appName}
         setAppNameVal={setAppNameVal}
         saveAs={saveAs}
-        cancel={setShowSaveAsForm}
+        cancelSaveAs={setShowSaveAsForm}
       />
       )}
       <NavBar
