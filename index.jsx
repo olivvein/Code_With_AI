@@ -11,7 +11,8 @@ import * as Babel from "https://esm.sh/@babel/standalone";
 import OpenAI from "https://esm.sh/openai";
 import { transform as transform } from "https://esm.sh/sucrase";
 import Markdown from "https://esm.sh/react-markdown@9";
-import remarkGfm from 'https://esm.sh/remark-gfm'
+import remarkGfm from 'https://esm.sh/remark-gfm';
+
 
 twindSetup({
   theme: {
@@ -145,6 +146,7 @@ const ChatSettings = ({
               )}
             </div>
           )}
+
         </div>
       </div>
     </div>
@@ -373,27 +375,7 @@ const NavBar = ({
   );
 };
 
-const Clock = () => {
-  const [time, setTime] = useState(new Date().toLocaleTimeString());
 
-  useEffect(() => {
-    const timerID = setInterval(() => tick(), 1000);
-
-    return function cleanup() {
-      clearInterval(timerID);
-    };
-  });
-
-  const tick = () => {
-    setTime(new Date().toLocaleTimeString());
-  };
-
-  return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <div className="text-6xl font-semibold text-white">{time}</div>
-    </div>
-  );
-};
 
 const DraggableUI = ({
   id,
@@ -430,161 +412,9 @@ const DraggableUI = ({
 };
 
 const DraggableApp = () => {
-  const [username, setUsername] = useState("Guest");
-  const todayString = new Date().toDateString();
-  const timeToHumanStringInFrance = (time) => {
-    const date = new Date(time);
-    return date.toLocaleString("fr-FR");
-  };
 
-  const ContextInfos = `
-  Today is ${todayString}.
-  The time is ${timeToHumanStringInFrance(Date.now())} in France.
-  The user is ${username}.
-  `;
 
-  const systemPrompt = `You are a pro developer in javascript html and react and tailwind.
-    You can create really complex app with these languages.
-    You have no limitation in the number of lines of code.
-    If requested a full app, you will do it.
-    You allways respond to user in one run.
-    You can at the begining of a response explain the functionallity that you are going to implement, only if needed to plan the app. Do it in // comments.
-    You only create HTML and tsx/jsx. 
-    The HTML will be is inside <BODY> tag.
-    You write in md format. you only write good code.
-    You will create each snippet separately for each language. 
-    You only provide code snippets. no explaination, no title, no comment. 
-    You use Tailwind and react.js
-    Allways separate the html  and tsx or jsx in separate code snippets.
-    add theses imports to your tsx/jsx script :
-    import React from "https://esm.sh/react";
-    import ReactDOM from "https://esm.sh/react-dom";
-    
-    if you want to import a package, you can use a cdn like https://esm.sh/ 
-    always import tailwind like this :
-    import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim'
-    //and instanciate it
-    twindSetup();
-    for graph and charts use highstock and highchart
-    import Highcharts from "https://esm.sh/highcharts";
-    import HighchartsReact from "https://esm.sh/highcharts-react-official";
-    or
-    import Highcharts from "https://esm.sh/highcharts/highstock";
-    
-    never import css
-    
-    for 3d, use THREE.js
-    
-    When the user ask for an app, imply every functionalities to make the best of it.
-    
-    Make full working apps, with every functionalities. 
-    Add a header with the title of the app and a footer.
-    Add a menu if needed.
-    allways make the app take 100% of available space, with dark background. 
-    Use card and beautiful tailwind style to present the result.
-    Allways use try catch to handle errors.
-    If you need to use an api, make sure it does not require an api key.
-    for weather use wttr.in or an other free api that does not require an api key.
-    https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true  => "current_weather"
-    https://api.coingecko.com/api 
-    https://api.multiversx.com/economics?extract=price for EGLD  => "price"
-    https://www.francetvinfo.fr/titres.rss =>   entries "title" and "summary" and "links[0] as href " and "links[1] as image " For the News with feedparser library
-    
-    when you create an image, Always make the prompt a full detailled prompt, with details about the content of the image and the style of the image.
-    
-    always start the js by a comment with the title of the app:
-    //appTitle: The title of the app
-    
-    always start the js snippet by a comment with the title of the app:
-    //appTitle: The title of the app
-    
-    your html must be like:
-    \`\`\`html
-    <div id="app"></div>
-    \`\`\`
-    
-    always include tailwind and use a lot of tailwind classes to style your app to the best with rounded corners and shadow and simple animations.
-    
-    you have a const avaliable for you to use:
-    const puter;
-    
-    dont import puter, it is already imported for you.
-    never import puter, it is already imported for you.
-    
-    Before using puter,always make sure the user is connected and show the username in the menu:
-    \`\`\`
-    const isSignedIn=puter.auth.isSignedIn();
-    if (!isSignedIn){
-        puter.auth.signIn();
-    }
-    puter.auth.getUser().then(function(user) {
-        const username=user.username;
-        console.log(username);
-    });
-    \`\`\`
-    
-    you can use it like that:
-    
-    \`\`\`
-    puter.kv.set('name', 'Puter Smith').then((success) => {
-      console.log(\`Key-value pair created/updated: Success\`);
-    });
-    
-    //or 
-    const name = await puter.kv.get('name');
-    
-    //or
-    puter.kv.del('name').then((success) => {
-      console.log(\`Key-value pair deleted: Success\`);
-    });
-    
-    //or 
-    
-    puter.kv.list().then((keys) => {
-      console.log(\`Keys are: \${keys}\<br><br>\`);
-    });
-    //or
-    puter.kv.list(true).then((key_vals) => {
-      console.log(\`Keys and values are: \${(key_vals).map((key_val) => key_val.key + ' => ' + key_val.value)}\<br><br>\`);
-    });
-    
-    Based on the request, you do jsx or tsx
-    
-    \`\`\`
 
-    allways imports React and ReactDOM
-
-    always finish the app this way : 
-    \`\`\`
-    ReactDOM.render(<TheAppYouMade />, document.getElementById("the_id_of_the_div"));
-    \`\`\`
-    
-    
-
-    ${ContextInfos}
-
-    `;
-  const [fullMessage, setFullMessage] = useState("");
-  const [chatMessages, setChatMessages] = useState([
-    { role: "system", content: systemPrompt },
-  ]);
-
-  const [messageFinished, setMessageFinished] = useState(true);
-
-  const availableChatProviders = ["openai", "ollama", "puter"];
-
-  const [chatProvider, setChatProvider] = useState("puter");
-
-  const [ollamaConfig, setOllamaConfig] = useState({
-    baseURL: "http://localhost:8000",
-    models: [],
-    selectedModel: "",
-  });
-
-  const [openAiCongig, setOpenAiCongig] = useState({
-    models: [],
-    selectedModel: "gpt-4-turbo-preview",
-  });
 
   async function sendMessage(message) {
     setMessageFinished(false);
@@ -609,6 +439,8 @@ const DraggableApp = () => {
         return;
       }
 
+      
+
       if (chatProvider === "ollama" && ollamaConfig.models.length > 0) {
         const newMessage = [...chatMessages, { role: "user", content: message+"\nProvide only html and jsx snippet in Markdown.\n No explaination needed. Give me the 2 code snipet in markdown." }];
       newMessage[0].content = systemPrompt;
@@ -625,6 +457,7 @@ const DraggableApp = () => {
           messages: newMessage,
           model: ollamaConfig.selectedModel,
           stream: true,
+          max_tokens: 4000,
         });
 
         let fullResponse = "";
@@ -720,294 +553,6 @@ const DraggableApp = () => {
 
     return codeSnippets;
   };
-
-  //handle fullMessage
-  useEffect(() => {
-    //console.log(fullMessage);
-
-    //last chatMessage content is fullmessage
-    const newMessage = [...chatMessages];
-    newMessage[newMessage.length - 1].content = fullMessage;
-    //setChatMessages(newMessage);
-    const codesSnippets = extractCodeSnippets(fullMessage);
-    for (const codeSnippet of codesSnippets) {
-      if (codeSnippet.language === "html") {
-        setHtmlCode(codeSnippet.code);
-        editorHtmlRef.current?.setValue(codeSnippet.code);
-        // if (editorJsRef.current) {
-        //   const currentCode = selectedCode === "js" ? jsCode : codeSnippet.code;
-        //   editorJsRef.current?.setValue(currentCode);
-        // }
-      }
-
-      if (
-        codeSnippet.language === "js" ||
-        codeSnippet.language === "jsx" ||
-        codeSnippet.language === "tsx"
-      ) {
-        
-
-        if(codeSnippet.status=="completed" || true){
-          codeSnippet.code = codeSnippet.code.replace(
-            "import twindSetup",
-            "import { setup as twindSetup }"
-          );
-
-          codeSnippet.code = codeSnippet.code.replace(
-            `from "react"`,
-            `from "https://esm.sh/react"`
-          );
-
-          codeSnippet.code = codeSnippet.code.replace(
-            "\`\`\`",
-            ""
-          );
-
-          codeSnippet.code = codeSnippet.code.replace(
-            "/tailwind/'",
-            "/tailwind/shim'"
-          );
-
-          codeSnippet.code = codeSnippet.code.replace(
-            '/tailwind/"',
-            '/tailwind/shim"'
-          );
-
-          if (codeSnippet.code.indexOf("import ReactDOM") === -1) {
-            codeSnippet.code =
-              'import ReactDOM from "https://esm.sh/react-dom"; //imported automatically\n' + codeSnippet.code;
-          }
-
-          if (codeSnippet.code.indexOf("import React ") == -1 && codeSnippet.code.indexOf("import React, ") == -1) {
-            codeSnippet.code =
-              'import React, { useState, useEffect, useRef } from "https://esm.sh/react"; //imported automatically\n' + codeSnippet.code;
-          }
-
-          if (
-            codeSnippet.code.indexOf("import { setup as twindSetup }") == -1
-          ) {
-            codeSnippet.code =
-              'import { setup as twindSetup } from "https://cdn.skypack.dev/twind/shim"; //imported automatically\ntwindSetup();\n' + codeSnippet.code;
-          }
-        }
-          
-        
-
-        setJsCode(codeSnippet.code);
-        editorJsRef.current?.setValue(codeSnippet.code);
-        // if (editorJsRef.current) {
-        //   const currentCode =
-        //     selectedCode === "js" ? codeSnippet.code : htmlCode;
-        //   editorJsRef.current?.setValue(currentCode);
-        // }
-      }
-    }
-  }, [fullMessage]);
-
-  const inputSubmit = (e) => {
-    //e.preventDefaults();
-    setInputMessage("");
-    sendMessage(inputMessage);
-    console.log(inputMessage);
-  };
-  const setInputVal = (e) => {
-    setInputMessage(e.target.value);
-  };
-  const [inputMessage, setInputMessage] = useState("");
-  const setApiKeyVal = (e) => {
-    puter.kv.set("openai_api_key", e.target.value).then((success) => {
-      console.log("api Key updated");
-    });
-    setApiKey(e.target.value);
-  };
-  const [apiKey, setApiKey] = useState("");
-  const editorJsRef = useRef(null);
-  const editorHtmlRef = useRef(null);
-  const [htmlCode, setHtmlCode] = useState(`<div id="app"></div>`);
-  const [jsCode, setJsCode] =
-    useState(`//appTitle: Cool Clock with Navbar and KV Fields View and an Iframe
-
-import React, { useEffect, useState } from "https://esm.sh/react";
-import ReactDOM from "https://esm.sh/react-dom";
-import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim';
-//and instanciate it
-twindSetup();
-
-const ClockApp = () => {
-    if (puter==undefined){
-        this.puter=window.puter;
-    }
-    const [time, setTime] = useState(new Date());
-    const [username, setUsername] = useState('');
-    const [kvFields, setKvFields] = useState([]);
-
-    useEffect(() => {
-        const timerID = setInterval(() => tick(), 1000);
-        return () => clearInterval(timerID);
-    });
-
-    
-
-    useEffect(() => {
-        const checkUserAndFetchKV = async () => {
-            const isSignedIn = puter.auth.isSignedIn();
-            if (!isSignedIn) {
-                puter.auth.signIn();
-            }
-            const user = await puter.auth.getUser();
-            setUsername(user.username);
-
-            puter.kv.set('name', user.username).then((success) => {
-                console.log("name updated");
-            });
-
-            puter.kv.set('time', Date()).then((success) => {
-                console.log("time updated");
-            });
-
-            const kvList = await puter.kv.list(true);
-            setKvFields(kvList);
-        };
-        checkUserAndFetchKV();
-    }, []);
-
-    const tick = () => {
-        setTime(new Date());
-    };
-
-    return (
-        <div className="flex flex-col h-screen bg-gray-900 text-white">
-            <nav className="flex items-center justify-between p-4 bg-gray-800">
-                <h1 className="text-xl font-bold">Cool Clock</h1>
-                <span>{username}</span>
-            </nav>
-            <div className="flex-1 flex flex-col items-center justify-start p-4 space-y-4 overflow-auto">
-                <div className="text-center">
-                    <div className="text-4xl font-mono">{time.toLocaleTimeString()}</div>
-                </div>
-                <div className="max-w-xl w-full">
-                    <h2 className="text-lg font-semibold mb-2">KV Fields:</h2>
-                    <ul className="bg-gray-800 p-3 rounded-lg">
-                        {kvFields.map((field, index) => (
-                            <li key={index} className="flex justify-between text-sm p-2 hover:bg-gray-700 rounded">
-                                <span className="font-mono">{field.key}</span>
-                                <span>{field.value}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="w-full h-full">
-                    <iframe
-                        className="w-full h-full"
-                        src="https://wikipedia.org"
-                        sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts allow-downloads"
-                    />
-                </div>
-            </div>
-        </div>
-    );
-};
-
-ReactDOM.render(<ClockApp />, document.getElementById('app'));
-`);
-  const [selectedCode, setSelectedCode] = useState("js");
-
-  const consoleLog = `var oldLog = console.log;var oldError = console.error;
-  var logElement =parent.document.getElementById('logs');
-
-  console.log = function (message) {
-    
-      if (typeof message == 'object') {
-          logElement.innerHTML += JSON.stringify(message).split(",").join(",\\n") + '<br />';
-      } else {
-        var stack = new Error().stack;
-        stack=""
-          logElement.innerHTML += message+ '<br />';
-      }
-      oldLog.apply(console, arguments);
-      logElement.scrollTop = logElement.scrollHeight;
-      
-  };
-
-  console.error = function (message) {
-    if (typeof message == 'object') {
-        logElement.innerHTML += '<span style="color:red">'+JSON.stringify(message).split(",").join(",\\n")+'</span> '+ '<br />';
-    } else {
-      var stack = new Error().stack;
-        logElement.innerHTML +=  '<span style="color:red">'+message+"\\n"+ stack.split("\\n").slice(2).join("\\n")+'</span> ' + '<br />';
-    }
-    oldError.apply(console, arguments);
-    logElement.scrollTop = logElement.scrollHeight;
-  };`;
-
-  const [ollamaModels, setOllamaModels] = useState([]);
-
-  const [ollamaAvailable, setOllamaAvailable] = useState(true);
-
-  //get ollama models
-  useEffect(() => {
-    const getOllamaModel = async () => {
-      const ollama = new OpenAI({
-        baseURL: ollamaConfig.baseURL,
-        apiKey: "ollama",
-        dangerouslyAllowBrowser: true,
-      });
-      const modelList = await ollama.models.list();
-      const theModels = modelList.data;
-      console.log(modelList);
-      console.log(theModels);
-      setOllamaConfig({ ...ollamaConfig, models: theModels });
-    };
-
-    getOllamaModel();
-  }, []);
-
-  //get openai models
-  useEffect(() => {
-    const getOpenAiModel = async () => {
-      if (apiKey == "" || apiKey == undefined) {
-        return;
-      }
-      const ollama = new OpenAI({
-        apiKey: apiKey,
-        dangerouslyAllowBrowser: true,
-      });
-      const modelList = await ollama.models.list();
-      const theModels = modelList.data;
-      console.log(modelList);
-      console.log(theModels);
-      setOpenAiCongig({ ...openAiCongig, models: theModels });
-    };
-
-    getOpenAiModel();
-  }, [apiKey]);
-
-  //get openai api key
-  useEffect(() => {
-    const updateUser = async () => {
-      const isSignedIn = puter.auth.isSignedIn();
-      if (!isSignedIn) {
-        await puter.auth.signIn();
-      }
-      const user = await puter.auth.getUser();
-      setUsername(user.username);
-
-      //await puter.kv.del("openai_api_key")
-
-      const openai_api_key = await puter.kv.get("openai_api_key");
-
-      if (openai_api_key) {
-        setApiKey(openai_api_key);
-      }
-    };
-    updateUser();
-  }, []);
-
-  //match selected code
-  useEffect(() => {
-    editorHtmlRef.current?.setValue(htmlCode);
-    editorJsRef.current?.setValue(jsCode);
-  }, [selectedCode]);
 
   function transformImports(code) {
     const regex =
@@ -1170,7 +715,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
       console.log(error);
     }
   };
-  const [gptVal, setGptVal] = useState(0);
+  
 
   const setGptValue = (e) => {
     setGptVal(!gptVal);
@@ -1184,24 +729,353 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     });
   };
 
-  const [appName, setAppName] = useState("");
+  
+  const inputSubmit = (e) => {
+    //e.preventDefaults();
+    setInputMessage("");
+    sendMessage(inputMessage);
+    console.log(inputMessage);
+  };
+  const setInputVal = (e) => {
+    setInputMessage(e.target.value);
+  };
+ 
+  const setApiKeyVal = (e) => {
+    puter.kv.set("openai_api_key", e.target.value).then((success) => {
+      console.log("api Key updated");
+    });
+    setApiKey(e.target.value);
+  };
+  
   const setAppNameVal = (e) => {
     setAppName(e.target.value);
   };
 
-  const visibleApiKey = apiKey.slice(0, 3);
 
-  const [time, setTime] = useState(0);
+  
+  const onDragStart = (e, id) => {
+    e.dataTransfer.setData("id", id);
+    setDraggingId(id);
+  };
 
-  useEffect(() => {
-    const timerID = setInterval(() => tick(), 1000);
+  const onDragEnd = () => {
+    setDraggingId(null);
+  };
 
-    return function cleanup() {
-      clearInterval(timerID);
-    };
-  });
+  const onDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const onDrop = (e, targetId) => {
+    const draggedId = parseInt(e.dataTransfer.getData("id"));
+    const newDivs = divs
+      .map((div) => {
+        if (div.id === draggedId) return { ...div, id: targetId };
+        if (div.id === targetId) return { ...div, id: draggedId };
+        return div;
+      })
+      .sort((a, b) => a.id - b.id);
+    setDivs(newDivs);
+    setDraggingId(null);
+  };
+
+  const getDivContent = (id) => {
+    const div = divs.find((div) => div.id === id);
+    return div.content;
+  };
+
+
+  const [username, setUsername] = useState("Guest");
+  const todayString = new Date().toDateString();
+  const timeToHumanStringInFrance = (time) => {
+    const date = new Date(time);
+    return date.toLocaleString("fr-FR");
+  };
+
+  
 
   const [draggingId, setDraggingId] = useState(null);
+
+
+  const [appName, setAppName] = useState("");
+  
+  const [gptVal, setGptVal] = useState(0);
+  
+
+  const ContextInfos = `
+  Today is ${todayString}.
+  The time is ${timeToHumanStringInFrance(Date.now())} in France.
+  The user is ${username}.
+  `;
+
+  const systemPrompt = `You are a pro developer in javascript html and react and tailwind.
+    You can create really complex app with these languages.
+    You have no limitation in the number of lines of code.
+    If requested a full app, you will do it.
+    You allways respond to user in one run.
+    You can at the begining of a response explain the functionallity that you are going to implement, only if needed to plan the app. Do it in // comments.
+    You only create HTML and tsx/jsx. 
+    The HTML will be is inside <BODY> tag.
+    You write in md format. you only write good code.
+    You will create each snippet separately for each language. 
+    You only provide code snippets. no explaination, no title, no comment. 
+    You use Tailwind and react.js
+    Allways separate the html  and tsx or jsx in separate code snippets.
+    add theses imports to your tsx/jsx script :
+    import React from "https://esm.sh/react";
+    import ReactDOM from "https://esm.sh/react-dom";
+    
+    if you want to import a package, you can use a cdn like https://esm.sh/ 
+    always import tailwind like this :
+    import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim'
+    //and instanciate it
+    twindSetup();
+    for graph and charts use highstock and highchart
+    import Highcharts from "https://esm.sh/highcharts";
+    import HighchartsReact from "https://esm.sh/highcharts-react-official";
+    or
+    import Highcharts from "https://esm.sh/highcharts/highstock";
+    
+    never import css
+    
+    for 3d, use THREE.js
+    
+    When the user ask for an app, imply every functionalities to make the best of it.
+    
+    Make full working apps, with every functionalities. 
+    Add a header with the title of the app and a footer.
+    Add a menu if needed.
+    allways make the app take 100% of available space, with dark background. 
+    Use card and beautiful tailwind style to present the result.
+    Allways use try catch to handle errors.
+    If you need to use an api, make sure it does not require an api key.
+    for weather use wttr.in or an other free api that does not require an api key.
+    https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true  => "current_weather"
+    https://api.coingecko.com/api 
+    https://api.multiversx.com/economics?extract=price for EGLD  => "price"
+    https://www.francetvinfo.fr/titres.rss =>   entries "title" and "summary" and "links[0] as href " and "links[1] as image " For the News with feedparser library
+    
+    when you create an image, Always make the prompt a full detailled prompt, with details about the content of the image and the style of the image.
+    
+    always start the js by a comment with the title of the app:
+    //appTitle: The title of the app
+    
+    always start the js snippet by a comment with the title of the app:
+    //appTitle: The title of the app
+    
+    your html must be like:
+    \`\`\`html
+    <div id="app"></div>
+    \`\`\`
+    
+    always include tailwind and use a lot of tailwind classes to style your app to the best with rounded corners and shadow and simple animations.
+    
+    you have a const avaliable for you to use:
+    const puter;
+    
+    dont import puter, it is already imported for you.
+    never import puter, it is already imported for you.
+    
+    Before using puter,always make sure the user is connected and show the username in the menu:
+    \`\`\`
+    const isSignedIn=puter.auth.isSignedIn();
+    if (!isSignedIn){
+        puter.auth.signIn();
+    }
+    puter.auth.getUser().then(function(user) {
+        const username=user.username;
+        console.log(username);
+    });
+    \`\`\`
+    
+    you can use it like that:
+    
+    \`\`\`
+    puter.kv.set('name', 'Puter Smith').then((success) => {
+      console.log(\`Key-value pair created/updated: Success\`);
+    });
+    
+    //or 
+    const name = await puter.kv.get('name');
+    
+    //or
+    puter.kv.del('name').then((success) => {
+      console.log(\`Key-value pair deleted: Success\`);
+    });
+    
+    //or 
+    
+    puter.kv.list().then((keys) => {
+      console.log(\`Keys are: \${keys}\<br><br>\`);
+    });
+    //or
+    puter.kv.list(true).then((key_vals) => {
+      console.log(\`Keys and values are: \${(key_vals).map((key_val) => key_val.key + ' => ' + key_val.value)}\<br><br>\`);
+    });
+    
+    Based on the request, you do jsx or tsx
+    
+    \`\`\`
+
+    allways imports React and ReactDOM
+
+    always finish the app this way : 
+    \`\`\`
+    ReactDOM.render(<TheAppYouMade />, document.getElementById("the_id_of_the_div"));
+    \`\`\`
+    
+    
+
+    ${ContextInfos}
+
+    `;
+  const [fullMessage, setFullMessage] = useState("");
+  const [chatMessages, setChatMessages] = useState([
+    { role: "system", content: systemPrompt },
+  ]);
+
+  const [messageFinished, setMessageFinished] = useState(true);
+
+  const availableChatProviders = ["openai", "ollama", "puter"];
+
+  const [chatProvider, setChatProvider] = useState("puter");
+
+  const [ollamaConfig, setOllamaConfig] = useState({
+    baseURL: "http://localhost:4000",
+    models: [],
+    selectedModel: "",
+  });
+
+  const [openAiCongig, setOpenAiCongig] = useState({
+    models: [],
+    selectedModel: "gpt-4-turbo-preview",
+  });
+
+  const [inputMessage, setInputMessage] = useState("");
+  const [apiKey, setApiKey] = useState("");
+  const visibleApiKey = apiKey.slice(0, 3);
+  const editorJsRef = useRef(null);
+  const editorHtmlRef = useRef(null);
+  const [htmlCode, setHtmlCode] = useState(`<div id="app"></div>`);
+  const [jsCode, setJsCode] =
+    useState(`//appTitle: Cool Clock with Navbar and KV Fields View and an Iframe
+
+import React, { useEffect, useState } from "https://esm.sh/react";
+import ReactDOM from "https://esm.sh/react-dom";
+import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim';
+//and instanciate it
+twindSetup();
+
+const ClockApp = () => {
+    if (puter==undefined){
+        this.puter=window.puter;
+    }
+    const [time, setTime] = useState(new Date());
+    const [username, setUsername] = useState('');
+    const [kvFields, setKvFields] = useState([]);
+
+    useEffect(() => {
+        const timerID = setInterval(() => tick(), 1000);
+        return () => clearInterval(timerID);
+    });
+
+    
+
+    useEffect(() => {
+        const checkUserAndFetchKV = async () => {
+            const isSignedIn = puter.auth.isSignedIn();
+            if (!isSignedIn) {
+                puter.auth.signIn();
+            }
+            const user = await puter.auth.getUser();
+            setUsername(user.username);
+
+            puter.kv.set('name', user.username).then((success) => {
+                console.log("name updated");
+            });
+
+            puter.kv.set('time', Date()).then((success) => {
+                console.log("time updated");
+            });
+
+            const kvList = await puter.kv.list(true);
+            setKvFields(kvList);
+        };
+        checkUserAndFetchKV();
+    }, []);
+
+    const tick = () => {
+        setTime(new Date());
+    };
+
+    return (
+        <div className="flex flex-col h-screen bg-gray-900 text-white">
+            <nav className="flex items-center justify-between p-4 bg-gray-800">
+                <h1 className="text-xl font-bold">Cool Clock</h1>
+                <span>{username}</span>
+            </nav>
+            <div className="flex-1 flex flex-col items-center justify-start p-4 space-y-4 overflow-auto">
+                <div className="text-center">
+                    <div className="text-4xl font-mono">{time.toLocaleTimeString()}</div>
+                </div>
+                <div className="max-w-xl w-full">
+                    <h2 className="text-lg font-semibold mb-2">KV Fields:</h2>
+                    <ul className="bg-gray-800 p-3 rounded-lg">
+                        {kvFields.map((field, index) => (
+                            <li key={index} className="flex justify-between text-sm p-2 hover:bg-gray-700 rounded">
+                                <span className="font-mono">{field.key}</span>
+                                <span>{field.value}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="w-full h-full">
+                    <iframe
+                        className="w-full h-full"
+                        src="https://wikipedia.org"
+                        sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts allow-downloads"
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+ReactDOM.render(<ClockApp />, document.getElementById('app'));
+`);
+  const [selectedCode, setSelectedCode] = useState("js");
+
+  const consoleLog = `var oldLog = console.log;var oldError = console.error;
+  var logElement =parent.document.getElementById('logs');
+
+  console.log = function (message) {
+    
+      if (typeof message == 'object') {
+          logElement.innerHTML += JSON.stringify(message).split(",").join(",\\n") + '<br />';
+      } else {
+        var stack = new Error().stack;
+        stack=""
+          logElement.innerHTML += message+ '<br />';
+      }
+      oldLog.apply(console, arguments);
+      logElement.scrollTop = logElement.scrollHeight;
+      
+  };
+
+  console.error = function (message) {
+    if (typeof message == 'object') {
+        logElement.innerHTML += '<span style="color:red">'+JSON.stringify(message).split(",").join(",\\n")+'</span> '+ '<br />';
+    } else {
+      var stack = new Error().stack;
+        logElement.innerHTML +=  '<span style="color:red">'+message+"\\n"+ stack.split("\\n").slice(2).join("\\n")+'</span> ' + '<br />';
+    }
+    oldError.apply(console, arguments);
+    logElement.scrollTop = logElement.scrollHeight;
+  };`;
+
+  const [ollamaModels, setOllamaModels] = useState([]);
+
+  const [ollamaAvailable, setOllamaAvailable] = useState(true);
 
   const [divs, setDivs] = useState([
     {
@@ -1236,6 +1110,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           setApiKeyVal={setApiKeyVal}
           apiKey={apiKey}
           resetApiKey={resetApiKey}
+        
         />
       ),
     },
@@ -1254,9 +1129,159 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     { id: 4, content: <LogSection /> },
   ]);
 
-  const tick = () => {
-    setTime((prev) => prev + 1);
-  };
+
+  
+
+  //handle fullMessage
+  useEffect(() => {
+    //console.log(fullMessage);
+
+    //last chatMessage content is fullmessage
+    const newMessage = [...chatMessages];
+    newMessage[newMessage.length - 1].content = fullMessage;
+    //setChatMessages(newMessage);
+    const codesSnippets = extractCodeSnippets(fullMessage);
+    for (const codeSnippet of codesSnippets) {
+      if (codeSnippet.language === "html") {
+        setHtmlCode(codeSnippet.code);
+        editorHtmlRef.current?.setValue(codeSnippet.code);
+        // if (editorJsRef.current) {
+        //   const currentCode = selectedCode === "js" ? jsCode : codeSnippet.code;
+        //   editorJsRef.current?.setValue(currentCode);
+        // }
+      }
+
+      if (
+        codeSnippet.language === "js" ||
+        codeSnippet.language === "jsx" ||
+        codeSnippet.language === "tsx"
+      ) {
+        
+
+        if(codeSnippet.status=="completed" || true){
+          codeSnippet.code = codeSnippet.code.replace(
+            "import twindSetup",
+            "import { setup as twindSetup }"
+          );
+
+          codeSnippet.code = codeSnippet.code.replace(
+            `from "react"`,
+            `from "https://esm.sh/react"`
+          );
+
+          codeSnippet.code = codeSnippet.code.replace(
+            "\`\`\`",
+            ""
+          );
+
+          codeSnippet.code = codeSnippet.code.replace(
+            "/tailwind/'",
+            "/tailwind/shim'"
+          );
+
+          codeSnippet.code = codeSnippet.code.replace(
+            '/tailwind/"',
+            '/tailwind/shim"'
+          );
+
+          if (codeSnippet.code.indexOf("import ReactDOM") === -1) {
+            codeSnippet.code =
+              'import ReactDOM from "https://esm.sh/react-dom"; //imported automatically\n' + codeSnippet.code;
+          }
+
+          if (codeSnippet.code.indexOf("import React ") == -1 && codeSnippet.code.indexOf("import React, ") == -1) {
+            codeSnippet.code =
+              'import React, { useState, useEffect, useRef } from "https://esm.sh/react"; //imported automatically\n' + codeSnippet.code;
+          }
+
+          if (
+            codeSnippet.code.indexOf("import { setup as twindSetup }") == -1
+          ) {
+            codeSnippet.code =
+              'import { setup as twindSetup } from "https://cdn.skypack.dev/twind/shim"; //imported automatically\ntwindSetup();\n' + codeSnippet.code;
+          }
+        }
+          
+        
+
+        setJsCode(codeSnippet.code);
+        editorJsRef.current?.setValue(codeSnippet.code);
+        // if (editorJsRef.current) {
+        //   const currentCode =
+        //     selectedCode === "js" ? codeSnippet.code : htmlCode;
+        //   editorJsRef.current?.setValue(currentCode);
+        // }
+      }
+    }
+  }, [fullMessage]);
+
+  
+
+  //get ollama models
+  useEffect(() => {
+    const getOllamaModel = async () => {
+      const ollama = new OpenAI({
+        baseURL: ollamaConfig.baseURL,
+        apiKey: "ollama",
+        dangerouslyAllowBrowser: true,
+      });
+      const modelList = await ollama.models.list();
+      const theModels = modelList.data;
+      console.log(modelList);
+      console.log(theModels);
+      setOllamaConfig({ ...ollamaConfig, models: theModels });
+    };
+
+    getOllamaModel();
+  }, []);
+
+  //get openai models
+  useEffect(() => {
+    const getOpenAiModel = async () => {
+      if (apiKey == "" || apiKey == undefined) {
+        return;
+      }
+      const ollama = new OpenAI({
+        apiKey: apiKey,
+        dangerouslyAllowBrowser: true,
+      });
+      const modelList = await ollama.models.list();
+      const theModels = modelList.data;
+      console.log(modelList);
+      console.log(theModels);
+      setOpenAiCongig({ ...openAiCongig, models: theModels });
+    };
+
+    getOpenAiModel();
+  }, [apiKey]);
+
+
+  //get openai api key
+  useEffect(() => {
+    const updateUser = async () => {
+      const isSignedIn = puter.auth.isSignedIn();
+      if (!isSignedIn) {
+        await puter.auth.signIn();
+      }
+      const user = await puter.auth.getUser();
+      setUsername(user.username);
+
+      //await puter.kv.del("openai_api_key")
+
+      const openai_api_key = await puter.kv.get("openai_api_key");
+
+      if (openai_api_key) {
+        setApiKey(openai_api_key);
+      }
+    };
+    updateUser();
+  }, []);
+
+  //match selected code
+  useEffect(() => {
+    editorHtmlRef.current?.setValue(htmlCode);
+    editorJsRef.current?.setValue(jsCode);
+  }, [selectedCode]);
 
   //update divs Navbar
   useEffect(() => {
@@ -1369,36 +1394,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     );
   }, [jsCode, htmlCode, messageFinished]);
 
-  const onDragStart = (e, id) => {
-    e.dataTransfer.setData("id", id);
-    setDraggingId(id);
-  };
-
-  const onDragEnd = () => {
-    setDraggingId(null);
-  };
-
-  const onDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const onDrop = (e, targetId) => {
-    const draggedId = parseInt(e.dataTransfer.getData("id"));
-    const newDivs = divs
-      .map((div) => {
-        if (div.id === draggedId) return { ...div, id: targetId };
-        if (div.id === targetId) return { ...div, id: draggedId };
-        return div;
-      })
-      .sort((a, b) => a.id - b.id);
-    setDivs(newDivs);
-    setDraggingId(null);
-  };
-
-  const getDivContent = (id) => {
-    const div = divs.find((div) => div.id === id);
-    return div.content;
-  };
+  
 
   return (
     <Space.ViewPort className="w-full">
@@ -1410,23 +1406,6 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           <div className="absolute z-50 w-full h-full flex justify-center items-center bg-black opacity-50 text-white">
             <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"></div>
           </div>
-        </div>
-      )}
-      {apiKey == "" && gptVal == 1 && (
-        <div className="absolute flex flex-col z-50 top-0 w-full h-full bg-black flex">
-          <input
-            className="mx-4 py-2 px-3 bg-gray-700 text-white rounded outline-none"
-            onChange={setApiKeyVal}
-            placeholder="you openai api key : sk-************"
-          ></input>
-          <button
-            onClick={() => {
-              setGptVal(0);
-            }}
-            className="m-4 bg-red-900"
-          >
-            No thanks
-          </button>
         </div>
       )}
       <Space.Top
