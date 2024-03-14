@@ -11,8 +11,7 @@ import * as Babel from "https://esm.sh/@babel/standalone";
 import OpenAI from "https://esm.sh/openai";
 import { transform as transform } from "https://esm.sh/sucrase";
 import Markdown from "https://esm.sh/react-markdown@9";
-import remarkGfm from 'https://esm.sh/remark-gfm';
-
+import remarkGfm from "https://esm.sh/remark-gfm";
 
 twindSetup({
   theme: {
@@ -23,6 +22,22 @@ twindSetup({
       textColor: {
         light: "#d4d4d4",
       },
+      animation: {
+        fade: "fadeOut 5s ease-in-out",
+        appear: "fadeIn 0.3s ease-in-out",
+      },
+
+      // that is actual animation
+      keyframes: (theme) => ({
+        fadeOut: {
+          "0%": { opacity: "100%" },
+          "100%": { opacity: "0%" },
+        },
+        fadeIn: {
+          "0%": { opacity: "0%" },
+          "100%": { opacity: "100%" },
+        },
+      }),
     },
   },
   preflight: {
@@ -146,14 +161,60 @@ const ChatSettings = ({
               )}
             </div>
           )}
-
         </div>
       </div>
     </div>
   );
 };
 
-const LogSection = () => {
+//A 80% FullScreen center z-index: 50 modal form with
+//  - a title
+//  - a description
+//  - a form with a submit button
+//  - a cancel button
+const DeployForm = ({
+  appName,
+  setAppNameVal,
+  subdomain,
+  setSubdomainVal,
+  deploy,
+  cancel,
+}) => {
+  return (
+    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-gray-800 rounded-lg p-4">
+        <h1 className="text-2xl font-semibold text-white">Deploy</h1>
+        <p className="text-white">
+          Deploy your app to a subdomain and create an app.
+        </p>
+        <form
+          onSubmit={() => {
+            deploy();
+            cancel(false);
+          }}
+        >
+          <input
+            className="bg-gray-800 text-white rounded p-2"
+            placeholder="App Name"
+            onChange={setAppNameVal}
+            value={appName}
+          />
+          <button className="bg-gray-800 text-white rounded p-2">Deploy</button>
+        </form>
+        <button
+          className="bg-gray-800 text-white rounded p-2"
+          onClick={() => {
+            cancel(false);
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const LogSection = (name) => {
   return (
     <div className="w-full h-full bg-black">
       <div className="bg-blue-900 w-full">Console</div>
@@ -174,22 +235,32 @@ function CustomIframe({
   messageFinished,
 }) {
   return (
-    <iframe
-      className="w-full h-full bg-white border rounded shadow-lg"
-      sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts"
-      srcDoc={
-        jsCode === ""
-          ? ""
-          : messageFinished
-          ? `<html>${htmlCode}<script src="https://js.puter.com/v2/"></` +
-            `script><script type="module">const puter = window.puter;\n${transpileJSX(
-              jsCode
-            )}<` +
-            `/script><div class="fixed bottom-0"><pre class="fixed opacity-50 bottom-12 w-full bg-black text-white" id="logs2"></pre></div><script>${consoleLog}</` +
-            `script></html>`
-          : ""
-      }
-    />
+    <>
+      {messageFinished == 0 && (
+        <img
+          src="https://c.tenor.com/y2JXkY1pXkwAAAAC/tenor.gif"
+          className="w-full h-full bg-black opacity-50"
+        />
+      )}
+      {messageFinished == 1 && (
+        <iframe
+          className="w-full h-full bg-white border rounded shadow-lg"
+          sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts"
+          srcDoc={
+            jsCode === ""
+              ? ""
+              : messageFinished
+              ? `<html>${htmlCode}<script src="https://js.puter.com/v2/"></` +
+                `script><script type="module">const puter = window.puter;\n${transpileJSX(
+                  jsCode
+                )}<` +
+                `/script><div class="fixed bottom-0"><pre class="fixed opacity-50 bottom-12 w-full bg-black text-white" id="logs2"></pre></div><script>${consoleLog}</` +
+                `script><div class="fixed text-center w-full bg-red-400 bottom-0 left-0 hidden">Made with Code With Ai</div></html>`
+              : ""
+          }
+        />
+      )}
+    </>
   );
 }
 
@@ -231,6 +302,25 @@ const TheEditorHtml = ({ handleEditorDidMount, htmlCode, onChange }) => {
   );
 };
 
+const TheEditorBabel = ({ handleEditorDidMount, babelCode, onChange }) => {
+  return (
+    <Editor
+      height="90%"
+      defaultLanguage={"javascript"}
+      defaultValue={babelCode}
+      theme="vs-dark"
+      onMount={handleEditorDidMount}
+      onChange={onChange}
+      options={{
+        minimap: {
+          enabled: true,
+        },
+        cursorStyle: "block",
+      }}
+    />
+  );
+};
+
 const CodeEditor = ({
   handleChange,
   selectedCode,
@@ -243,6 +333,10 @@ const CodeEditor = ({
   handleEditorDidMountJs,
   updateCodeValueJs,
   updateCodeValueHtml,
+  updateCodeValueBabel,
+  babelCode,
+  handleEditorDidMountBabel,
+  name,
 }) => {
   return (
     <>
@@ -254,19 +348,15 @@ const CodeEditor = ({
         >
           <option value="js">JavaScript</option>
           <option value="html">HTML</option>
+          <option value="babel">Babel</option>
         </select>
-        <input
-          className="mx-4 py-2 px-3 bg-gray-700 text-white rounded outline-none"
-          value={appName}
-          onChange={setAppNameVal}
-          placeholder="Your App Name"
-        ></input>
-        <button
-          className="mx-4 py-2 px-3 bg-gray-700 text-white rounded outline-none"
-          onClick={downloadCode}
-        >
-          Create App
-        </button>
+
+        {selectedCode === "babel" && (
+          <span>
+            This is the Result javascript from the compilation. Modification are
+            not effectives
+          </span>
+        )}
       </div>
 
       {selectedCode === "js" ? (
@@ -275,14 +365,126 @@ const CodeEditor = ({
           jsCode={jsCode}
           onChange={updateCodeValueJs}
         />
-      ) : (
+      ) : selectedCode === "html" ? (
         <TheEditorHtml
           handleEditorDidMount={handleEditorDidMountHtml}
           htmlCode={htmlCode}
           onChange={updateCodeValueHtml}
         />
+      ) : (
+        <TheEditorBabel
+          handleEditorDidMount={handleEditorDidMountBabel}
+          htmlCode={babelCode}
+          onChange={updateCodeValueBabel}
+        />
       )}
     </>
+  );
+};
+
+const ChatView = ({
+  inputSubmit,
+  inputMessage,
+  setInputVal,
+  messageFinished,
+  fullMessage,
+  chatMessages,
+}) => {
+  return (
+    <div className="w-full h-full bg-blue-400 text-white">
+      {messageFinished == 0 && (
+        <div className="w-full h-full flex justify-center items-center bg-black opacity-80 text-white">
+          <Markdown
+            remarkPlugins={[remarkGfm]}
+            className=" p-4 m-4 w-full h-3/4 opacity-100 overflow-y-scroll"
+          >
+            {fullMessage}
+          </Markdown>
+        </div>
+      )}
+      <div className="w-full w-full overflow-y-scroll">
+        <div className="w-full h-3/4 bg-black text-white overflow-y-scroll">
+          <div className="w-full h-full bg-black text-white" overflow-y-scroll>
+            {chatMessages.map((message, index) => (
+              <div
+                key={index}
+                className={`w-full overflow-y-scroll ${
+                  message.role === "user"
+                    ? "bg-black text-white"
+                    : "bg-black text-white"
+                }`}
+              >
+                <Markdown
+                  remarkPlugins={[remarkGfm]}
+                  className=" p-4 m-4 w-full  opacity-100 overflow-y-scroll rounded bg-blue-400 text-white"
+                >
+                  {message.content}
+                </Markdown>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <textarea
+        type="text"
+        placeholder={`Make a weather app for Ales, France
+          Make a btc graph , What are the news?
+          `}
+        className="bottom-10 bg-white fixed  w-full m-auto   rounded p-2 text-gray-700 "
+        onKeyPress={(event) => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            inputSubmit(event);
+          }
+        }}
+        value={inputMessage}
+        onChange={setInputVal}
+      />
+    </div>
+  );
+};
+
+const NavBarOld = ({
+  inputSubmit,
+  setGptValue,
+  gptVal,
+  resetApiKey,
+  visibleApiKey,
+  username,
+  inputMessage,
+  setInputVal,
+  chatProvider,
+  setChatProvider,
+  ollamaConfig,
+}) => {
+  return (
+    <nav className="bg-gray-800 text-white top-0 px-0 h-5 flex   dark:bg-gray-900">
+      <div className="w-full  top-0 bg-gray-800 text-white py-2 px-0 flex justify-between">
+        <div className="">
+          <span className="left-0 py-4 px-2 cursor-pointer hover:bg-gray-700">
+            <b>Code With Ai</b>
+          </span>
+          <span className="cursor-pointer py-4 px-2  hover:bg-gray-700">
+            File
+          </span>
+          <span className="cursor-pointer py-4 px-2 hover:bg-gray-700">
+            Edit
+          </span>
+          <span className="cursor-pointer py-4 px-2 hover:bg-gray-700">
+            View
+          </span>
+          <span className="cursor-pointer py-4 px-2 hover:bg-gray-700">
+            Help
+          </span>
+        </div>
+        <div className="">
+          <span className="items-end cursor-pointer py-4 px-2 hover:bg-gray-700">
+            {visibleApiKey}
+            {username}
+          </span>
+        </div>
+      </div>
+    </nav>
   );
 };
 
@@ -298,84 +500,101 @@ const NavBar = ({
   chatProvider,
   setChatProvider,
   ollamaConfig,
+  sendMenuAction,
 }) => {
+  const [openMenu, setOpenMenu] = useState("");
+  const toggleMenu = (menu) => {
+    setOpenMenu(openMenu === menu ? "" : menu);
+    //in 5 seconds, close the menu
+    setTimeout(() => {
+      setOpenMenu("");
+    }, 5000);
+  };
+
+  const menuConfig = [
+    {
+      name: "File",
+      subMenu: [
+        { status: "active", name: "New", action: "new" },
+        { status: "inactive", name: "Open", action: "open" },
+        { status: "inactive", name: "Import", action: "import" },
+        { status: "inactive", name: "Save", action: "save" },
+        { status: "inactive", name: "Save As", action: "saveAs" },
+        { status: "active", name: "Deploy", action: "deploy" },
+      ],
+    },
+    {
+      name: "Edit",
+      subMenu: [
+        { status: "inactive", name: "Undo", action: "undo" },
+        { status: "inactive", name: "Copy", action: "copy" },
+        { status: "inactive", name: "Cut", action: "cut" },
+        { status: "inactive", name: "Paste", action: "paste" },
+      ],
+    },
+    {
+      name: "View",
+      subMenu: [
+        { status: "inactive", name: "Fullscreen", action: "fullscreen" },
+        { status: "inactive", name: "Dark Mode", action: "darkMode" },
+      ],
+    },
+    {
+      name: "Help",
+      subMenu: [
+        { status: "inactive", name: "About Us", action: "aboutUs" },
+        { status: "inactive", name: "User Guide", action: "userGuide" },
+      ],
+    },
+  ];
+
   return (
-    <nav className="bg-gray-800 text-white px-4 py-2 flex justify-between items-center dark:bg-gray-900">
-      <div className="flex flex-col w-2/3 pt-0">
-        <span className="text-2xl w-full">Code With AI</span>
-        <span className=" w-full">by SamLePirate</span>
-      </div>
-      <textarea
-        type="text"
-        placeholder="Make a weather app for Ales, France
-          Make a btc graph , What are the news?
-          "
-        className="fixed left-1/4 top-0 m-auto  w-1/3 rounded p-2 text-gray-700 z-50"
-        onKeyPress={(event) => {
-          if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
-            // Soumettre le formulaire
-            inputSubmit(event);
-          }
-        }}
-        value={inputMessage}
-        onChange={setInputVal}
-      />
-
-      <div className="bg-gray-700  items-center justify-center p-2 rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-800 dark:text-white flex flex-row items-centered">
-        <input
-          id="default-checkbox"
-          type="checkbox"
-          value={chatProvider === "openai" && visibleApiKey != ""}
-          checked={chatProvider === "openai" && visibleApiKey != ""}
-          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-        ></input>
-        <label
-          for="default-checkbox"
-          class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >
-          GPT-4
-        </label>
-        <input
-          id="default-checkbox"
-          type="checkbox"
-          value={chatProvider === "ollama" && ollamaConfig.models.length > 0}
-          checked={chatProvider === "ollama" && ollamaConfig.models.length > 0}
-          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-        ></input>
-        <label
-          for="default-checkbox"
-          class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >
-          Ollama
-        </label>
-        <input
-          id="default-checkbox"
-          type="checkbox"
-          value={chatProvider === "puter"}
-          checked={chatProvider === "puter"}
-          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-        ></input>
-        <label
-          for="default-checkbox"
-          class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >
-          puter
-        </label>
-      </div>
-
-      <div
-        onClick={resetApiKey}
-        className="bg-gray-700 right-0 p-2 rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-800 dark:text-white"
-      >
-        {visibleApiKey}
-        {username}
+    <nav className="absolute w-full top-0 left-0 bg-gray-800 text-white top-0 px-0 h-5 flex dark:bg-gray-900  z-50">
+      <div className=" w-full top-0 bg-gray-800 text-white  px-0 flex justify-between">
+        <div className="w-3/4 top-0 bg-gray-800 text-white py-2 px-0">
+          <span className="left-0 py-4 px-2 cursor-pointer hover:bg-gray-700">
+            <b>Code With Ai</b>
+          </span>
+          {menuConfig.map((menu) => (
+            <div className="relative inline-block">
+              <span
+                className={`${
+                  openMenu == menu.name ? "bg-gray-700" : ""
+                } cursor-pointer pt-3 pb-2 px-2 active:bg-gray-700  hover:bg-gray-700 hover:shadow-lg rounded-lg`}
+                onClick={() => toggleMenu(menu.name)}
+              >
+                {menu.name}
+              </span>
+              {openMenu === menu.name && (
+                <div className="absolute left-0 mt-2 w-48 bg-gray-800 rounded-md animate-appear border border-gray-700 shadow-lg z-50 ">
+                  {menu.subMenu.map((subMenu) => (
+                    <button
+                      className={`w-full text-left block px-4 py-2 border border-gray-700 text-sm text-gray-300 active:bg-gray-400 active:border-gray-700 active:text-black transition-colors duration-100 ease-in-out hover:bg-gray-700 ${
+                        subMenu.status == "inactive" ? "text-gray-600" : ""
+                      }`}
+                      onClick={() => {
+                        setOpenMenu("");
+                        sendMenuAction(subMenu.action);
+                      }}
+                    >
+                      {subMenu.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="justify-end py-2 px-0">
+          <span className="cursor-pointer cursor-pointer pt-3 pb-2 px-2  hover:bg-gray-700 hover:shadow-lg rounded-lg">
+            {visibleApiKey}
+            {username}
+          </span>
+        </div>
       </div>
     </nav>
   );
 };
-
-
 
 const DraggableUI = ({
   id,
@@ -385,6 +604,7 @@ const DraggableUI = ({
   onDrop,
   getDivContent,
   draggingId,
+  divs,
 }) => {
   return (
     <div
@@ -393,38 +613,44 @@ const DraggableUI = ({
         draggingId === id ? "opacity-30" : "opacity-100"
       }`}
     >
-      <button
-        draggable
-        onDragStart={(e) => onDragStart(e, id)}
-        onDragEnd={onDragEnd}
-        onDragOver={onDragOver}
-        onDrop={(e) => onDrop(e, id)}
-        className={`left-0 top-0  border rounded shadow-lg   ${
-          draggingId === id ? "opacity-10" : "opacity-100"
-        } ${draggingId !== id && draggingId ? "bg-red-700" : "bg-gray-700"}`}
-        style={{ cursor: "grab" }}
-      >
-        DRAG
-      </button>
+      <span className="flex justify-center">
+        <button
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+          className={`absolute left-0 top-0  border rounded w-8 shadow-lg hover:bg-gray-400  ${
+            draggingId === id ? "opacity-10" : "opacity-100"
+          } ${draggingId !== id && draggingId ? "bg-red-700" : "bg-gray-700"}`}
+          style={{ cursor: "grab" }}
+        >
+          👋
+        </button>
+        <span className="">
+          <span className="w-full flex justify-center">
+            {divs.find((div) => div.id === id).content.props.name}
+          </span>
+        </span>
+      </span>
+
       {getDivContent(id)}
     </div>
   );
 };
 
 const DraggableApp = () => {
-
-
-
-
   async function sendMessage(message) {
     setMessageFinished(false);
     setFullMessage("");
     try {
-      
       if (chatProvider === "puter") {
-        const newMessage = [...chatMessages, { role: "user", content: message }];
-      newMessage[0].content = systemPrompt;
-      console.log(newMessage);
+        const newMessage = [
+          ...chatMessages,
+          { role: "user", content: message },
+        ];
+        newMessage[0].content = systemPrompt;
+        console.log(newMessage);
         console.log("chat with puter");
         puter.ai.chat(newMessage).then((response) => {
           console.log(response.toString());
@@ -439,12 +665,18 @@ const DraggableApp = () => {
         return;
       }
 
-      
-
       if (chatProvider === "ollama" && ollamaConfig.models.length > 0) {
-        const newMessage = [...chatMessages, { role: "user", content: message+"\nProvide only html and jsx snippet in Markdown.\n No explaination needed. Give me the 2 code snipet in markdown." }];
-      newMessage[0].content = systemPrompt;
-      console.log(newMessage);
+        const newMessage = [
+          ...chatMessages,
+          {
+            role: "user",
+            content:
+              message +
+              "\nProvide only html and jsx snippet in Markdown.\n No explaination needed. Give me the 2 code snipet in markdown.",
+          },
+        ];
+        newMessage[0].content = systemPrompt;
+        console.log(newMessage);
         const ollama = new OpenAI({
           baseURL: ollamaConfig.baseURL,
 
@@ -478,9 +710,12 @@ const DraggableApp = () => {
       }
 
       if (chatProvider === "openai" && apiKey !== "") {
-        const newMessage = [...chatMessages, { role: "user", content: message }];
-      newMessage[0].content = systemPrompt;
-      console.log(newMessage);
+        const newMessage = [
+          ...chatMessages,
+          { role: "user", content: message },
+        ];
+        newMessage[0].content = systemPrompt;
+        console.log(newMessage);
         const openai = new OpenAI({
           apiKey: apiKey,
           dangerouslyAllowBrowser: true, // This is the default and can be omitted
@@ -591,12 +826,18 @@ const DraggableApp = () => {
 
       //console.log(result);
       jsxCode = result.code;
-      return Babel.transform(jsxCode, {
+      const newCode = Babel.transform(jsxCode, {
         presets: ["react"],
       }).code;
+
+      setBabelCode(newCode);
+      editorBabelRef.current?.setValue(newCode);
+      return newCode;
     } catch (error) {
       //console.error('Erreur de syntaxe dans le code JavaScript :', error);
       // Vous pouvez également afficher un message d'erreur à l'utilisateur ici
+      setBabelCode(`Error In JSX ${error}`);
+      editorBabelRef.current?.setValue(`Error In JSX ${error}`);
       return jsxCode;
     }
   }
@@ -608,6 +849,11 @@ const DraggableApp = () => {
   function updateCodeValueHtml(value, event) {
     setHtmlCode(value);
   }
+
+  function updateCodeValueBabel(value, event) {
+    setBabelCode(value);
+  }
+
   function handleEditorDidMountJs(editor, monaco) {
     //console.log("mount");
     editorJsRef.current = editor;
@@ -618,6 +864,15 @@ const DraggableApp = () => {
     //console.log("mount");
     editorHtmlRef.current = editor;
     editorHtmlRef.current?.setValue(htmlCode);
+  }
+
+  const [babelCode, setBabelCode] = useState("");
+  
+
+  function handleEditorDidMountBabel(editor, monaco) {
+    //console.log("mount");
+    editorBabelRef.current = editor;
+    editorBabelRef.current?.setValue(babelCode);
   }
 
   function handleChange(event) {
@@ -715,7 +970,6 @@ const DraggableApp = () => {
       console.log(error);
     }
   };
-  
 
   const setGptValue = (e) => {
     setGptVal(!gptVal);
@@ -729,7 +983,6 @@ const DraggableApp = () => {
     });
   };
 
-  
   const inputSubmit = (e) => {
     //e.preventDefaults();
     setInputMessage("");
@@ -739,20 +992,18 @@ const DraggableApp = () => {
   const setInputVal = (e) => {
     setInputMessage(e.target.value);
   };
- 
+
   const setApiKeyVal = (e) => {
     puter.kv.set("openai_api_key", e.target.value).then((success) => {
       console.log("api Key updated");
     });
     setApiKey(e.target.value);
   };
-  
+
   const setAppNameVal = (e) => {
     setAppName(e.target.value);
   };
 
-
-  
   const onDragStart = (e, id) => {
     e.dataTransfer.setData("id", id);
     setDraggingId(id);
@@ -784,6 +1035,18 @@ const DraggableApp = () => {
     return div.content;
   };
 
+  const sendMenuAction = (action) => {
+    console.log(action);
+    if (action === "deploy") {
+      setShowDeployForm(true);
+    }
+    if (action === "new") {
+      setJsCode("");
+      setHtmlCode("");
+      editorHtmlRef.current?.setValue("");
+      editorJsRef.current?.setValue("");
+    }
+  };
 
   const [username, setUsername] = useState("Guest");
   const todayString = new Date().toDateString();
@@ -792,15 +1055,11 @@ const DraggableApp = () => {
     return date.toLocaleString("fr-FR");
   };
 
-  
-
   const [draggingId, setDraggingId] = useState(null);
 
-
   const [appName, setAppName] = useState("");
-  
+
   const [gptVal, setGptVal] = useState(0);
-  
 
   const ContextInfos = `
   Today is ${todayString}.
@@ -956,6 +1215,7 @@ const DraggableApp = () => {
   const visibleApiKey = apiKey.slice(0, 3);
   const editorJsRef = useRef(null);
   const editorHtmlRef = useRef(null);
+  const editorBabelRef = useRef(null);
   const [htmlCode, setHtmlCode] = useState(`<div id="app"></div>`);
   const [jsCode, setJsCode] =
     useState(`//appTitle: Cool Clock with Navbar and KV Fields View and an Iframe
@@ -1093,6 +1353,10 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           handleEditorDidMountHtml={handleEditorDidMountHtml}
           updateCodeValueJs={updateCodeValueJs}
           updateCodeValueHtml={updateCodeValueHtml}
+          updateCodeValueBabel={updateCodeValueBabel}
+          babelCode={babelCode}
+          handleEditorDidMountBabel={handleEditorDidMountBabel}
+          name="Code Editor"
         />
       ),
     },
@@ -1110,7 +1374,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           setApiKeyVal={setApiKeyVal}
           apiKey={apiKey}
           resetApiKey={resetApiKey}
-        
+          name="Chat Settings"
         />
       ),
     },
@@ -1123,14 +1387,26 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           consoleLog={consoleLog}
           transpileJSX={transpileJSX}
           messageFinished={messageFinished}
+          name="App Preview"
         />
       ),
     },
-    { id: 4, content: <LogSection /> },
+    { id: 4, content: <LogSection name="Log Section" /> },
+    {
+      id: 5,
+      content: (
+        <ChatView
+          inputSubmit={inputSubmit}
+          inputMessage={inputMessage}
+          setInputVal={setInputVal}
+          messageFinished={messageFinished}
+          fullMessage={fullMessage}
+          chatMessages={chatMessages}
+          name="Chat View"
+        />
+      ),
+    },
   ]);
-
-
-  
 
   //handle fullMessage
   useEffect(() => {
@@ -1156,9 +1432,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
         codeSnippet.language === "jsx" ||
         codeSnippet.language === "tsx"
       ) {
-        
-
-        if(codeSnippet.status=="completed" || true){
+        if (codeSnippet.status == "completed" && false) {
           codeSnippet.code = codeSnippet.code.replace(
             "import twindSetup",
             "import { setup as twindSetup }"
@@ -1169,10 +1443,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
             `from "https://esm.sh/react"`
           );
 
-          codeSnippet.code = codeSnippet.code.replace(
-            "\`\`\`",
-            ""
-          );
+          codeSnippet.code = codeSnippet.code.replace("", "");
 
           codeSnippet.code = codeSnippet.code.replace(
             "/tailwind/'",
@@ -1186,23 +1457,27 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
 
           if (codeSnippet.code.indexOf("import ReactDOM") === -1) {
             codeSnippet.code =
-              'import ReactDOM from "https://esm.sh/react-dom"; //imported automatically\n' + codeSnippet.code;
+              'import ReactDOM from "https://esm.sh/react-dom"; //imported automatically\n' +
+              codeSnippet.code;
           }
 
-          if (codeSnippet.code.indexOf("import React ") == -1 && codeSnippet.code.indexOf("import React, ") == -1) {
+          if (
+            codeSnippet.code.indexOf("import React ") == -1 &&
+            codeSnippet.code.indexOf("import React, ") == -1
+          ) {
             codeSnippet.code =
-              'import React, { useState, useEffect, useRef } from "https://esm.sh/react"; //imported automatically\n' + codeSnippet.code;
+              'import React, { useState, useEffect, useRef } from "https://esm.sh/react"; //imported automatically\n' +
+              codeSnippet.code;
           }
 
           if (
             codeSnippet.code.indexOf("import { setup as twindSetup }") == -1
           ) {
             codeSnippet.code =
-              'import { setup as twindSetup } from "https://cdn.skypack.dev/twind/shim"; //imported automatically\ntwindSetup();\n' + codeSnippet.code;
+              'import { setup as twindSetup } from "https://cdn.skypack.dev/twind/shim"; //imported automatically\ntwindSetup();\n' +
+              codeSnippet.code;
           }
         }
-          
-        
 
         setJsCode(codeSnippet.code);
         editorJsRef.current?.setValue(codeSnippet.code);
@@ -1214,8 +1489,6 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
       }
     }
   }, [fullMessage]);
-
-  
 
   //get ollama models
   useEffect(() => {
@@ -1255,7 +1528,6 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     getOpenAiModel();
   }, [apiKey]);
 
-
   //get openai api key
   useEffect(() => {
     const updateUser = async () => {
@@ -1283,6 +1555,31 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     editorJsRef.current?.setValue(jsCode);
   }, [selectedCode]);
 
+  //update divs ChatView
+  useEffect(() => {
+    setDivs((prevDivs) =>
+      prevDivs.map((div) => {
+        if (div.content.type === ChatView) {
+          return {
+            ...div,
+            content: (
+              <ChatView
+                inputSubmit={inputSubmit}
+                inputMessage={inputMessage}
+                setInputVal={setInputVal}
+                messageFinished={messageFinished}
+                fullMessage={fullMessage}
+                chatMessages={chatMessages}
+                name="Chat View"
+              />
+            ),
+          };
+        }
+        return div;
+      })
+    );
+  }, [inputMessage, messageFinished, fullMessage, chatMessages]);
+
   //update divs Navbar
   useEffect(() => {
     setDivs((prevDivs) =>
@@ -1303,6 +1600,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
                 setChatProvider={setChatProvider}
                 chatProvider={chatProvider}
                 ollamaConfig={ollamaConfig}
+                sendMenuAction={sendMenuAction}
               />
             ),
           };
@@ -1331,6 +1629,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
                 setApiKeyVal={setApiKeyVal}
                 apiKey={apiKey}
                 resetApiKey={resetApiKey}
+                name="Chat Settings"
               />
             ),
           };
@@ -1362,6 +1661,10 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
                 handleEditorDidMountHtml={handleEditorDidMountHtml}
                 updateCodeValueJs={updateCodeValueJs}
                 updateCodeValueHtml={updateCodeValueHtml}
+                updateCodeValueBabel={updateCodeValueBabel}
+                babelCode={babelCode}
+                handleEditorDidMountBabel={handleEditorDidMountBabel}
+                name="Code Editor"
               />
             ),
           };
@@ -1369,7 +1672,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
         return div;
       })
     );
-  }, [jsCode, htmlCode, appName, selectedCode]);
+  }, [jsCode, htmlCode, appName, selectedCode, babelCode]);
 
   //update divs CustomIframe
   useEffect(() => {
@@ -1385,6 +1688,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
                 consoleLog={consoleLog}
                 transpileJSX={transpileJSX}
                 messageFinished={messageFinished}
+                name="App Preview"
               />
             ),
           };
@@ -1394,124 +1698,150 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     );
   }, [jsCode, htmlCode, messageFinished]);
 
-  
+  const [showDeployForm, setShowDeployForm] = useState(false);
 
   return (
-    <Space.ViewPort className="w-full">
-      {messageFinished == 0 && (
-        <div className="absolute z-50 w-full h-full flex justify-center items-center bg-black opacity-80 text-white">
-          <Markdown remarkPlugins={[remarkGfm]} className=" p-4 m-4 w-full h-3/4 opacity-100 ">
-            {fullMessage}
-          </Markdown>
-          <div className="absolute z-50 w-full h-full flex justify-center items-center bg-black opacity-50 text-white">
-            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"></div>
-          </div>
-        </div>
+    <>
+      {showDeployForm && (
+        <DeployForm
+          appName={appName}
+          setAppNameVal={setAppNameVal}
+          subdomain={"subdomain"}
+          setSubdomainVal={() => {}}
+          deploy={downloadCode}
+          cancel={setShowDeployForm}
+        />
       )}
-      <Space.Top
-        size="30%"
-        touchHandleSize={40}
-        trackSize={false}
-        scrollable={true}
-      >
-        <Space.Fill trackSize={true}>
-          <NavBar
-            inputSubmit={inputSubmit}
-            setGptValue={setGptValue}
-            gptVal={gptVal}
-            resetApiKey={resetApiKey}
-            visibleApiKey={visibleApiKey}
-            username={username}
-            inputMessage={inputMessage}
-            setInputVal={setInputVal}
-            setChatProvider={setChatProvider}
-            chatProvider={chatProvider}
-            ollamaConfig={ollamaConfig}
-          />
-        </Space.Fill>
-      </Space.Top>
-      <Space.Bottom
-        size="90%"
-        touchHandleSize={40}
-        trackSize={false}
-        scrollable={true}
-      >
-        <Space.Fill trackSize={true}>
-          <Space.LeftResizable
-            size="50%"
-            touchHandleSize={40}
-            trackSize={false}
-            scrollable={true}
-          >
-            <Space.Fill trackSize={true}>
-              <DraggableUI
-                id={1}
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-                onDragOver={onDragOver}
-                onDrop={onDrop}
-                getDivContent={getDivContent}
-                draggingId={draggingId}
-              />
-            </Space.Fill>
-            <Space.BottomResizable
+      <NavBar
+        inputSubmit={inputSubmit}
+        setGptValue={setGptValue}
+        gptVal={gptVal}
+        resetApiKey={resetApiKey}
+        visibleApiKey={visibleApiKey}
+        username={username}
+        inputMessage={inputMessage}
+        setInputVal={setInputVal}
+        setChatProvider={setChatProvider}
+        chatProvider={chatProvider}
+        ollamaConfig={ollamaConfig}
+        sendMenuAction={sendMenuAction}
+      />
+      <Space.ViewPort className="w-full">
+        <Space.Top
+          size="50px"
+          touchHandleSize={20}
+          trackSize={false}
+          scrollable={true}
+        >
+          <Space.Fill trackSize={true}></Space.Fill>
+        </Space.Top>
+        <Space.Bottom
+          size="92%"
+          touchHandleSize={20}
+          trackSize={false}
+          scrollable={true}
+        >
+          <Space.Fill trackSize={true}>
+            <Space.LeftResizable
               size="10%"
-              touchHandleSize={40}
-              trackSize={true}
+              touchHandleSize={20}
+              trackSize={false}
               scrollable={true}
             >
-              <Space.Fill>
+              <Space.Fill trackSize={true}>
                 <DraggableUI
-                  id={2}
+                  id={5}
                   onDragStart={onDragStart}
                   onDragEnd={onDragEnd}
                   onDragOver={onDragOver}
                   onDrop={onDrop}
                   getDivContent={getDivContent}
                   draggingId={draggingId}
+                  divs={divs}
                 />
               </Space.Fill>
-            </Space.BottomResizable>
-          </Space.LeftResizable>
-          <Space.Fill
-            size="50%"
-            touchHandleSize={40}
-            trackSize={true}
-            scrollable={true}
-          >
-            <Space.Fill trackSize={true}>
-              <DraggableUI
-                id={3}
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-                onDragOver={onDragOver}
-                onDrop={onDrop}
-                getDivContent={getDivContent}
-                draggingId={draggingId}
-              />
-            </Space.Fill>
-            <Space.BottomResizable
+            </Space.LeftResizable>
+
+            <Space.LeftResizable
               size="40%"
-              touchHandleSize={40}
-              trackSize={true}
+              touchHandleSize={20}
+              trackSize={false}
               scrollable={true}
             >
-              <Space.Fill>
+              <Space.Fill trackSize={true}>
                 <DraggableUI
-                  id={4}
+                  id={1}
                   onDragStart={onDragStart}
                   onDragEnd={onDragEnd}
                   onDragOver={onDragOver}
                   onDrop={onDrop}
                   getDivContent={getDivContent}
                   draggingId={draggingId}
+                  divs={divs}
                 />
               </Space.Fill>
-            </Space.BottomResizable>
+              <Space.BottomResizable
+                size="10%"
+                touchHandleSize={20}
+                trackSize={true}
+                scrollable={true}
+              >
+                <Space.Fill>
+                  <DraggableUI
+                    id={2}
+                    onDragStart={onDragStart}
+                    onDragEnd={onDragEnd}
+                    onDragOver={onDragOver}
+                    onDrop={onDrop}
+                    getDivContent={getDivContent}
+                    draggingId={draggingId}
+                    divs={divs}
+                  />
+                </Space.Fill>
+              </Space.BottomResizable>
+            </Space.LeftResizable>
+            <Space.Fill
+              size="50%"
+              touchHandleSize={20}
+              trackSize={true}
+              scrollable={true}
+            >
+              <Space.Fill trackSize={true}>
+                <DraggableUI
+                  id={3}
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                  onDragOver={onDragOver}
+                  onDrop={onDrop}
+                  getDivContent={getDivContent}
+                  draggingId={draggingId}
+                  divs={divs}
+                />
+              </Space.Fill>
+              <Space.BottomResizable
+                size="10%"
+                touchHandleSize={20}
+                trackSize={true}
+                scrollable={true}
+              >
+                <Space.Fill>
+                  <DraggableUI
+                    id={4}
+                    onDragStart={onDragStart}
+                    onDragEnd={onDragEnd}
+                    onDragOver={onDragOver}
+                    onDrop={onDrop}
+                    getDivContent={getDivContent}
+                    draggingId={draggingId}
+                    divs={divs}
+                  />
+                </Space.Fill>
+              </Space.BottomResizable>
+            </Space.Fill>
           </Space.Fill>
-        </Space.Fill>
-      </Space.Bottom>
-    </Space.ViewPort>
+        </Space.Bottom>
+      </Space.ViewPort>
+    </>
   );
 };
 
