@@ -37,4 +37,9 @@ to build the app, just past the content of index.jsx in Code with AI
 - [ ] Network monitor (Like in the network tab of the inspector)
 - [x] Ollama Integration. you need to have litellm[proxy] and ollama running
 - [x] Chat Provider Settings
-
+- [x] File menu
+- [x] Deploy App
+- [x] SaveAs project in puter directory
+- [x] Drag and Drop "windows" to rearrange your workspace
+- [x] Crazy cat typing while AI is working
+ 

@@ -214,6 +214,45 @@ const DeployForm = ({
   );
 };
 
+const SaveAsForm = ({
+  appName,
+  setAppNameVal,
+  saveAs,
+  cancelSaveAs,
+}) => {
+  return (
+    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-gray-800 rounded-lg p-4">
+        <h1 className="text-2xl font-semibold text-white">Save as</h1>
+        <p className="text-white">
+          Save your project in a puter folder
+        </p>
+        <form
+          onSubmit={(e) => {
+            saveAs(e);
+          }}
+        >
+          <input
+            className="bg-gray-800 text-white rounded p-2"
+            placeholder="App Name"
+            onChange={setAppNameVal}
+            value={appName}
+          />
+          <button className="bg-gray-800 text-white rounded p-2">Save as</button>
+        </form>
+        <button
+          className="bg-gray-800 text-white rounded p-2"
+          onClick={() => {
+            cancelSaveAs(false);
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const LogSection = (name) => {
   return (
     <div className="w-full h-full bg-black">
@@ -255,7 +294,7 @@ function CustomIframe({
                   jsCode
                 )}<` +
                 `/script><div class="fixed bottom-0"><pre class="fixed opacity-50 bottom-12 w-full bg-black text-white" id="logs2"></pre></div><script>${consoleLog}</` +
-                `script><div class="fixed text-center w-full bg-red-400 bottom-0 left-0 hidden">Made with Code With Ai</div></html>`
+                `script></html>`
               : ""
           }
         />
@@ -519,7 +558,7 @@ const NavBar = ({
         { status: "inactive", name: "Open", action: "open" },
         { status: "inactive", name: "Import", action: "import" },
         { status: "inactive", name: "Save", action: "save" },
-        { status: "inactive", name: "Save As", action: "saveAs" },
+        { status: "active", name: "Save As", action: "saveAs" },
         { status: "active", name: "Deploy", action: "deploy" },
       ],
     },
@@ -756,6 +795,7 @@ const DraggableApp = () => {
     );
     let match;
     const completed = [];
+    
 
     while ((match = codeBlockRegex.exec(markdownContent))) {
       const [fullMatch, language, code] = match;
@@ -905,6 +945,19 @@ const DraggableApp = () => {
     //console.log(fullCode);
     return fullCode;
   };
+
+
+  const makeAppFile = () => {
+    let code = "";
+    if (appName == "") {
+      alert("No App Name");
+      return;
+    }
+    code = saveFullCode(htmlCode, jsCode);
+    return code;
+  };
+
+  
   const downloadCode = () => {
     let code = "";
     if (appName == "") {
@@ -1046,6 +1099,56 @@ const DraggableApp = () => {
       editorHtmlRef.current?.setValue("");
       editorJsRef.current?.setValue("");
     }
+
+    if(action === "saveAs"){
+      setShowSaveAsForm(true);
+      
+      
+
+    }
+  };
+
+  const saveAs = (e) => {
+    e.preventDefault();
+    setShowSaveAsForm(false);
+    if(appName == ""){
+      alert("No App Name");
+      return;
+    }
+    const appFile=makeAppFile();
+      let dirName = appName;
+        puter.fs.mkdir(dirName,{ dedupeName: true }).then((directory) => {
+            console.log(`"${dirName}" created at ${directory.path}`);
+          console.log(dirName);
+          console.log(directory.path);
+            puter.fs.write(`${dirName}/app.js`, jsCode).then(() => {
+              console.log('app.jsx written successfully');
+              puter.fs.write(`${dirName}/app.html`, htmlCode).then(() => {
+                console.log('app.html written successfully');
+                puter.fs.write(`${dirName}/index.html`, appFile).then(() => {
+                  console.log('index.html written successfully');
+                  alert("App succesfully saved on "+directory.path);
+
+                  puter.fs.readdir('./').then((items) => {
+                      // print the path of each item in the directory
+                      console.log(items.map((item) => item.name));
+                  }).catch((error) => {
+                      puter.print(`Error reading directory: ${error}`);
+                  });
+                }).catch((error) => {
+                    console.log('Error writing file:', error);
+                });
+              }).catch((error) => {
+                  console.log('Error writing file:', error);
+              });
+            }).catch((error) => {
+                console.log('Error writing file:', error);
+            });
+            
+            
+        }).catch((error) => {
+            console.log('Error creating directory:', error);
+        });
   };
 
   const [username, setUsername] = useState("Guest");
@@ -1698,6 +1801,9 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
   }, [jsCode, htmlCode, messageFinished]);
 
   const [showDeployForm, setShowDeployForm] = useState(false);
+  const [showSaveAsForm, setShowSaveAsForm] = useState(false);
+
+  
 
   return (
     <>
@@ -1710,6 +1816,14 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           deploy={downloadCode}
           cancel={setShowDeployForm}
         />
+      )}
+      {showSaveAsForm && (
+      <SaveAsForm
+        appName={appName}
+        setAppNameVal={setAppNameVal}
+        saveAs={saveAs}
+        cancel={setShowSaveAsForm}
+      />
       )}
       <NavBar
         inputSubmit={inputSubmit}
