@@ -428,6 +428,7 @@ const ChatView = ({
   messageFinished,
   fullMessage,
   chatMessages,
+  resetChatMessages
 }) => {
   return (
     <div className="w-full h-full bg-blue-400 text-white">
@@ -441,35 +442,37 @@ const ChatView = ({
           </Markdown>
         </div>
       )}
-      <div className="w-full w-full overflow-y-scroll">
-        <div className="w-full h-3/4 bg-black text-white overflow-y-scroll">
-          <div className="w-full h-full bg-black text-white" overflow-y-scroll>
-            {chatMessages.map((message, index) => (
-              <div
-                key={index}
-                className={`w-full overflow-y-scroll ${
-                  message.role === "user"
-                    ? "bg-black text-white"
-                    : "bg-black text-white"
-                }`}
-              >
-                <Markdown
-                  remarkPlugins={[remarkGfm]}
-                  className=" p-4 m-4 w-full  opacity-100 overflow-y-scroll rounded bg-blue-400 text-white"
-                >
-                  {message.content}
-                </Markdown>
-              </div>
-            ))}
+      <div className="w-full h-full">
+        <div className="w-full h-full bg-black text-white">
+          <div className="w-full h-5/6 bg-black text-white overflow-y-scroll">
+            {chatMessages.map((message, index) => {
+              if (message.role !== "system") {
+                return (
+                  <div
+                    key={index}
+                    className={`w-full overflow-y-scroll`}
+                  >
+                    <Markdown
+                      remarkPlugins={[remarkGfm]}
+                      className={` p-4 m-4 w-5/6 mx-2 px-2  opacity-100 overflow-y-scroll rounded bg-blue-400 text-white ${message.role === "assistant"?"bg-red-400":""}`}
+                    >
+                    {message.content}
+                    </Markdown>
+                  </div>
+                );
+              }
+            })}
           </div>
         </div>
       </div>
+      <div className="mt-2 bg-black absolute bottom-0 w-full flex">
       <textarea
         type="text"
+        rows={Math.max(inputMessage.split("\n").length,2) }
         placeholder={`Make a weather app for Ales, France
           Make a btc graph , What are the news?
           `}
-        className="bottom-10 bg-white fixed  w-full m-auto   rounded p-2 text-gray-700 "
+        className="bg-white ml-2 mb-2 h-3/4 w-full m-auto   rounded p-2 text-gray-700 w-5/6"
         onKeyPress={(event) => {
           if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -479,6 +482,11 @@ const ChatView = ({
         value={inputMessage}
         onChange={setInputVal}
       />
+      <button onClick={resetChatMessages} className="bottom-0 bg-gray-800 hover:bg-gray-900 text-white rounded mx-2 w-1/4">
+        Clear Chat
+      </button>
+      </div>
+      
     </div>
   );
 };
@@ -1152,6 +1160,10 @@ const DraggableApp = () => {
         });
   };
 
+  const resetChatMessages = () => {
+    setChatMessages([{ role: "system", content: systemPrompt }]);
+  };
+
   const [username, setUsername] = useState("Guest");
   const todayString = new Date().toDateString();
   const timeToHumanStringInFrance = (time) => {
@@ -1294,7 +1306,7 @@ const DraggableApp = () => {
     `;
   const [fullMessage, setFullMessage] = useState("");
   const [chatMessages, setChatMessages] = useState([
-    { role: "system", content: systemPrompt },
+    { role: "system", content: systemPrompt }
   ]);
 
   const [messageFinished, setMessageFinished] = useState(true);
@@ -1506,6 +1518,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           fullMessage={fullMessage}
           chatMessages={chatMessages}
           name="Chat View"
+          resetChatMessages={resetChatMessages}
         />
       ),
     },
@@ -1674,6 +1687,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
                 fullMessage={fullMessage}
                 chatMessages={chatMessages}
                 name="Chat View"
+                resetChatMessages={resetChatMessages}
               />
             ),
           };
@@ -1743,6 +1757,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
   }, [chatProvider, ollamaConfig, openAiCongig, apiKey]);
 
   //update divs LogSection
+  
 
   //update divs CodeEditor
   useEffect(() => {
@@ -1857,7 +1872,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
         >
           <Space.Fill trackSize={true}>
             <Space.LeftResizable
-              size="10%"
+              size="30%"
               touchHandleSize={20}
               trackSize={false}
               scrollable={true}
@@ -1895,7 +1910,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
                 />
               </Space.Fill>
               <Space.BottomResizable
-                size="10%"
+                size="5%"
                 touchHandleSize={20}
                 trackSize={true}
                 scrollable={true}
@@ -1915,7 +1930,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
               </Space.BottomResizable>
             </Space.LeftResizable>
             <Space.Fill
-              size="50%"
+              size="30%"
               touchHandleSize={20}
               trackSize={true}
               scrollable={true}
@@ -1933,7 +1948,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
                 />
               </Space.Fill>
               <Space.BottomResizable
-                size="10%"
+                size="5%"
                 touchHandleSize={20}
                 trackSize={true}
                 scrollable={true}
