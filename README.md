@@ -42,4 +42,5 @@ to build the app, just past the content of index.jsx in Code with AI
 - [x] SaveAs project in puter directory
 - [x] Drag and Drop "windows" to rearrange your workspace
 - [x] Crazy cat typing while AI is working
+- [x] Support for Dark/Light theme from OS
  

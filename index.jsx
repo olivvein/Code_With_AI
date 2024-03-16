@@ -10,17 +10,26 @@ import Editor from "https://esm.sh/@monaco-editor/react";
 import * as Babel from "https://esm.sh/@babel/standalone";
 import OpenAI from "https://esm.sh/openai";
 import { transform as transform } from "https://esm.sh/sucrase";
-import Markdown from "https://esm.sh/react-markdown@9";
+//import Markdown from "https://esm.sh/react-markdown@9";
+
+import Markdown from "https://esm.sh/markdown-to-jsx";
 import remarkGfm from "https://esm.sh/remark-gfm";
 
 twindSetup({
+  darkMode: "media",
   theme: {
     extend: {
       backgroundColor: {
-        dark: "#1e1e1e",
+        dark: "#111827",
+        light: "#d4d4d4",
       },
       textColor: {
         light: "#d4d4d4",
+        dark: "#111827",
+      },
+      borderColor: {
+        light: "#d4d4d4",
+        dark: "#111827",
       },
       animation: {
         fade: "fadeOut 5s ease-in-out",
@@ -58,6 +67,324 @@ twindSetup({
   },
 });
 
+const GuideView = ({ setShowGuideView }) => {
+  const SnippetView = ({ children, ...props }) => {
+    const isJsx =
+      children.indexOf("import ") != -1 || children.indexOf("const ") != -1
+        ? "jsx"
+        : "html";
+    return (
+      <>
+        <div
+          {...props}
+          className="flex flex-col  dark:bg-black bg-white  rounded-lg"
+        >
+          <span className="w-full top-0 px-4 bg-gray-600 rounded-t-lg flex justify-between">
+            <span>{isJsx}</span>
+            <span>copy</span>
+          </span>
+          <span className="w-full p-4 overflow-scroll">{children}</span>
+        </div>
+      </>
+    );
+  };
+  const LiView = ({ children, ...props }) => (
+    <>
+      {" "}
+      - {children}
+      <br></br>
+    </>
+  );
+
+  const TheH4 = ({ children, ...props }) => (
+    <div className="mt-4">{children}</div>
+  );
+
+  const guideMessage = `# User Guide
+## Code Editor
+- Based on Monaco editor (Vs Code) 
+- Same shortcut
+- Multiple cursor
+- Syntax Highliting
+
+
+  
+You don't need to install any dependencies
+Simply add it like normaly. In the Babel transpile, all import are appended with "https://esm.sh" which host a ton of ES6 modules
+
+### 3 Files : 
+
+- html : the html template where react components are injected
+- javascript : the react/javascript code
+- Babel : The Executed Code transpiled from React (jsx) to js. Don't modify it as it has no effect. It is just a representation of the transpiled jsx code.
+## App Preview
+- Each time the code is modified, the app preview is updated
+
+
+## SaveAs
+
+- Enter a Name and the project will be saved on App folder
+- A message pop up wen it is successfull (2-10 sec)
+
+## Deploy
+
+- Enter a Name and the project deployed as an App 
+- A message pop up wen it is successfull (2-10 sec)
+
+
+## Chat Settings
+
+Select your language model : 
+
+- puter : gpt-3.5-turbo, no streaming, free
+- openAi : every model available, streaming, require api key. The api key is stored in puter kv field openai_api_key. Only the app has access.
+- liteLLM : every model avaliable on litellm[proxy], streaming.
+
+
+## Chat View
+
+- Enter to submit message
+- Shift+Enter to create a new line
+- You can ask the AI what you want to build.
+- If you have specific libraries in mind just tell it.
+- When you press play, Crazy Typing Cat Appears to let you now that the AI is working
+- At the end of the generation , Crazy Typing Cat dissapear, The App Preview is updated with the new code and the message history is shown.
+- The AI remember past message in the same session so you can ask "Make a cool clock app" Then when it's done "Perfect, add a color background animation to it"
+
+When the code is not working and it will happen, it might be several issue : 
+
+- Code is not completed
+- twindSetup() is not instanciated, just add it after import of tailwind
+- On the console, check the errors, AI often hallucinate a package that does everything perfectly like 
+
+\`\`\`
+import {TripleAGame} from "https://esm.sh/triple-a-game"
+\`\`\`
+
+
+## Prompt ingenering
+
+The AI is told to be an excellent React Developper
+It has been provided with several free api url like :
+
+\`\`\`
+https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true=> "current_weather"
+
+https://api.coingecko.com/api 
+
+https://api.multiversx.com/economics?extract=price for EGLD=> "price"
+
+https://www.francetvinfo.fr/titres.rss => entries "title" and "summary" and "links[0] as href " and "links[1] as image " For the News with feedparser library
+
+\`\`\`
+
+
+#### You can provide it more in the message in the same way.
+
+If you want to make an interactive game, ask it to use p5.js
+Try using Three.js for 3d graphics (puter ai is not that good for it)
+
+
+
+
+
+
+## Console
+a simple javascript console view that show console.log and console.error (in red)
+
+- require to use JSON.stringify to show objects as it display a string on the console
+
+
+
+ ## LiteLLM
+
+ LiteLLM can let you access a lot of llm
+ 
+ - Free : ollama => llama, dolphin-mixtral, mistral, ....
+ - Paid : Anthropic Claude, Google AI, Hugginface, Mistral
+
+ install litellm and litellm[proxy]
+
+\`\`\`sh
+pip install litell litellm[proxy]
+\`\`\`
+
+#### create a config.yaml file like:
+
+\`\`\`yaml
+model_list: 
+  - model_name: ollama/dolphin-mistral
+    litellm_params:
+      model: ollama/dolphin-mistral
+  - model_name: ollama/phi
+    litellm_params:
+      model: ollama/phi
+  - model_name: claude-3-opus-20240229
+    litellm_params:
+      model: claude-3-opus-20240229
+      api_key: sk-****************
+\`\`\`
+
+#### run litellm[proxy]
+
+\`\`\`sh
+litellm --config config.yaml
+
+\`\`\`
+
+#### It should be running on port 4000
+
+  `;
+
+  return (
+    <div className="fixed top-0 left-0 w-full h-full dark:bg-dark bg-light dark:text-light text-dark bg-opacity-50 flex flex-col items-center justify-center z-50">
+      <div className="w-3/4 h-3/4 opacity-100 border flex flex-col rounded-lg  overflow-y-hidden justify-between">
+        <span className="w-full top-0  bg-gray-600 rounded-t-lg flex justify-between">
+          <button
+            onClick={() => {
+              setShowGuideView(false);
+            }}
+            className="w-1/4 dark:bg-dark bg-light border rounded-lg px-2"
+          >
+            About Me
+          </button>
+          <h1>User Guide</h1>
+          <button
+            onClick={() => {
+              setShowGuideView(false);
+            }}
+            className="w-1/4 dark:bg-dark bg-light border rounded-lg px-2"
+          >
+            close
+          </button>
+        </span>
+        <div className="w-full h-full overflow-y-scroll p-4">
+          <Markdown
+            options={{
+              overrides: {
+                h1: {
+                  props: {
+                    className: "text-lg font-bold py-2",
+                  },
+                },
+                h2: {
+                  props: {
+                    className: "text-lg  py-2 underline",
+                  },
+                },
+                h3: {
+                  props: {
+                    className: "text-md underline py-2",
+                  },
+                },
+                h4: {
+                  component: TheH4,
+                  props: {
+                    className: "py-2",
+                  },
+                },
+                pre: {
+                  props: {
+                    className:
+                      "dark:bg-black bg-white dark:text-light text-dark border rounded-lg  mt-3",
+                  },
+                },
+                code: {
+                  component: SnippetView,
+                },
+                li: {
+                  component: LiView,
+                },
+              },
+            }}
+          >
+            {guideMessage}
+          </Markdown>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MarkDownView = ({ content, className }) => {
+  const SnippetView = ({ children, ...props }) => {
+    const isJsx =
+      children.indexOf("import ") != -1 || children.indexOf("const ") != -1
+        ? "jsx"
+        : "html";
+    return (
+      <>
+        <div
+          {...props}
+          className="flex flex-col  dark:bg-black bg-white  rounded-lg"
+        >
+          <span className="w-full top-0 px-2 bg-gray-600 rounded-t-lg flex justify-between">
+            <span>{isJsx}</span>
+            <span>copy</span>
+          </span>
+          <span className="w-full p-4 overflow-scroll">{children}</span>
+        </div>
+      </>
+    );
+  };
+  const LiView = ({ children, ...props }) => (
+    <>
+      {" "}
+      - {children}
+      <br></br>
+    </>
+  );
+
+  const TheH4 = ({ children, ...props }) => (
+    <div className="mt-4">{children}</div>
+  );
+
+  return (
+    <Markdown
+      className={className}
+      options={{
+        overrides: {
+          h1: {
+            props: {
+              className: "text-lg font-bold py-2",
+            },
+          },
+          h2: {
+            props: {
+              className: "text-lg  py-2 underline",
+            },
+          },
+          h3: {
+            props: {
+              className: "text-md underline py-2",
+            },
+          },
+          h4: {
+            component: TheH4,
+            props: {
+              className: "py-2",
+            },
+          },
+          pre: {
+            props: {
+              className:
+                "dark:bg-black bg-white dark:text-light text-dark border rounded-lg  mt-3",
+            },
+          },
+          code: {
+            component: SnippetView,
+          },
+          li: {
+            component: LiView,
+          },
+        },
+      }}
+    >
+      {content}
+    </Markdown>
+  );
+};
+
 const ChatSettings = ({
   chatProvider,
   setChatProvider,
@@ -69,27 +396,33 @@ const ChatSettings = ({
   setApiKeyVal,
   apiKey,
   resetApiKey,
+  anthropicAvailable,
 }) => {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <div className="flex flex-col items-center justify-center">
-        <h1 className="text-4xl font-semibold text-white">Chat Settings</h1>
+        <h1 className="text-4xl font-semibold dark:text-light text-dark">
+          Chat Settings
+        </h1>
         <div className="flex flex-col items-center justify-center">
           <div className="flex flex-col items-center justify-center">
-            <h2 className="text-2xl font-semibold text-white">Chat Provider</h2>
+            <h2 className="text-2xl font-semibold dark:text-light text-dark">
+              Chat Provider
+            </h2>
             <select
               value={chatProvider}
               onChange={(e) => setChatProvider(e.target.value)}
-              className="bg-gray-800 text-white rounded p-2"
+              className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
             >
               <option value="openai">OpenAI</option>
-              {ollamaAvailable && <option value="ollama">Ollama</option>}
+              {anthropicAvailable && <option value="anthropic">Anthropic</option>}
+              {ollamaAvailable && <option value="ollama">LiteLLM</option>}
               <option value="puter">Puter</option>
             </select>
           </div>
           {chatProvider === "ollama" && (
             <div className="flex flex-col items-center justify-center">
-              <h2 className="text-2xl font-semibold text-white">
+              <h2 className="text-2xl font-semibold dark:text-light text-dark">
                 Ollama Config
               </h2>
               <form
@@ -100,7 +433,7 @@ const ChatSettings = ({
               >
                 <input
                   //onChange={(e) => setOllamaConfig({ ...ollamaConfig, baseURL: e.target.value })}
-                  className="bg-gray-800 text-white rounded p-2"
+                  className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
                   placeholder="Base URL"
                 />
               </form>
@@ -113,7 +446,7 @@ const ChatSettings = ({
                     selectedModel: e.target.value,
                   })
                 }
-                className="bg-gray-800 text-white rounded p-2"
+                className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
               >
                 {ollamaConfig.models.map((model) => (
                   <option value={model.id}>{model.id}</option>
@@ -123,14 +456,14 @@ const ChatSettings = ({
           )}
           {chatProvider === "openai" && (
             <div className="flex flex-col items-center justify-center">
-              <h2 className="text-2xl font-semibold text-white">
+              <h2 className="text-2xl font-semibold dark:text-light text-dark">
                 OpenAI Config
               </h2>
               {apiKey === "" && (
                 <input
                   value={apiKey}
                   onChange={setApiKeyVal}
-                  className="bg-gray-800 text-white rounded p-2"
+                  className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
                   placeholder="OpenAI API Key"
                 />
               )}
@@ -145,7 +478,7 @@ const ChatSettings = ({
                         selectedModel: e.target.value,
                       })
                     }
-                    className="bg-gray-800 text-white rounded p-2"
+                    className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
                   >
                     {openAiCongig.models.map((model) => (
                       <option value={model.id}>{model.id}</option>
@@ -153,7 +486,7 @@ const ChatSettings = ({
                   </select>
                   <button
                     onClick={resetApiKey}
-                    className="bg-gray-800 text-white rounded p-2"
+                    className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
                   >
                     Reset API Key
                   </button>
@@ -181,10 +514,12 @@ const DeployForm = ({
   cancel,
 }) => {
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-lg p-4">
-        <h1 className="text-2xl font-semibold text-white">Deploy</h1>
-        <p className="text-white">
+    <div className="fixed top-0 left-0 w-full h-full dark:bg-dark bg-light bg-opacity-50 flex items-center justify-center z-50">
+      <div className="dark:bg-dark bg-light rounded-lg p-4">
+        <h1 className="text-2xl font-semibold dark:text-light text-dark">
+          Deploy
+        </h1>
+        <p className="dark:text-light text-dark">
           Deploy your app to a subdomain and create an app.
         </p>
         <form
@@ -194,15 +529,17 @@ const DeployForm = ({
           }}
         >
           <input
-            className="bg-gray-800 text-white rounded p-2"
+            className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
             placeholder="App Name"
             onChange={setAppNameVal}
             value={appName}
           />
-          <button className="bg-gray-800 text-white rounded p-2">Deploy</button>
+          <button className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2">
+            Deploy
+          </button>
         </form>
         <button
-          className="bg-gray-800 text-white rounded p-2"
+          className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
           onClick={() => {
             cancel(false);
           }}
@@ -214,17 +551,14 @@ const DeployForm = ({
   );
 };
 
-const SaveAsForm = ({
-  appName,
-  setAppNameVal,
-  saveAs,
-  cancelSaveAs,
-}) => {
+const SaveAsForm = ({ appName, setAppNameVal, saveAs, cancelSaveAs }) => {
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-lg p-4">
-        <h1 className="text-2xl font-semibold text-white">Save as</h1>
-        <p className="text-white">
+    <div className="fixed top-0 left-0 w-full h-full dark:bg-dark bg-light bg-opacity-50 flex items-center justify-center z-50">
+      <div className="dark:bg-dark bg-light rounded-lg p-4">
+        <h1 className="text-2xl font-semibold dark:text-light text-dark">
+          Save as
+        </h1>
+        <p className="dark:text-light text-dark">
           Save your project in a puter folder
         </p>
         <form
@@ -233,15 +567,17 @@ const SaveAsForm = ({
           }}
         >
           <input
-            className="bg-gray-800 text-white rounded p-2"
+            className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
             placeholder="App Name"
             onChange={setAppNameVal}
             value={appName}
           />
-          <button className="bg-gray-800 text-white rounded p-2">Save as</button>
+          <button className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2">
+            Save as
+          </button>
         </form>
         <button
-          className="bg-gray-800 text-white rounded p-2"
+          className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
           onClick={() => {
             cancelSaveAs(false);
           }}
@@ -255,10 +591,10 @@ const SaveAsForm = ({
 
 const LogSection = (name) => {
   return (
-    <div className="w-full h-full bg-black">
-      <div className="bg-blue-900 w-full">Console</div>
+    <div className="w-full h-full bg-dark">
+      <div className="dark:bg-dark bg-light w-full">Console</div>
       <pre
-        className="opacity-50 bottom-12 w-full h-full bg-black text-white"
+        className="opacity-50 bottom-12 w-full h-full dark:bg-dark bg-light dark:text-light text-dark"
         id="logs"
         style={{ overflow: "auto" }}
       ></pre>
@@ -278,12 +614,12 @@ function CustomIframe({
       {messageFinished == 0 && (
         <img
           src="https://c.tenor.com/y2JXkY1pXkwAAAAC/tenor.gif"
-          className="w-full h-full bg-black"
+          className="w-full h-full bg-dark"
         />
       )}
       {messageFinished == 1 && (
         <iframe
-          className="w-full h-full bg-white border rounded shadow-lg"
+          className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark border dark:border-light border-dark rounded shadow-lg"
           sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts"
           srcDoc={
             jsCode === ""
@@ -293,7 +629,7 @@ function CustomIframe({
                 `script><script type="module">const puter = window.puter;\n${transpileJSX(
                   jsCode
                 )}<` +
-                `/script><div class="fixed bottom-0"><pre class="fixed opacity-50 bottom-12 w-full bg-black text-white" id="logs2"></pre></div><script>${consoleLog}</` +
+                `/script><div class="fixed bottom-0"><pre class="fixed opacity-50 bottom-12 w-full dark:bg-dark bg-light dark:text-light text-dark" id="logs2"></pre></div><script>${consoleLog}</` +
                 `script></html>`
               : ""
           }
@@ -303,13 +639,13 @@ function CustomIframe({
   );
 }
 
-const TheEditorJs = ({ handleEditorDidMount, jsCode, onChange }) => {
+const TheEditorJs = ({ handleEditorDidMount, jsCode, onChange, theme }) => {
   return (
     <Editor
       height="90%"
       defaultLanguage={"javascript"}
       defaultValue={jsCode}
-      theme="vs-dark"
+      theme={theme}
       onMount={handleEditorDidMount}
       onChange={onChange}
       options={{
@@ -322,13 +658,13 @@ const TheEditorJs = ({ handleEditorDidMount, jsCode, onChange }) => {
   );
 };
 
-const TheEditorHtml = ({ handleEditorDidMount, htmlCode, onChange }) => {
+const TheEditorHtml = ({ handleEditorDidMount, htmlCode, onChange, theme }) => {
   return (
     <Editor
       height="90%"
       defaultLanguage={"html"}
       defaultValue={htmlCode}
-      theme="vs-dark"
+      theme={theme}
       onMount={handleEditorDidMount}
       onChange={onChange}
       options={{
@@ -341,13 +677,18 @@ const TheEditorHtml = ({ handleEditorDidMount, htmlCode, onChange }) => {
   );
 };
 
-const TheEditorBabel = ({ handleEditorDidMount, babelCode, onChange }) => {
+const TheEditorBabel = ({
+  handleEditorDidMount,
+  babelCode,
+  onChange,
+  theme,
+}) => {
   return (
     <Editor
       height="90%"
       defaultLanguage={"javascript"}
       defaultValue={babelCode}
-      theme="vs-dark"
+      theme={theme}
       onMount={handleEditorDidMount}
       onChange={onChange}
       options={{
@@ -377,13 +718,41 @@ const CodeEditor = ({
   handleEditorDidMountBabel,
   name,
 }) => {
+  const [theme, setTheme] = useState("vs-dark");
+
+  const handleThemeChange = (event) => {
+    setTheme(event.target.value);
+  };
+
+  const [themeOs, setThemeOs] = useState(
+    window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light"
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const handleChange = () => {
+      if (mediaQuery.matches) {
+        setTheme("vs-dark");
+      } else {
+        setTheme("vs");
+      }
+    };
+
+    mediaQuery.addListener(handleChange);
+    return () => mediaQuery.removeListener(handleChange);
+  }, []);
+
   return (
     <>
-      <div className="flex justify-between items-center p-4 bg-gray-800">
+      <div className="flex justify-between items-center p-4 dark:bg-dark bg-light ">
         <select
           onChange={handleChange}
           value={selectedCode}
-          className="mx-4 py-2 px-3 bg-gray-700 text-white rounded outline-none"
+          className="mx-4 py-2 px-3 bg-gray-700 dark:text-light text-dark rounded outline-none"
         >
           <option value="js">JavaScript</option>
           <option value="html">HTML</option>
@@ -396,6 +765,16 @@ const CodeEditor = ({
             not effectives
           </span>
         )}
+
+        <select
+          onChange={handleThemeChange}
+          value={theme}
+          className="mx-4 py-2 px-3 bg-gray-700 dark:text-light text-dark rounded outline-none"
+        >
+          <option value="vs-dark">vs-dark</option>
+          <option value="vs">vs</option>
+          <option value="hc-black">hi-contrast</option>
+        </select>
       </div>
 
       {selectedCode === "js" ? (
@@ -403,18 +782,21 @@ const CodeEditor = ({
           handleEditorDidMount={handleEditorDidMountJs}
           jsCode={jsCode}
           onChange={updateCodeValueJs}
+          theme={theme}
         />
       ) : selectedCode === "html" ? (
         <TheEditorHtml
           handleEditorDidMount={handleEditorDidMountHtml}
           htmlCode={htmlCode}
           onChange={updateCodeValueHtml}
+          theme={theme}
         />
       ) : (
         <TheEditorBabel
           handleEditorDidMount={handleEditorDidMountBabel}
           htmlCode={babelCode}
           onChange={updateCodeValueBabel}
+          theme={theme}
         />
       )}
     </>
@@ -428,36 +810,29 @@ const ChatView = ({
   messageFinished,
   fullMessage,
   chatMessages,
-  resetChatMessages
+  resetChatMessages,
 }) => {
   return (
-    <div className="w-full h-full bg-blue-400 text-white">
-      {messageFinished == 0 && (
-        <div className="w-full h-full flex justify-center items-center bg-black opacity-80 text-white">
-          <Markdown
-            remarkPlugins={[remarkGfm]}
-            className=" p-4 m-4 w-full h-3/4 opacity-100 overflow-y-scroll"
-          >
-            {fullMessage}
-          </Markdown>
-        </div>
-      )}
+    <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark">
       <div className="w-full h-full">
-        <div className="w-full h-full bg-black text-white">
-          <div className="w-full h-5/6 bg-black text-white overflow-y-scroll">
+        <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark">
+          <div className="w-full h-5/6 dark:bg-dark bg-light dark:text-light text-dark overflow-y-scroll">
             {chatMessages.map((message, index) => {
               if (message.role !== "system") {
                 return (
-                  <div
-                    key={index}
-                    className={`w-full overflow-y-scroll`}
-                  >
-                    <Markdown
-                      remarkPlugins={[remarkGfm]}
-                      className={` p-4 m-4 w-5/6 mx-2 px-2  opacity-100 overflow-y-scroll rounded bg-blue-400 text-white ${message.role === "assistant"?"bg-red-400":""}`}
-                    >
-                    {message.content}
-                    </Markdown>
+                  <div key={index} className={`w-full overflow-y-scroll p-4`}>
+                    <MarkDownView
+                      content={
+                        message.role == "user"
+                          ? "# " + message.content
+                          : message.content
+                      }
+                      className={` p-4 m-4 w-5/6 mx-2 px-2  opacity-100 overflow-y-scroll rounded  dark:text-light text-dark  ${
+                        message.role === "assistant"
+                          ? "dark:bg-red-800 bg-red-400"
+                          : "dark:bg-blue-800 bg-blue-800"
+                      }`}
+                    />
                   </div>
                 );
               }
@@ -465,73 +840,31 @@ const ChatView = ({
           </div>
         </div>
       </div>
-      <div className="mt-2 bg-black absolute bottom-0 w-full flex">
-      <textarea
-        type="text"
-        rows={Math.max(inputMessage.split("\n").length,2) }
-        placeholder={`Make a weather app for Ales, France
+      <div className="mt-2 dark:bg-dark bg-light absolute bottom-0 w-full flex">
+        <textarea
+          type="text"
+          rows={Math.max(inputMessage.split("\n").length, 2)}
+          placeholder={`Make a weather app for Ales, France
           Make a btc graph , What are the news?
           `}
-        className="bg-white ml-2 mb-2 h-3/4 w-full m-auto   rounded p-2 text-gray-700 w-5/6"
-        onKeyPress={(event) => {
-          if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
-            inputSubmit(event);
-          }
-        }}
-        value={inputMessage}
-        onChange={setInputVal}
-      />
-      <button onClick={resetChatMessages} className="bottom-0 bg-gray-800 hover:bg-gray-900 text-white rounded mx-2 w-1/4">
-        Clear Chat
-      </button>
+          className="bg-light text-dark ml-2 mb-2 h-3/4 w-full m-auto border dark:border-light border-dark rounded p-2 w-5/6"
+          onKeyPress={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              inputSubmit(event);
+            }
+          }}
+          value={inputMessage}
+          onChange={setInputVal}
+        />
+        <button
+          onClick={resetChatMessages}
+          className="bottom-0 dark:bg-dark bg-light border dark:border-light border-dark hover:bg-gray-900 dark:text-light text-dark rounded mx-2 w-1/4"
+        >
+          Clear Chat
+        </button>
       </div>
-      
     </div>
-  );
-};
-
-const NavBarOld = ({
-  inputSubmit,
-  setGptValue,
-  gptVal,
-  resetApiKey,
-  visibleApiKey,
-  username,
-  inputMessage,
-  setInputVal,
-  chatProvider,
-  setChatProvider,
-  ollamaConfig,
-}) => {
-  return (
-    <nav className="bg-gray-800 text-white top-0 px-0 h-5 flex   dark:bg-gray-900">
-      <div className="w-full  top-0 bg-gray-800 text-white py-2 px-0 flex justify-between">
-        <div className="">
-          <span className="left-0 py-4 px-2 cursor-pointer hover:bg-gray-700">
-            <b>Code With Ai</b>
-          </span>
-          <span className="cursor-pointer py-4 px-2  hover:bg-gray-700">
-            File
-          </span>
-          <span className="cursor-pointer py-4 px-2 hover:bg-gray-700">
-            Edit
-          </span>
-          <span className="cursor-pointer py-4 px-2 hover:bg-gray-700">
-            View
-          </span>
-          <span className="cursor-pointer py-4 px-2 hover:bg-gray-700">
-            Help
-          </span>
-        </div>
-        <div className="">
-          <span className="items-end cursor-pointer py-4 px-2 hover:bg-gray-700">
-            {visibleApiKey}
-            {username}
-          </span>
-        </div>
-      </div>
-    </nav>
   );
 };
 
@@ -552,7 +885,6 @@ const NavBar = ({
   const [openMenu, setOpenMenu] = useState("");
   const toggleMenu = (menu) => {
     setOpenMenu(openMenu === menu ? "" : menu);
-   
   };
 
   const menuConfig = [
@@ -587,25 +919,31 @@ const NavBar = ({
       name: "Help",
       subMenu: [
         { status: "inactive", name: "About Us", action: "aboutUs" },
-        { status: "inactive", name: "User Guide", action: "userGuide" },
+        { status: "active", name: "User Guide", action: "userGuide" },
       ],
     },
   ];
 
   return (
-    <nav className="absolute w-full top-0 left-0 bg-gray-800 text-white top-0 px-0 h-5 flex dark:bg-gray-900  z-50">
-      <div className=" w-full top-0 bg-gray-800 text-white  px-0 flex justify-between">
-        <div className="w-3/4 top-0 bg-gray-800 text-white py-2 px-0">
+    <nav className="absolute w-full top-0 left-0 dark:bg-dark bg-light dark:text-light text-dark top-0 px-0 h-5 flex   z-50">
+      <div className=" w-full top-0 dark:bg-dark bg-light dark:text-light text-dark  px-0 flex justify-between">
+        <div className="w-3/4 top-0 dark:bg-dark bg-light dark:text-light text-dark py-2 px-0">
           <span className="left-0 py-4 px-2">
-           <span><b>Code With Ai</b></span> 
-           <span className="absolute left-0 top-6 text-sm px-2">By SamLePirate</span> 
+            <span>
+              <b>Code With Ai</b>
+            </span>
+            <span className="absolute left-0 top-6 text-sm px-2">
+              By SamLePirate
+            </span>
           </span>
-          {menuConfig.map((menu,index) => (
+          {menuConfig.map((menu, index) => (
             <div className="relative inline-block">
               <span
                 tabIndex={index} // Makes the div focusable
-                 // Handles focus event
-                onBlur={() => {setTimeout(() => toggleMenu(menu.name), 100)}}
+                // Handles focus event
+                onBlur={() => {
+                  setTimeout(() => toggleMenu(menu.name), 100);
+                }}
                 className={`${
                   openMenu == menu.name ? "bg-gray-700" : ""
                 } cursor-pointer pt-3 pb-2 px-2 active:bg-gray-700  hover:bg-gray-700 hover:shadow-lg rounded-lg`}
@@ -614,10 +952,10 @@ const NavBar = ({
                 {menu.name}
               </span>
               {openMenu === menu.name && (
-                <div className="absolute left-0 mt-2 w-48 bg-gray-800 rounded-md animate-appear border border-gray-700 shadow-lg z-50 ">
+                <div className="absolute left-0 mt-2 w-48 dark:bg-dark bg-light rounded-md animate-appear border border-gray-700 shadow-lg z-50 ">
                   {menu.subMenu.map((subMenu) => (
                     <button
-                      className={`w-full text-left block px-4 py-2 border border-gray-700 text-sm text-gray-300 active:bg-gray-400 active:border-gray-700 active:text-black transition-colors duration-100 ease-in-out hover:bg-gray-700 ${
+                      className={`w-full text-left block px-4 py-2 border border-gray-700 text-sm text-gray-300 active:bg-gray-400 active:border-gray-700 active:text-dark transition-colors duration-100 ease-in-out hover:bg-gray-700 ${
                         subMenu.status == "inactive" ? "text-gray-600" : ""
                       }`}
                       onClick={() => {
@@ -657,20 +995,24 @@ const DraggableUI = ({
   return (
     <div
       key={id}
-      className={`w-full h-full bg-gray-700 border flex flex-col rounded shadow-lg  ${
+      className={`w-full h-full dark:bg-dark bg-light dark:text-light text-dark border dark:border-light border-dark flex flex-col rounded shadow-lg  ${
         draggingId === id ? "opacity-30" : "opacity-100"
       }`}
     >
-      <span className="flex justify-center">
+      <span className="flex justify-center border dark:border-light border-dark">
         <button
           draggable
           onDragStart={(e) => onDragStart(e, id)}
           onDragEnd={onDragEnd}
           onDragOver={onDragOver}
           onDrop={(e) => onDrop(e, id)}
-          className={`absolute left-0 top-0  border rounded w-8 shadow-lg hover:bg-gray-400  ${
+          className={`absolute left-0 top-0  border dark:border-light border-dark rounded-lg w-8 shadow-lg hover:bg-gray-400  ${
             draggingId === id ? "opacity-10" : "opacity-100"
-          } ${draggingId !== id && draggingId ? "bg-red-700" : "bg-gray-700"}`}
+          } ${
+            draggingId !== id && draggingId
+              ? "bg-red-700"
+              : "dark:bg-dark bg-light"
+          }`}
           style={{ cursor: "grab" }}
         >
           👋
@@ -733,6 +1075,9 @@ const DraggableApp = () => {
           dangerouslyAllowBrowser: true,
         });
 
+        newMessage.push({ role: "assistant", content: "..." });
+        setChatMessages(newMessage);
+
         const stream = await ollama.chat.completions.create({
           messages: newMessage,
           model: ollamaConfig.selectedModel,
@@ -741,12 +1086,22 @@ const DraggableApp = () => {
         });
 
         let fullResponse = "";
+        let snippetTagCount = 0;
         for await (const chunk of stream) {
           const theChunk = chunk.choices[0]?.delta?.content;
           if (theChunk != undefined) {
             //console.log(theChunk);
             fullResponse = fullResponse + theChunk;
-            setFullMessage((prev) => prev + theChunk);
+            setFullMessage(fullResponse);
+            // snippetTagCount += (fullResponse.match(/\`\`\`/g) || []).length;
+            // if (snippetTagCount%2==1 && snippetTagCount>0) {
+
+            //   newMessage[newMessage.length-1].content=fullResponse+"\`\`\`";
+            // }
+            // else{
+            //   newMessage[newMessage.length-1].content=fullResponse;
+            // }
+            // setChatMessages(newMessage);
           }
         }
         console.log("Message Finished");
@@ -755,6 +1110,50 @@ const DraggableApp = () => {
         setChatMessages(newMessage);
         setMessageFinished(true);
         return;
+      }
+
+      if (chatProvider === "anthropic") {
+        const newMessage = [
+          ...chatMessages,
+          {
+            role: "user",
+            content:
+              message +
+              "\nProvide only html and jsx snippet in Markdown.\n No explaination needed. Give me the 2 code snipet in markdown.",
+          },
+        ];
+        newMessage[0].content = systemPrompt;
+        console.log(newMessage);
+
+        newMessage.push({ role: "assistant", content: "..." });
+        setChatMessages(newMessage);
+        const response = await fetch("http://localhost:3002/stream", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: message, systeme: systemPrompt }),
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let fullResponse = "";
+        reader.read().then(function processText({ done, value }) {
+          if (done) {
+            console.log("Stream complete");
+            setFullMessage(fullResponse);
+            setMessageFinished(true);
+            newMessage.push({ role: "assistant", content: fullResponse });
+            setChatMessages(newMessage);
+            return;
+          }
+
+          const chunk = decoder.decode(value);
+          fullResponse = fullResponse + chunk;
+          setFullMessage(fullResponse);
+          setFullMessage((prev) => prev + chunk);
+          reader.read().then(processText);
+        });
       }
 
       if (chatProvider === "openai" && apiKey !== "") {
@@ -768,6 +1167,8 @@ const DraggableApp = () => {
           apiKey: apiKey,
           dangerouslyAllowBrowser: true, // This is the default and can be omitted
         });
+        newMessage.push({ role: "assistant", content: "..." });
+        setChatMessages(newMessage);
         const stream = await openai.chat.completions.create({
           model: openAiCongig.selectedModel,
           messages: newMessage,
@@ -775,24 +1176,40 @@ const DraggableApp = () => {
         });
 
         let fullResponse = "";
+        let snippetTagCount = 0;
+
         for await (const chunk of stream) {
           const theChunk = chunk.choices[0]?.delta?.content;
           if (theChunk != undefined) {
             //console.log(theChunk);
             fullResponse = fullResponse + theChunk;
+
+            //count the number of snippet tag
+            // snippetTagCount += (fullResponse.match(/\`\`\`/g) || []).length;
+            // if (snippetTagCount%2==1 && snippetTagCount>0) {
+            //   setFullMessage((prev) => prev + theChunk+"\`\`\`");
+            // }
+
             setFullMessage((prev) => prev + theChunk);
+
+            snippetTagCount += (fullResponse.match(/\`\`\`/g) || []).length;
+            if (snippetTagCount % 2 == 1 && snippetTagCount > 0) {
+              newMessage[newMessage.length - 1].content = fullResponse + "";
+            } else {
+              newMessage[newMessage.length - 1].content = fullResponse;
+            }
+            setChatMessages(newMessage);
           }
         }
         console.log("Message Finished");
         console.log(fullResponse);
-        newMessage.push({ role: "assistant", content: fullResponse });
+        newMessage[newMessage.length - 1].content = fullResponse;
         setChatMessages(newMessage);
         setMessageFinished(true);
       }
     } catch (error) {
       console.log(error);
     }
-    console.log("Message Finished All");
   }
 
   const extractCodeSnippets = (markdownContent) => {
@@ -804,7 +1221,6 @@ const DraggableApp = () => {
     );
     let match;
     const completed = [];
-    
 
     while ((match = codeBlockRegex.exec(markdownContent))) {
       const [fullMatch, language, code] = match;
@@ -916,7 +1332,6 @@ const DraggableApp = () => {
   }
 
   const [babelCode, setBabelCode] = useState("");
-  
 
   function handleEditorDidMountBabel(editor, monaco) {
     //console.log("mount");
@@ -955,7 +1370,6 @@ const DraggableApp = () => {
     return fullCode;
   };
 
-
   const makeAppFile = () => {
     let code = "";
     if (appName == "") {
@@ -966,7 +1380,6 @@ const DraggableApp = () => {
     return code;
   };
 
-  
   const downloadCode = () => {
     let code = "";
     if (appName == "") {
@@ -1109,55 +1522,69 @@ const DraggableApp = () => {
       editorJsRef.current?.setValue("");
     }
 
-    if(action === "saveAs"){
+    if (action === "saveAs") {
       setShowSaveAsForm(true);
-      
-      
+    }
 
+    if (action === "userGuide") {
+      setShowGuideView(true);
     }
   };
 
   const saveAs = (e) => {
     e.preventDefault();
     setShowSaveAsForm(false);
-    if(appName == ""){
+    if (appName == "") {
       alert("No App Name");
       return;
     }
-    const appFile=makeAppFile();
-      let dirName = appName;
-        puter.fs.mkdir(dirName,{ dedupeName: true }).then((directory) => {
-            console.log(`"${dirName}" created at ${directory.path}`);
-          console.log(dirName);
-          console.log(directory.path);
-            puter.fs.write(`${dirName}/app.js`, jsCode).then(() => {
-              console.log('app.jsx written successfully');
-              puter.fs.write(`${dirName}/app.html`, htmlCode).then(() => {
-                console.log('app.html written successfully');
-                puter.fs.write(`${dirName}/index.html`, appFile).then(() => {
-                  console.log('index.html written successfully');
-                  alert("App succesfully saved on "+directory.path);
+    const appFile = makeAppFile();
+    let dirName = appName;
+    puter.fs
+      .mkdir(dirName, { dedupeName: true })
+      .then((directory) => {
+        console.log(`"${dirName}" created at ${directory.path}`);
+        console.log(dirName);
+        console.log(directory.path);
+        puter.fs
+          .write(`${dirName}/app.js`, jsCode)
+          .then(() => {
+            console.log("app.jsx written successfully");
+            puter.fs
+              .write(`${dirName}/app.html`, htmlCode)
+              .then(() => {
+                console.log("app.html written successfully");
+                puter.fs
+                  .write(`${dirName}/index.html`, appFile)
+                  .then(() => {
+                    console.log("index.html written successfully");
+                    alert("App succesfully saved on " + directory.path);
 
-                  puter.fs.readdir('./').then((items) => {
-                      // print the path of each item in the directory
-                      console.log(items.map((item) => item.name));
-                  }).catch((error) => {
-                      puter.print(`Error reading directory: ${error}`);
+                    puter.fs
+                      .readdir("./")
+                      .then((items) => {
+                        // print the path of each item in the directory
+                        console.log(items.map((item) => item.name));
+                      })
+                      .catch((error) => {
+                        puter.print(`Error reading directory: ${error}`);
+                      });
+                  })
+                  .catch((error) => {
+                    console.log("Error writing file:", error);
                   });
-                }).catch((error) => {
-                    console.log('Error writing file:', error);
-                });
-              }).catch((error) => {
-                  console.log('Error writing file:', error);
+              })
+              .catch((error) => {
+                console.log("Error writing file:", error);
               });
-            }).catch((error) => {
-                console.log('Error writing file:', error);
-            });
-            
-            
-        }).catch((error) => {
-            console.log('Error creating directory:', error);
-        });
+          })
+          .catch((error) => {
+            console.log("Error writing file:", error);
+          });
+      })
+      .catch((error) => {
+        console.log("Error creating directory:", error);
+      });
   };
 
   const resetChatMessages = () => {
@@ -1305,9 +1732,7 @@ const DraggableApp = () => {
 
     `;
   const [fullMessage, setFullMessage] = useState("");
-  const [chatMessages, setChatMessages] = useState([
-    { role: "system", content: systemPrompt }
-  ]);
+  const [chatMessages, setChatMessages] = useState([{ role: "system", content: systemPrompt }]);
 
   const [messageFinished, setMessageFinished] = useState(true);
 
@@ -1336,89 +1761,89 @@ const DraggableApp = () => {
   const [jsCode, setJsCode] =
     useState(`//appTitle: Cool Clock with Navbar and KV Fields View and an Iframe
 
-import React, { useEffect, useState } from "https://esm.sh/react";
-import ReactDOM from "https://esm.sh/react-dom";
-import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim';
-//and instanciate it
-twindSetup();
-
-const ClockApp = () => {
-    if (puter==undefined){
-        this.puter=window.puter;
-    }
-    const [time, setTime] = useState(new Date());
-    const [username, setUsername] = useState('');
-    const [kvFields, setKvFields] = useState([]);
-
-    useEffect(() => {
-        const timerID = setInterval(() => tick(), 1000);
-        return () => clearInterval(timerID);
-    });
-
+    import React, { useEffect, useState } from "https://esm.sh/react";
+    import ReactDOM from "https://esm.sh/react-dom";
+    import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim';
+    //and instanciate it
+    twindSetup();
     
-
-    useEffect(() => {
-        const checkUserAndFetchKV = async () => {
-            const isSignedIn = puter.auth.isSignedIn();
-            if (!isSignedIn) {
-                puter.auth.signIn();
-            }
-            const user = await puter.auth.getUser();
-            setUsername(user.username);
-
-            puter.kv.set('name', user.username).then((success) => {
-                console.log("name updated");
-            });
-
-            puter.kv.set('time', Date()).then((success) => {
-                console.log("time updated");
-            });
-
-            const kvList = await puter.kv.list(true);
-            setKvFields(kvList);
+    const ClockApp = () => {
+        if (puter==undefined){
+            this.puter=window.puter;
+        }
+        const [time, setTime] = useState(new Date());
+        const [username, setUsername] = useState('');
+        const [kvFields, setKvFields] = useState([]);
+    
+        useEffect(() => {
+            const timerID = setInterval(() => tick(), 1000);
+            return () => clearInterval(timerID);
+        });
+    
+        
+    
+        useEffect(() => {
+            const checkUserAndFetchKV = async () => {
+                const isSignedIn = puter.auth.isSignedIn();
+                if (!isSignedIn) {
+                    puter.auth.signIn();
+                }
+                const user = await puter.auth.getUser();
+                setUsername(user.username);
+    
+                puter.kv.set('name', user.username).then((success) => {
+                    console.log("name updated");
+                });
+    
+                puter.kv.set('time', Date()).then((success) => {
+                    console.log("time updated");
+                });
+    
+                const kvList = await puter.kv.list(true);
+                setKvFields(kvList);
+            };
+            checkUserAndFetchKV();
+        }, []);
+    
+        const tick = () => {
+            setTime(new Date());
         };
-        checkUserAndFetchKV();
-    }, []);
-
-    const tick = () => {
-        setTime(new Date());
-    };
-
-    return (
-        <div className="flex flex-col h-screen bg-gray-900 text-white">
-            <nav className="flex items-center justify-between p-4 bg-gray-800">
-                <h1 className="text-xl font-bold">Cool Clock</h1>
-                <span>{username}</span>
-            </nav>
-            <div className="flex-1 flex flex-col items-center justify-start p-4 space-y-4 overflow-auto">
-                <div className="text-center">
-                    <div className="text-4xl font-mono">{time.toLocaleTimeString()}</div>
-                </div>
-                <div className="max-w-xl w-full">
-                    <h2 className="text-lg font-semibold mb-2">KV Fields:</h2>
-                    <ul className="bg-gray-800 p-3 rounded-lg">
-                        {kvFields.map((field, index) => (
-                            <li key={index} className="flex justify-between text-sm p-2 hover:bg-gray-700 rounded">
-                                <span className="font-mono">{field.key}</span>
-                                <span>{field.value}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="w-full h-full">
-                    <iframe
-                        className="w-full h-full"
-                        src="https://wikipedia.org"
-                        sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts allow-downloads"
-                    />
+    
+        return (
+            <div className="flex flex-col h-screen bg-gray-900 text-white">
+                <nav className="flex items-center justify-between p-4 bg-gray-800">
+                    <h1 className="text-xl font-bold">Cool Clock</h1>
+                    <span>{username}</span>
+                </nav>
+                <div className="flex-1 flex flex-col items-center justify-start p-4 space-y-4 overflow-auto">
+                    <div className="text-center">
+                        <div className="text-4xl font-mono">{time.toLocaleTimeString()}</div>
+                    </div>
+                    <div className="max-w-xl w-full">
+                        <h2 className="text-lg font-semibold mb-2">KV Fields:</h2>
+                        <ul className="bg-gray-800 p-3 rounded-lg">
+                            {kvFields.map((field, index) => (
+                                <li key={index} className="flex justify-between text-sm p-2 hover:bg-gray-700 rounded">
+                                    <span className="font-mono">{field.key}</span>
+                                    <span>{field.value}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="w-full h-full">
+                        <iframe
+                            className="w-full h-full"
+                            src="https://wikipedia.org"
+                            sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts allow-downloads"
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
-    );
-};
-
-ReactDOM.render(<ClockApp />, document.getElementById('app'));
-`);
+        );
+    };
+    
+    ReactDOM.render(<ClockApp />, document.getElementById('app'));
+    `);
   const [selectedCode, setSelectedCode] = useState("js");
 
   const consoleLog = `var oldLog = console.log;var oldError = console.error;
@@ -1451,6 +1876,8 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
   const [ollamaModels, setOllamaModels] = useState([]);
 
   const [ollamaAvailable, setOllamaAvailable] = useState(true);
+
+  const [anthropicAvailable, setAnthropicAvailable] = useState(false);
 
   const [divs, setDivs] = useState([
     {
@@ -1490,6 +1917,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           apiKey={apiKey}
           resetApiKey={resetApiKey}
           name="Chat Settings"
+          anthropicAvailable={anthropicAvailable}
         />
       ),
     },
@@ -1529,8 +1957,8 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
     //console.log(fullMessage);
 
     //last chatMessage content is fullmessage
-    const newMessage = [...chatMessages];
-    newMessage[newMessage.length - 1].content = fullMessage;
+    //const newMessage = [...chatMessages];
+    //newMessage[newMessage.length - 1].content = fullMessage;
     //setChatMessages(newMessage);
     const codesSnippets = extractCodeSnippets(fullMessage);
     for (const codeSnippet of codesSnippets) {
@@ -1548,7 +1976,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
         codeSnippet.language === "jsx" ||
         codeSnippet.language === "tsx"
       ) {
-        if (codeSnippet.status == "completed" && false) {
+        if (codeSnippet.status == "completed" && true) {
           codeSnippet.code = codeSnippet.code.replace(
             "import twindSetup",
             "import { setup as twindSetup }"
@@ -1591,6 +2019,14 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           ) {
             codeSnippet.code =
               'import { setup as twindSetup } from "https://cdn.skypack.dev/twind/shim"; //imported automatically\ntwindSetup();\n' +
+              codeSnippet.code;
+          }
+
+          if (
+            codeSnippet.code.indexOf("twindSetup()") == -1
+          ) {
+            codeSnippet.code =
+              'twindSetup(); //imported automatically\n' +
               codeSnippet.code;
           }
         }
@@ -1655,14 +2091,29 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
       setUsername(user.username);
 
       //await puter.kv.del("openai_api_key")
-
+      //resetChatMessages();
       const openai_api_key = await puter.kv.get("openai_api_key");
 
       if (openai_api_key) {
         setApiKey(openai_api_key);
+        setChatProvider("openai");
       }
     };
     updateUser();
+  }, []);
+
+  
+
+  //check if anthropic is available on port 3002
+  useEffect(() => {
+    fetch("http://localhost:3002/health")
+      .then((response) => response.text())
+      .then((data) => {if(data=="ok"){setAnthropicAvailable(true)}else{setAnthropicAvailable(false)};console.log(data)})
+      .catch((error) => {
+        console.log(error);
+        console.log("anthropic not avaliable")
+        setAnthropicAvailable(false);
+      });
   }, []);
 
   //match selected code
@@ -1747,6 +2198,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
                 apiKey={apiKey}
                 resetApiKey={resetApiKey}
                 name="Chat Settings"
+                anthropicAvailable={anthropicAvailable}
               />
             ),
           };
@@ -1757,7 +2209,6 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
   }, [chatProvider, ollamaConfig, openAiCongig, apiKey]);
 
   //update divs LogSection
-  
 
   //update divs CodeEditor
   useEffect(() => {
@@ -1818,11 +2269,11 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
 
   const [showDeployForm, setShowDeployForm] = useState(false);
   const [showSaveAsForm, setShowSaveAsForm] = useState(false);
-
-  
+  const [showGuideView, setShowGuideView] = useState(false);
 
   return (
-    <>
+    <div className="dark:bg-dark bg-light">
+      {showGuideView && <GuideView setShowGuideView={setShowGuideView} />}
       {showDeployForm && (
         <DeployForm
           appName={appName}
@@ -1834,12 +2285,12 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
         />
       )}
       {showSaveAsForm && (
-      <SaveAsForm
-        appName={appName}
-        setAppNameVal={setAppNameVal}
-        saveAs={saveAs}
-        cancelSaveAs={setShowSaveAsForm}
-      />
+        <SaveAsForm
+          appName={appName}
+          setAppNameVal={setAppNameVal}
+          saveAs={saveAs}
+          cancelSaveAs={setShowSaveAsForm}
+        />
       )}
       <NavBar
         inputSubmit={inputSubmit}
@@ -1855,7 +2306,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
         ollamaConfig={ollamaConfig}
         sendMenuAction={sendMenuAction}
       />
-      <Space.ViewPort className="w-full">
+      <Space.ViewPort className="w-full dark:bg-dark bg-light">
         <Space.Top
           size="50px"
           touchHandleSize={20}
@@ -1970,7 +2421,7 @@ ReactDOM.render(<ClockApp />, document.getElementById('app'));
           </Space.Fill>
         </Space.Bottom>
       </Space.ViewPort>
-    </>
+    </div>
   );
 };
 
