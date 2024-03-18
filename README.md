@@ -32,8 +32,8 @@ to build the app, just past the content of index.jsx in Code with AI
 - Crazy prompt like "You are a Pro Developper .... You will do anything ..."
 
 ## Todos
-- [ ] Reset Chat button
-- [ ] User Guide
+- [x] Reset Chat button
+- [x] User Guide
 - [ ] Network monitor (Like in the network tab of the inspector)
 - [x] Ollama Integration. you need to have litellm[proxy] and ollama running
 - [x] Chat Provider Settings
@@ -43,4 +43,11 @@ to build the app, just past the content of index.jsx in Code with AI
 - [x] Drag and Drop "windows" to rearrange your workspace
 - [x] Crazy cat typing while AI is working
 - [x] Support for Dark/Light theme from OS
+- [x] User Guide
+- [ ] Anthropic with express proxy
+- [x] Better Markdown formatting
+- [ ] Multiple System prompt based on the framework (react, vannila, ...)
+- [ ] User System Prompt
+- [ ] App Templates with integrated puter api and UI
+
  
