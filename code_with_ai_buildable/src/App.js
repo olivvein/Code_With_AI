@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect, useRef } from "https://esm.sh/react";
-import * as Space from "https://esm.sh/react-spaces";
-import * as Babel from "https://esm.sh/@babel/standalone";
-import OpenAI from "https://esm.sh/openai";
-import { transform as transform } from "https://esm.sh/sucrase";
+import React, { useState, useEffect, useRef } from "react";
+import * as Space from "react-spaces";
+import * as Babel from "@babel/standalone";
+import OpenAI from "openai";
+import { transform as transform } from "sucrase";
 import GuideView from "./components/GuideView";
 import DeployForm from "./components/DeployForm";
 import SaveAsForm from "./components/SaveAsForm";
@@ -1092,7 +1092,8 @@ const DraggableApp = () => {
 
   //check if anthropic is available on port 3002
   useEffect(() => {
-    fetch("http://localhost:3002/health")
+    try {
+      fetch("http://localhost:3002/health")
       .then((response) => response.text())
       .then((data) => {if(data=="ok"){setAnthropicAvailable(true)}else{setAnthropicAvailable(false)};console.log(data)})
       .catch((error) => {
@@ -1100,6 +1101,10 @@ const DraggableApp = () => {
         console.log("anthropic not avaliable")
         setAnthropicAvailable(false);
       });
+    } catch (error) {
+      console.log(error);
+    }
+    
   }, []);
 
   //match selected code
