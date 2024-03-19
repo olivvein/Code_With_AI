@@ -16,7 +16,8 @@ const NavBar = ({
   sendMenuAction,
   setSystemPromptVal,
   selectedPrompt,
-  prompts
+  prompts,
+  templates
 }) => {
   const [openMenu, setOpenMenu] = useState("");
 
@@ -35,6 +36,12 @@ const NavBar = ({
         { status: "active", name: "Save As", action: "saveAs" },
         { status: "active", name: "Deploy", action: "deploy" },
       ],
+    },
+    {
+      name: "Templates",
+      subMenu: templates.map((template,index) => {
+        return { status: "active", name: template.name, action: "setTemplate-"+index};
+      }),
     },
     {
       name: "Edit",
@@ -79,7 +86,7 @@ const NavBar = ({
   ];
 
   return (
-    <nav className="absolute w-full top-0 left-0 dark:bg-dark bg-light dark:text-light text-dark top-0 px-0 h-5 flex   z-50">
+    <nav className="absolute w-full top-0 left-0 dark:bg-dark bg-light dark:text-light text-dark top-0 px-0 h-5 flex   z-40">
       <div className=" w-full top-0 dark:bg-dark bg-light dark:text-light text-dark  px-0 flex justify-between">
         <div className="w-3/4 top-0 dark:bg-dark bg-light dark:text-light text-dark py-2 px-0">
           <span className="left-0 py-4 px-2">

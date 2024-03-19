@@ -1,0 +1,325 @@
+const puterFunctionalitiesVanillaJs = `//appTitle: Enhanced Puter Functionalities Explorer
+
+document.addEventListener("DOMContentLoaded", function() {
+    const app = document.getElementById('app');
+    app.style.height = "100vh";
+    app.style.display = "flex";
+    app.style.flexDirection = "column";
+    app.style.justifyContent = "space-between";
+    app.style.backgroundColor = "#282c34";
+    app.style.color = "white";
+    app.style.padding = "20px";
+    
+    app.innerHTML = \`
+        <header style="text-align:center; font-size:24px; font-weight:bold;">Puter Functionalities Explorer</header>
+        <div id="content" style="flex:1;"></div>
+        <footer style="text-align:center;">© 2024 Enhanced Puter</footer>
+    \`;
+
+    const content = document.getElementById('content');
+    content.style.display = "flex";
+    content.style.flexDirection = "column";
+    content.style.alignItems = "center";
+    content.style.overflow = "auto";
+    content.innerHTML = \`
+        <div id="welcome" style="margin-top: 20px;"></div>
+        <div id="chatContainer" style="width: 100%; max-width: 700px; margin-top: 20px;"></div>
+        <div id="kvContainer" style="width: 100%; max-width: 700px; margin-top: 20px;"></div>
+    \`;
+
+    let username = '';
+    let chatHistory = [];
+    let keyValues = [];
+    
+    async function init() {
+        if (!puter.auth.isSignedIn()) {
+            await puter.auth.signIn();
+        }
+        const user = await puter.auth.getUser();
+        username = user.username;
+        document.getElementById('welcome').innerText = \`Welcome, \${username}\`;
+
+        updateKeyValues();
+
+        setupChatUI();
+        setupKeyValueUI();
+    }
+
+    async function updateKeyValues() {
+        keyValues = await puter.kv.list(true);
+        keyValues.forEach((field)=>{
+            if (field.key.indexOf("api_key")!==-1){
+                field.value="sk-************";
+            }
+        });
+        displayKeyValues();
+    }
+
+    function setupChatUI() {
+        const chatContainer = document.getElementById('chatContainer');
+        chatContainer.innerHTML = \`
+            <div>Chat with audio response:</div>
+            <div id="chatHistory" style="background: #333; padding: 10px; border-radius: 5px; overflow-y: auto; height: 200px;"></div>
+            <input id="currentMessage" type="text" placeholder="Type a message..." style="width: calc(100% - 22px); margin-top: 10px; padding: 10px;">
+            <button onclick="sendMessage()" style="margin-top: 10px; padding: 10px; background: #007bff; border: none; color: white; border-radius: 5px; cursor: pointer;">Send</button>
+        \`;
+    }
+
+    function setupKeyValueUI() {
+        const kvContainer = document.getElementById('kvContainer');
+        kvContainer.innerHTML = \`
+            <div>Key-Value Pairs:</div>
+            <div id="keyValuePairs" style="background: #333; padding: 10px; border-radius: 5px; overflow-y: auto; height: 200px;"></div>
+            <input id="newKey" type="text" placeholder="Key" style="width: calc(33% - 22px); margin-top: 10px; padding: 10px;">
+            <input id="newValue" type="text" placeholder="Value" style="width: calc(33% - 22px); margin-top: 10px; padding: 10px; margin-left: 10px;">
+            <button onclick="addOrUpdateKeyValue()" style="width: calc(33% - 22px); margin-top: 10px; padding: 10px; background: #28a745; border: none; color: white; border-radius: 5px; cursor: pointer;">Add/Update</button>
+        \`;
+        displayKeyValues();
+    }
+
+    function displayKeyValues() {
+        const keyValuePairs = document.getElementById('keyValuePairs');
+        keyValuePairs.innerHTML = keyValues.map((kv) => 
+            \`<div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #555;">
+                <div>\${kv.key}: \${kv.value}</div>
+                <button onclick="deleteKeyValue('\${kv.key}')" style="padding: 5px 10px; background: #dc3545; border: none; color: white; border-radius: 5px; cursor: pointer;">Delete</button>
+            </div>\`
+        ).join('');
+    }
+
+    window.sendMessage = function() {
+        const currentMessage = document.getElementById('currentMessage').value;
+        const chatHistoryContainer = document.getElementById('chatHistory');
+        chatHistory.push({ role: "user", content: currentMessage });
+        chatHistoryContainer.innerHTML += \`<div style="background: #28a745; padding: 10px; border-radius: 5px; margin: 5px 0;">\${currentMessage}</div>\`;
+        
+        const messageList = [
+            { role: "system", content: "A system message that guides the AI to respond appropriately" },
+            { role: "user", content: currentMessage }
+        ];
+        puter.ai.chat(messageList).then((response) => {
+            const chatResponse = response.toString();
+            chatHistory.push({ role: "assistant", content: chatResponse });
+            chatHistoryContainer.innerHTML += \`<div style="background: #007bff; padding: 10px; border-radius: 5px; margin: 5px 0;">\${chatResponse}</div>\`;
+            document.getElementById('currentMessage').value = '';
+            puter.ai.txt2speech(chatResponse).then(audio => audio.play());
+        });
+    };
+
+    window.addOrUpdateKeyValue = async function() {
+        const newKey = document.getElementById('newKey').value;
+        const newValue = document.getElementById('newValue').value;
+        await puter.kv.set(newKey, newValue);
+        await updateKeyValues();
+        document.getElementById('newKey').value = '';
+        document.getElementById('newValue').value = '';
+    };
+
+    window.deleteKeyValue = async function(keyToDelete) {
+        await puter.kv.del(keyToDelete);
+        await updateKeyValues();
+    };
+
+    init();
+});
+`;
+
+const puterFunctionalitiesReact = `//appTitle: Enhanced Puter Functionalities Explorer
+
+import React, { useState, useEffect } from "https://esm.sh/react";
+import ReactDOM from "https://esm.sh/react-dom";
+import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim';
+
+twindSetup();
+
+const App = () => {
+    const [username, setUsername] = useState('');
+    const [chatHistory, setChatHistory] = useState([]);
+    const [currentMessage, setCurrentMessage] = useState('');
+    const [keyValues, setKeyValues] = useState([]);
+    const [newKey, setNewKey] = useState('');
+    const [newValue, setNewValue] = useState('');
+
+    useEffect(() => {
+        const signInAndFetchKeys = async () => {
+            if (!puter.auth.isSignedIn()) {
+                await puter.auth.signIn();
+            }
+            const user = await puter.auth.getUser();
+            setUsername(user.username);
+
+            const fetchedKeys = await puter.kv.list(true);
+            fetchedKeys.forEach((field)=>{
+              if (field.key === "openai_api_key"){
+                field.value="sk-***********";
+              }
+            })
+            setKeyValues(fetchedKeys);
+        };
+        signInAndFetchKeys();
+    }, []);
+
+    const sendMessage = () => {
+        const messageList = [
+            { role: "system", content: "A system message that guides the AI to respond appropriately" },
+            { role: "user", content: currentMessage }
+        ];
+        setChatHistory(messageList);
+        puter.ai.chat(messageList).then((response) => {
+            const chatResponse = response.toString();
+            setChatHistory(history => [...history, { role: "assistant", content: chatResponse }]);
+            setCurrentMessage('');
+            puter.ai.txt2speech(chatResponse).then(audio => audio.play());
+        });
+    };
+
+    const addOrUpdateKeyValue = async () => {
+        await puter.kv.set(newKey, newValue);
+        const keyList=await puter.kv.list(true);
+        keyList.forEach((field)=>{
+          if (field.key === "openai_api_key"){
+            field.value="sk-**********";
+          }
+        })
+        setKeyValues(keyList);
+        setNewKey('');
+        setNewValue('');
+    };
+
+    const deleteKeyValue = async (keyToDelete) => {
+        await puter.kv.del(keyToDelete);
+        setKeyValues(await puter.kv.list(true));
+    };
+
+    return (
+        <div className="h-full w-screen bg-gray-800 text-white p-4">
+            <header className="text-center text-2xl font-bold">Puter Functionalities Explorer</header>
+            <div className="mt-4 flex flex-col items-center h-full">
+                <div>Welcome, {username}</div>
+
+                
+                <div className="mt-4 w-3/4 flex flex-col">
+                <div>Chat with audio response:</div>
+                <div className="bg-gray-700 p-2 rounded-t-lg overflow-auto h-48">
+                        {chatHistory.map((entry, index) => (
+                            <div key={index} className={\`p-2 my-1 rounded \${
+                              entry.role === "assistant"
+                                ? "bg-blue-500"
+                                : entry.role === "user"
+                                ? "bg-green-500"
+                                : "bg-black"
+                            }\`}>{entry.content}</div>
+                        ))}
+                    </div>
+                    <input
+                        className="text-black p-1 rounded-b-lg"
+                        placeholder="Type a message..."
+                        value={currentMessage}
+                        onChange={e => setCurrentMessage(e.target.value)}
+                    />
+                    <button className="my-2 self-end px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-700" onClick={sendMessage}>Send</button>
+                    
+                </div>
+                <div className="mt-4 w-3/4">
+                    <div>Key-Value Pairs:</div>
+                    <div className="bg-gray-700 p-2 rounded-t-lg overflow-auto h-48">
+                        {keyValues.map(({key, value}) => (
+                            <div key={key} className="flex justify-between items-center my-2">
+                                <div>{JSON.stringify({[key]: value})}</div>
+                                <button className="ml-2 px-2 py-1 bg-red-500 rounded hover:bg-red-700" onClick={() => deleteKeyValue(key)}>Delete</button>
+                            </div>
+                        ))}
+                    </div>
+
+                     <div className="mt-0 w-full">
+                <input
+                        className="text-black p-1 w-1/3 border rounded-bl-lg"
+                        placeholder="Key"
+                        value={newKey}
+                        onChange={e => setNewKey(e.target.value)}
+                    />
+                    <input
+                        className="text-black p-1  border w-1/3"
+                        placeholder="Value"
+                        value={newValue}
+                        onChange={e => setNewValue(e.target.value)}
+                    />
+                    <button className=" py-1.5 bg-green-500  w-1/3 rounded-br-lg  hover:bg-green-700" onClick={addOrUpdateKeyValue}>Add/Update</button>
+                    
+                </div>
+                    
+                </div>
+               
+            </div>
+        </div>
+    );
+};
+
+ReactDOM.render(<App />, document.getElementById("app"));
+`;
+
+const iframeReact = `//appTitle: Full Page Wikipedia Viewer
+
+import React from "https://esm.sh/react";
+import ReactDOM from "https://esm.sh/react-dom";
+import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim';
+
+twindSetup();
+
+const WikipediaViewer = () => {
+  return (
+    <div className="w-full h-full bg-gray-900">
+      <iframe
+        src="https://www.wikipedia.org/"   // Change this url to you desired website
+        className="w-full h-full"
+        sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-top-navigation allow-top-navigation-by-user-activation"
+      ></iframe>
+    </div>
+  );
+};
+
+ReactDOM.render(<WikipediaViewer />, document.getElementById("app"));
+`;
+
+const iframeVanillaJsHtml = `<div style="position: fixed; top: 0; left: 0; height: 100%; width: 100%">
+<iframe id="iframeToShow" style="height: 100%; width: 100%"></iframe>
+</div>
+`;
+
+const iframeVanillaJs = `//appTitle: Full Page Wikipedia Viewer
+document.addEventListener("DOMContentLoaded", function() {
+    const iframe = document.getElementById('iframeToShow');
+    iframe.src = "https://www.wikipedia.org/";  // Change this url to you desired website
+});
+`;
+
+export const templates = [
+  {
+    name: "Puter Functionalities Explorer - React",
+    js: puterFunctionalitiesReact,
+    html: "<div id='app'></div>",
+    description: "A simple app to explore Puter's functionalities",
+    framework: "react",
+  },
+  {
+    name: "Puter Functionalities Explorer - Vanilla JS",
+    js: puterFunctionalitiesVanillaJs,
+    html: "<div id='app'></div>",
+    description: "A simple app to explore Puter's functionalities",
+    framework: "vanilla js",
+  },
+  {
+    name: "Full Page Wikipedia Viewer - React",
+    js: iframeReact,
+    html: "<div id='app' class='h-screen'></div>",
+    description: "A simple app to view Wikipedia",
+    framework: "react",
+  },
+  {
+    name: "Full Page Wikipedia Viewer - Vanilla JS",
+    js: iframeVanillaJs,
+    html: iframeVanillaJsHtml,
+    description: "A simple app to view Wikipedia",
+    framework: "vanilla js",
+  },
+];

@@ -14,6 +14,7 @@ import CustomIframe from "./components/CustomIframe";
 import LogSection from "./components/LogSection";
 import ChatView from "./components/ChatView";
 import { prompts } from "./utils/prompts";
+import { templates } from "./utils/templates";
 
 const DraggableApp = () => {
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
@@ -528,6 +529,15 @@ const DraggableApp = () => {
       setSystemPrompt(prompts[promptIndex].content);
       setSelectedPrompt(promptIndex);
       resetChatMessages();
+    }
+
+    if (action.indexOf("setTemplate") !== -1) {
+      const actionSplit = action.split("-");
+      const templateIndex = actionSplit[1];
+      setJsCode(templates[templateIndex].js);
+      setHtmlCode(templates[templateIndex].html);
+      editorHtmlRef.current?.setValue(templates[templateIndex].html);
+      editorJsRef.current?.setValue(templates[templateIndex].js);
     }
 
     if (action === "promptReact") {
@@ -1165,6 +1175,36 @@ const DraggableApp = () => {
     editorJsRef.current?.setValue(jsCode);
   }, [selectedCode]);
 
+  useEffect(() => {
+  //find a line that start with //appTitle:
+  let appTitle = "";
+  const lines = jsCode.split("\n");
+  for (const line of lines) {
+    if (line.indexOf("//appTitle:") !== -1) {
+      appTitle = line.replace("//appTitle:", "");
+      break;
+    }
+  }
+  setAppName(appTitle);
+  },[jsCode]);
+
+  const [parentTitle, setParentTitle] = useState("");
+  const [authorisedDomain, setAuthorisedDomain] = useState(true);
+
+  useEffect(() => {
+    const parentTitleApp = window.parent.document.referrer;
+    console.log("referer");
+    console.log(parentTitleApp);
+    if (parentTitleApp.indexOf("puter.com") === -1 || parentTitleApp.indexOf("http://localhost") === -1) {
+      setAuthorisedDomain(true)
+    } else {
+      setAuthorisedDomain(false)
+    }  
+    setParentTitle(parentTitleApp);
+  }, []);
+
+
+
   //update divs ChatView
   useEffect(() => {
     setDivs((prevDivs) =>
@@ -1215,6 +1255,7 @@ const DraggableApp = () => {
                 setSystemPromptVal={setSystemPromptVal}
                 selectedPrompt={selectedPrompt}
                 prompts={prompts}
+                templates={templates}
               />
             ),
           };
@@ -1322,6 +1363,7 @@ const DraggableApp = () => {
 
   return (
     <div className="dark:bg-dark bg-light">
+      {authorisedDomain===false  && <div className="fixed top-0 left-0 w-full h-full dark:bg-dark bg-light dark:text-light text-dark bg-opacity-50 flex items-center justify-center z-50"><p>Only available on puter.com</p></div>}
       {showGuideView && <GuideView setShowGuideView={setShowGuideView} />}
       {showDeployForm && (
         <DeployForm
@@ -1357,6 +1399,7 @@ const DraggableApp = () => {
         setSystemPromptVal={setSystemPromptVal}
         selectedPrompt={selectedPrompt}
         prompts={prompts}
+        templates={templates}
       />
       <Space.ViewPort className="w-full dark:bg-dark bg-light">
         <Space.Top
