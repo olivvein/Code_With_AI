@@ -11,6 +11,13 @@ const ChatView = ({
   chatMessages,
   resetChatMessages,
 }) => {
+
+  //a function to sanatize the html tags so that it can be shown in html as text without being executed
+  const sanatizeHtmlsTags = (html) => {
+    return html.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+
   return (
     <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark">
       <div className="w-full h-full">
@@ -24,7 +31,7 @@ const ChatView = ({
                       content={
                         message.role == "user"
                           ? "# " + message.content
-                          : message.content
+                          : sanatizeHtmlsTags(message.content)
                       }
                       className={` p-4 m-4 w-5/6 mx-2 px-2  opacity-100 overflow-y-scroll rounded  dark:text-light text-dark  ${
                         message.role === "assistant"

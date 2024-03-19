@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import * as Space from "react-spaces";
 import * as Babel from "@babel/standalone";
@@ -14,11 +13,15 @@ import ChatSettings from "./components/ChatSettings";
 import CustomIframe from "./components/CustomIframe";
 import LogSection from "./components/LogSection";
 import ChatView from "./components/ChatView";
+import { prompts } from "./utils/prompts";
 
 const DraggableApp = () => {
+  const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
+
   async function sendMessage(message) {
     setMessageFinished(false);
     setFullMessage("");
+    console.log(systemPrompt);
     try {
       if (chatProvider === "puter") {
         const newMessage = [
@@ -143,6 +146,7 @@ const DraggableApp = () => {
       }
 
       if (chatProvider === "openai" && apiKey !== "") {
+        console.log(apiKey);
         const newMessage = [
           ...chatMessages,
           { role: "user", content: message },
@@ -192,6 +196,7 @@ const DraggableApp = () => {
         newMessage[newMessage.length - 1].content = fullResponse;
         setChatMessages(newMessage);
         setMessageFinished(true);
+        console.log(fullMessage);
       }
     } catch (error) {
       console.log(error);
@@ -200,9 +205,9 @@ const DraggableApp = () => {
 
   const extractCodeSnippets = (markdownContent) => {
     const codeSnippets = [];
-    const codeString = "\`\`\`";
+    const codeString = "```";
     const codeBlockRegex = new RegExp(
-      `${codeString}(jsx|tsx|js|html)\n([\\s\\S]*?)${codeString}\n`,
+      `${codeString}(jsx|tsx|js|html|javascript)\n([\\s\\S]*?)${codeString}\n`,
       "g"
     );
     let match;
@@ -222,7 +227,7 @@ const DraggableApp = () => {
 
     // Check for a partial code snippet at the end of the file
     const partialCodeRegex = new RegExp(
-      `${codeString}(jsx)\n([\\s\\S]*)(?!${codeString})`
+      `${codeString}(jsx|js|javascript)\n([\\s\\S]*)(?!${codeString})`
     );
     const partialMatch = partialCodeRegex.exec(markdownContent);
 
@@ -515,6 +520,45 @@ const DraggableApp = () => {
     if (action === "userGuide") {
       setShowGuideView(true);
     }
+
+
+    if (action.indexOf("setPrompt") !== -1) {
+      const actionSplit = action.split("-");
+      const promptIndex = actionSplit[1];
+      setSystemPrompt(prompts[promptIndex].content);
+      setSelectedPrompt(promptIndex);
+      resetChatMessages();
+    }
+
+    if (action === "promptReact") {
+      setSystemPrompt(prompts[0].content);
+    }
+
+    if (action === "promptJs") {
+      setSystemPrompt(prompts[1].content);
+    }
+
+    if (action === "deleteAll") {
+      const deleteAllKv = async () => {
+        const kvList = await puter.kv.list(true);
+        kvList.map((file) => {
+          puter.kv.del(file.key).then((success) => {
+            console.log("deleted");
+          });
+        });
+
+        setApiKey("");
+        setChatProvider("puter");
+      };
+      deleteAllKv();
+    }
+  };
+
+  const [selectedPrompt, setSelectedPrompt] = useState(0);
+  const setSystemPromptVal = (e) => {
+    setSelectedPrompt(e.target.value);
+    setSystemPrompt(prompts[e.target.value].content);
+    resetChatMessages();
   };
 
   const saveAs = (e) => {
@@ -578,11 +622,6 @@ const DraggableApp = () => {
   };
 
   const [username, setUsername] = useState("Guest");
-  const todayString = new Date().toDateString();
-  const timeToHumanStringInFrance = (time) => {
-    const date = new Date(time);
-    return date.toLocaleString("fr-FR");
-  };
 
   const [draggingId, setDraggingId] = useState(null);
 
@@ -590,13 +629,19 @@ const DraggableApp = () => {
 
   const [gptVal, setGptVal] = useState(0);
 
+  const todayString = new Date().toDateString();
+  const timeToHumanStringInFrance = (time) => {
+    const date = new Date(time);
+    return date.toLocaleString("fr-FR");
+  };
+
   const ContextInfos = `
   Today is ${todayString}.
   The time is ${timeToHumanStringInFrance(Date.now())} in France.
   The user is ${username}.
   `;
 
-  const systemPrompt = `You are a pro developer in javascript html and react and tailwind.
+  const oldSysPrompt = `You are a pro developer in javascript html and react and tailwind.
     You can create really complex app with these languages.
     You have no limitation in the number of lines of code.
     If requested a full app, you will do it.
@@ -718,7 +763,9 @@ const DraggableApp = () => {
 
     `;
   const [fullMessage, setFullMessage] = useState("");
-  const [chatMessages, setChatMessages] = useState([{ role: "system", content: systemPrompt }]);
+  const [chatMessages, setChatMessages] = useState([
+    { role: "system", content: systemPrompt },
+  ]);
 
   const [messageFinished, setMessageFinished] = useState(true);
 
@@ -904,6 +951,9 @@ const DraggableApp = () => {
           resetApiKey={resetApiKey}
           name="Chat Settings"
           anthropicAvailable={anthropicAvailable}
+          setSystemPromptVal={setSystemPromptVal}
+          selectedPrompt={selectedPrompt}
+          prompts={prompts}
         />
       ),
     },
@@ -960,9 +1010,10 @@ const DraggableApp = () => {
       if (
         codeSnippet.language === "js" ||
         codeSnippet.language === "jsx" ||
-        codeSnippet.language === "tsx"
+        codeSnippet.language === "tsx" ||
+        codeSnippet.language === "javascript"
       ) {
-        if (codeSnippet.status == "completed" && true) {
+        if (codeSnippet.status == "completed" && false) {
           codeSnippet.code = codeSnippet.code.replace(
             "import twindSetup",
             "import { setup as twindSetup }"
@@ -1008,15 +1059,12 @@ const DraggableApp = () => {
               codeSnippet.code;
           }
 
-          if (
-            codeSnippet.code.indexOf("twindSetup()") == -1
-          ) {
+          if (codeSnippet.code.indexOf("twindSetup()") == -1) {
             codeSnippet.code =
-              'twindSetup(); //imported automatically\n' +
-              codeSnippet.code;
+              "twindSetup(); //imported automatically\n" + codeSnippet.code;
           }
         }
-
+        codeSnippet.code = codeSnippet.code.replace(/\`\`\`/g, "");
         setJsCode(codeSnippet.code);
         editorJsRef.current?.setValue(codeSnippet.code);
         // if (editorJsRef.current) {
@@ -1088,23 +1136,27 @@ const DraggableApp = () => {
     updateUser();
   }, []);
 
-  
-
   //check if anthropic is available on port 3002
   useEffect(() => {
     try {
       fetch("http://localhost:3002/health")
-      .then((response) => response.text())
-      .then((data) => {if(data=="ok"){setAnthropicAvailable(true)}else{setAnthropicAvailable(false)};console.log(data)})
-      .catch((error) => {
-        console.log(error);
-        console.log("anthropic not avaliable")
-        setAnthropicAvailable(false);
-      });
+        .then((response) => response.text())
+        .then((data) => {
+          if (data == "ok") {
+            setAnthropicAvailable(true);
+          } else {
+            setAnthropicAvailable(false);
+          }
+          console.log(data);
+        })
+        .catch((error) => {
+          console.log(error);
+          console.log("anthropic not avaliable");
+          setAnthropicAvailable(false);
+        });
     } catch (error) {
       console.log(error);
     }
-    
   }, []);
 
   //match selected code
@@ -1160,6 +1212,9 @@ const DraggableApp = () => {
                 chatProvider={chatProvider}
                 ollamaConfig={ollamaConfig}
                 sendMenuAction={sendMenuAction}
+                setSystemPromptVal={setSystemPromptVal}
+                selectedPrompt={selectedPrompt}
+                prompts={prompts}
               />
             ),
           };
@@ -1167,7 +1222,7 @@ const DraggableApp = () => {
         return div;
       })
     );
-  }, [inputMessage, gptVal, apiKey, chatProvider, username]);
+  }, [inputMessage, gptVal, apiKey, chatProvider, username,selectedPrompt]);
 
   //update divs ChatSettings
   useEffect(() => {
@@ -1190,6 +1245,9 @@ const DraggableApp = () => {
                 resetApiKey={resetApiKey}
                 name="Chat Settings"
                 anthropicAvailable={anthropicAvailable}
+                setSystemPromptVal={setSystemPromptVal}
+                selectedPrompt={selectedPrompt}
+                prompts={prompts}
               />
             ),
           };
@@ -1197,7 +1255,7 @@ const DraggableApp = () => {
         return div;
       })
     );
-  }, [chatProvider, ollamaConfig, openAiCongig, apiKey]);
+  }, [chatProvider, ollamaConfig, openAiCongig, apiKey,selectedPrompt]);
 
   //update divs LogSection
 
@@ -1296,6 +1354,9 @@ const DraggableApp = () => {
         chatProvider={chatProvider}
         ollamaConfig={ollamaConfig}
         sendMenuAction={sendMenuAction}
+        setSystemPromptVal={setSystemPromptVal}
+        selectedPrompt={selectedPrompt}
+        prompts={prompts}
       />
       <Space.ViewPort className="w-full dark:bg-dark bg-light">
         <Space.Top

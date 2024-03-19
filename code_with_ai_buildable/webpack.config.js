@@ -27,4 +27,16 @@ const path = require('path');
          "os": false,
        },
      },
+     devServer: {
+      client: {
+        overlay: false,  // disable full screen overlay
+  
+        // You can configure more specifically:
+        // overlay: {
+        //  errors: true,
+        //  warnings: false,
+        //  runtimeErrors: true,
+        //}
+      }  
+     }
    };

@@ -49,5 +49,6 @@ to build the app, just past the content of index.jsx in Code with AI
 - [ ] Multiple System prompt based on the framework (react, vannila, ...)
 - [ ] User System Prompt
 - [ ] App Templates with integrated puter api and UI
+- [ ] buildable version that include the packages for faster load time
 
  

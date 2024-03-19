@@ -14,6 +14,9 @@ const NavBar = ({
   setChatProvider,
   ollamaConfig,
   sendMenuAction,
+  setSystemPromptVal,
+  selectedPrompt,
+  prompts
 }) => {
   const [openMenu, setOpenMenu] = useState("");
 
@@ -40,6 +43,23 @@ const NavBar = ({
         { status: "inactive", name: "Copy", action: "copy" },
         { status: "inactive", name: "Cut", action: "cut" },
         { status: "inactive", name: "Paste", action: "paste" },
+      ],
+    },
+    {
+      name: "Prompts",
+      subMenu: [...prompts.map((prompt,index) => {
+        if(index==selectedPrompt){
+          return { status: "active", name: prompt.name+" ✓", action: "setPrompt-"+index};
+        }else{
+          return { status: "active", name: prompt.name, action: "setPrompt-"+index};
+        }
+      }),{ status: "inactive", name: "View", action: "viewPrompts" }],
+    },
+    {
+      name: "Database",
+      subMenu: [
+        { status: "active", name: "Delete All", action: "deleteAll" },
+        { status: "inactive", name: "View", action: "viewAllKv" },
       ],
     },
     {

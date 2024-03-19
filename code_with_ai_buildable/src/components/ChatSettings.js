@@ -1,5 +1,6 @@
 
-import React from "react";
+import React, { useState } from "react";
+
 
 const ChatSettings = ({
   chatProvider,
@@ -13,7 +14,13 @@ const ChatSettings = ({
   apiKey,
   resetApiKey,
   anthropicAvailable,
+  setSystemPromptVal,
+  selectedPrompt,
+  prompts
 }) => {
+
+  
+
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <div className="flex flex-col items-center justify-center">
@@ -107,6 +114,21 @@ const ChatSettings = ({
               )}
             </div>
           )}
+        </div>
+
+        <div className="flex flex-col items-center justify-center">
+          <h2 className="text-2xl font-semibold dark:text-light text-dark">
+            Prompts
+          </h2>
+          <select
+            value={selectedPrompt}
+            onChange={setSystemPromptVal}
+            className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
+          >
+            {prompts.map((prompt, index) => (
+              <option value={index}>{prompt.name}</option>
+            ))}
+          </select>
         </div>
       </div>
     </div>
