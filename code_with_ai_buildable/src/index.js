@@ -2,7 +2,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { setup as twindSetup } from "twind/shim";
-import DraggableApp from "./App";
+import App from "./App";
 
 twindSetup({
   darkMode: "media",
@@ -55,4 +55,4 @@ twindSetup({
   },
 });
 
-ReactDOM.render(<DraggableApp />, document.getElementById("app"));
+ReactDOM.render(<App />, document.getElementById("app"));

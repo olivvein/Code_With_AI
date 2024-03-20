@@ -2,19 +2,9 @@
 import React, { useState } from "react";
 
 const NavBar = ({
-  inputSubmit,
-  setGptValue,
-  gptVal,
-  resetApiKey,
   visibleApiKey,
   username,
-  inputMessage,
-  setInputVal,
-  chatProvider,
-  setChatProvider,
-  ollamaConfig,
   sendMenuAction,
-  setSystemPromptVal,
   selectedPrompt,
   prompts,
   templates
@@ -24,6 +14,12 @@ const NavBar = ({
   const toggleMenu = (menu) => {
     setOpenMenu(openMenu === menu ? "" : menu);
   };
+
+  const handleHover = (menu) => {
+    if(openMenu!=""){
+      setOpenMenu(menu);
+    }
+  }
 
   const menuConfig = [
     {
@@ -60,7 +56,7 @@ const NavBar = ({
         }else{
           return { status: "active", name: prompt.name, action: "setPrompt-"+index};
         }
-      }),{ status: "inactive", name: "View", action: "viewPrompts" }],
+      }),{ status: "active", name: "View", action: "viewPrompts" }],
     },
     {
       name: "Database",
@@ -91,7 +87,7 @@ const NavBar = ({
         <div className="w-3/4 top-0 dark:bg-dark bg-light dark:text-light text-dark py-2 px-0">
           <span className="left-0 py-4 px-2">
             <span>
-              <b>Code With Ais</b>
+              <b>Code With Ai</b>
             </span>
             <span className="absolute left-0 top-6 text-sm px-2">
               By SamLePirate
@@ -103,8 +99,9 @@ const NavBar = ({
                 tabIndex={index} // Makes the div focusable
                 // Handles focus event
                 onBlur={() => {
-                  setTimeout(() => toggleMenu(menu.name), 100);
+                  setTimeout(() => setOpenMenu(""), 100);
                 }}
+                onMouseOver={() => {handleHover(menu.name)}}
                 className={`${
                   openMenu == menu.name ? "bg-gray-700" : ""
                 } cursor-pointer pt-3 pb-2 px-2 active:bg-gray-700  hover:bg-gray-700 hover:shadow-lg rounded-lg`}
@@ -113,15 +110,23 @@ const NavBar = ({
                 {menu.name}
               </span>
               {openMenu === menu.name && (
-                <div className="absolute left-0 mt-2 w-48 dark:bg-dark bg-light rounded-md animate-appear border border-gray-700 shadow-lg z-50 ">
+                <div className="absolute backdrop-blur-xl blur-3xl dark:bg-dark bg-light dark:text-light text-dark opacity-95 left-0 mt-2 w-48  rounded-md  border border-gray-700 shadow-lg z-50 ">
                   {menu.subMenu.map((subMenu) => (
                     <button
-                      className={`w-full text-left block px-4 py-2 border border-gray-700 text-sm text-gray-300 active:bg-gray-400 active:border-gray-700 active:text-dark transition-colors duration-100 ease-in-out hover:bg-gray-700 ${
-                        subMenu.status == "inactive" ? "text-gray-600" : ""
+                      className={`w-full text-left block px-4 py-2 border border-gray-700 text-sm  active:bg-gray-400 active:border-gray-700 active:text-dark transition-colors duration-100 ease-in-out hover:bg-gray-700 ${
+                        subMenu.status == "inactive" ? "dark:text-gray-800 text-gray-400 " : "dark:text-light text-dark "
                       }`}
-                      onClick={() => {
-                        setOpenMenu("");
+                      // onClick={() => {
+                        
+                      //   sendMenuAction(subMenu.action);
+                      //   setTimeout(() => setOpenMenu(""), 300);
+                        
+                      // }}
+                      onMouseDown={() => {
+                        
                         sendMenuAction(subMenu.action);
+                        setTimeout(() => setOpenMenu(""), 300);
+                        
                       }}
                     >
                       {subMenu.name}

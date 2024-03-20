@@ -15,8 +15,9 @@ import LogSection from "./components/LogSection";
 import ChatView from "./components/ChatView";
 import { prompts } from "./utils/prompts";
 import { templates } from "./utils/templates";
+import ViewPrompts from "./components/ViewPrompts";
 
-const DraggableApp = () => {
+const App = () => {
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
 
   async function sendMessage(message) {
@@ -518,10 +519,13 @@ const DraggableApp = () => {
       setShowSaveAsForm(true);
     }
 
+    if (action === "viewPrompts") {
+      setShowViewPrompts(true);
+    }
+
     if (action === "userGuide") {
       setShowGuideView(true);
     }
-
 
     if (action.indexOf("setPrompt") !== -1) {
       const actionSplit = action.split("-");
@@ -570,6 +574,8 @@ const DraggableApp = () => {
     setSystemPrompt(prompts[e.target.value].content);
     resetChatMessages();
   };
+
+  const [showViewPrompts, setShowViewPrompts] = useState(false);
 
   const saveAs = (e) => {
     e.preventDefault();
@@ -1089,16 +1095,20 @@ const DraggableApp = () => {
   //get ollama models
   useEffect(() => {
     const getOllamaModel = async () => {
-      const ollama = new OpenAI({
-        baseURL: ollamaConfig.baseURL,
-        apiKey: "ollama",
-        dangerouslyAllowBrowser: true,
-      });
-      const modelList = await ollama.models.list();
-      const theModels = modelList.data;
-      console.log(modelList);
-      console.log(theModels);
-      setOllamaConfig({ ...ollamaConfig, models: theModels });
+      try {
+        const ollama = new OpenAI({
+          baseURL: ollamaConfig.baseURL,
+          apiKey: "ollama",
+          dangerouslyAllowBrowser: true,
+        });
+        const modelList = await ollama.models.list();
+        const theModels = modelList.data;
+        console.log(modelList);
+        console.log(theModels);
+        setOllamaConfig({ ...ollamaConfig, models: theModels });
+      } catch (error) {
+        console.log("no liteLLM");
+      }
     };
 
     getOllamaModel();
@@ -1176,34 +1186,32 @@ const DraggableApp = () => {
   }, [selectedCode]);
 
   useEffect(() => {
-  //find a line that start with //appTitle:
-  let appTitle = "";
-  const lines = jsCode.split("\n");
-  for (const line of lines) {
-    if (line.indexOf("//appTitle:") !== -1) {
-      appTitle = line.replace("//appTitle:", "");
-      break;
+    //find a line that start with //appTitle:
+    let appTitle = "";
+    const lines = jsCode.split("\n");
+    for (const line of lines) {
+      if (line.indexOf("//appTitle:") !== -1) {
+        appTitle = line.replace("//appTitle:", "");
+        break;
+      }
     }
-  }
-  setAppName(appTitle);
-  },[jsCode]);
+    setAppName(appTitle);
+  }, [jsCode]);
 
   const [parentTitle, setParentTitle] = useState("");
   const [authorisedDomain, setAuthorisedDomain] = useState(true);
 
-  useEffect(() => {
-    const parentTitleApp = window.parent.document.referrer;
-    console.log("referer");
-    console.log(parentTitleApp);
-    if (parentTitleApp.indexOf("puter.com") === -1 || parentTitleApp.indexOf("http://localhost") === -1) {
-      setAuthorisedDomain(true)
-    } else {
-      setAuthorisedDomain(false)
-    }  
-    setParentTitle(parentTitleApp);
-  }, []);
-
-
+  // useEffect(() => {
+  //   const parentTitleApp = window.parent.document.referrer;
+  //   console.log("referer");
+  //   console.log(parentTitleApp);
+  //   if (parentTitleApp.indexOf("puter.com") === -1 || parentTitleApp.indexOf("http://localhost") === -1) {
+  //     setAuthorisedDomain(true)
+  //   } else {
+  //     setAuthorisedDomain(false)
+  //   }
+  //   setParentTitle(parentTitleApp);
+  // }, []);
 
   //update divs ChatView
   useEffect(() => {
@@ -1263,7 +1271,7 @@ const DraggableApp = () => {
         return div;
       })
     );
-  }, [inputMessage, gptVal, apiKey, chatProvider, username,selectedPrompt]);
+  }, [inputMessage, gptVal, apiKey, chatProvider, username, selectedPrompt]);
 
   //update divs ChatSettings
   useEffect(() => {
@@ -1296,7 +1304,7 @@ const DraggableApp = () => {
         return div;
       })
     );
-  }, [chatProvider, ollamaConfig, openAiCongig, apiKey,selectedPrompt]);
+  }, [chatProvider, ollamaConfig, openAiCongig, apiKey, selectedPrompt]);
 
   //update divs LogSection
 
@@ -1363,7 +1371,18 @@ const DraggableApp = () => {
 
   return (
     <div className="dark:bg-dark bg-light">
-      {authorisedDomain===false  && <div className="fixed top-0 left-0 w-full h-full dark:bg-dark bg-light dark:text-light text-dark bg-opacity-50 flex items-center justify-center z-50"><p>Only available on puter.com</p></div>}
+      {showViewPrompts && (
+        <ViewPrompts
+          setShowViewPrompts={setShowViewPrompts}
+          selectedPrompt={selectedPrompt}
+          prompts={prompts}
+        />
+      )}
+      {authorisedDomain === false && (
+        <div className="fixed top-0 left-0 w-full h-full dark:bg-dark bg-light dark:text-light text-dark bg-opacity-50 flex items-center justify-center z-50">
+          <p>Only available on puter.com</p>
+        </div>
+      )}
       {showGuideView && <GuideView setShowGuideView={setShowGuideView} />}
       {showDeployForm && (
         <DeployForm
@@ -1520,4 +1539,4 @@ const DraggableApp = () => {
   );
 };
 
-export default DraggableApp;
+export default App;
