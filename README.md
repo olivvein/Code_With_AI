@@ -48,8 +48,10 @@ to build the app, just past the content of index.jsx in Code with AI
 - [x] Better Markdown formatting
 - [x] Multiple System prompt based on the framework (react, vannila, ...)
 - [ ] User System Prompt
-- [ ] App Templates with integrated puter api and UI
+- [x] App Templates with integrated puter api and UI
 - [x] buildable version that include the packages for faster load time
+- [x] search github repo readme and add to chat for ai teaching
+- [x] loading screen for chat completion and saveAs/Deploy
 
 
  
