@@ -16,6 +16,7 @@ import ChatView from "./components/ChatView";
 import { prompts } from "./utils/prompts";
 import { templates } from "./utils/templates";
 import ViewPrompts from "./components/ViewPrompts";
+import LoadingDiv from "./components/LoadingDiv";
 
 const App = () => {
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
@@ -374,9 +375,12 @@ const App = () => {
   };
 
   const downloadCode = () => {
+    setShowLoading(true);
+    setLoadingMessage("Deploying App ...");
     let code = "";
     if (appName == "") {
       alert("No App Name");
+      setShowLoading(false);
       return;
     }
     code = saveFullCode(htmlCode, jsCode);
@@ -414,8 +418,10 @@ const App = () => {
           JSON.stringify(response).split(",").join("\n")
         );
         alert("App created : Success");
+        setShowLoading(false);
       } catch (error) {
         alert("App created : Error");
+        setShowLoading(false);
         console.log(
           "Failed to create app:",
           JSON.stringify(error).split(",").join("\n")
@@ -578,6 +584,8 @@ const App = () => {
   const [showViewPrompts, setShowViewPrompts] = useState(false);
 
   const saveAs = (e) => {
+    setShowLoading(true);
+    setLoadingMessage("Saving App ...");
     e.preventDefault();
     setShowSaveAsForm(false);
     if (appName == "") {
@@ -605,6 +613,8 @@ const App = () => {
                   .then(() => {
                     console.log("index.html written successfully");
                     alert("App succesfully saved on " + directory.path);
+                    setShowLoading(false);
+                    setLoadingMessage("");
 
                     puter.fs
                       .readdir("./")
@@ -999,6 +1009,7 @@ const App = () => {
           chatMessages={chatMessages}
           name="Chat View"
           resetChatMessages={resetChatMessages}
+          setChatMessages={setChatMessages}
         />
       ),
     },
@@ -1230,6 +1241,7 @@ const App = () => {
                 chatMessages={chatMessages}
                 name="Chat View"
                 resetChatMessages={resetChatMessages}
+                setChatMessages={setChatMessages}
               />
             ),
           };
@@ -1368,9 +1380,19 @@ const App = () => {
   const [showDeployForm, setShowDeployForm] = useState(false);
   const [showSaveAsForm, setShowSaveAsForm] = useState(false);
   const [showGuideView, setShowGuideView] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   return (
     <div className="dark:bg-dark bg-light">
+      {showLoading && (
+        <div className="absolute top-0 dark:bg-dark bg-light dark:text-light text-dark left-0 w-full h-screen z-50 opacity-90">
+          <LoadingDiv
+            message={loadingMessage}
+          />
+        </div>
+      )}
+
       {showViewPrompts && (
         <ViewPrompts
           setShowViewPrompts={setShowViewPrompts}

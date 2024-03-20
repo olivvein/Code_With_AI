@@ -1,5 +1,6 @@
 
 import React from "react";
+import LoadingDiv from "./LoadingDiv";
 
 function CustomIframe({
   jsCode,
@@ -16,10 +17,7 @@ function CustomIframe({
   return (
     <>
       {messageFinished == 0 && (
-        <img
-          src="https://c.tenor.com/y2JXkY1pXkwAAAAC/tenor.gif"
-          className="w-full h-full bg-dark"
-        />
+        <LoadingDiv message={"Loading ...."}/>
       )}
       {messageFinished == 1 && (
         <iframe

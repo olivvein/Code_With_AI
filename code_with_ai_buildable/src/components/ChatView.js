@@ -1,6 +1,9 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import MarkDownView from "./MarkDownView";
+import GithubGet from "./GithubGet";
+import MarkdownGet from "./MarkdownGet";
+
 
 const ChatView = ({
   inputSubmit,
@@ -10,18 +13,33 @@ const ChatView = ({
   fullMessage,
   chatMessages,
   resetChatMessages,
+  setChatMessages
 }) => {
 
   //a function to sanatize the html tags so that it can be shown in html as text without being executed
   const sanatizeHtmlsTags = (html) => {
-    return html.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return html.replace(/<script/g, "&lt;script").replace(/script>/g, "script&gt;");
   }
 
+  const [githubReadme, setGithubReadme] = useState("");
+
+  const setGithubReadmeVal = (readme,repo) => {
+
+    setGithubReadme(readme);
+    
+    //append new message to chat
+    const toAppend = { role: "user", content: `Do you know this repo ${repo} README.md?` };
+    const toAppend2 = { role: "assistant", content: readme };
+    setChatMessages([...chatMessages, toAppend,toAppend2]);
+    
+  }
 
   return (
     <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark">
       <div className="w-full h-full">
         <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark">
+          <GithubGet setGithubReadme={setGithubReadmeVal}/>
+          <MarkdownGet setGithubReadme={setGithubReadmeVal}/>
           <div className="w-full h-5/6 dark:bg-dark bg-light dark:text-light text-dark overflow-y-scroll">
             {chatMessages.map((message, index) => {
               if (message.role !== "system") {
@@ -35,7 +53,7 @@ const ChatView = ({
                       }
                       className={` p-4 m-4 w-5/6 mx-2 px-2  opacity-100 overflow-y-scroll rounded  dark:text-light text-dark  ${
                         message.role === "assistant"
-                          ? "dark:bg-red-800 bg-red-400"
+                          ? "dark:bg-green-800 bg-green-800"
                           : "dark:bg-blue-800 bg-blue-800"
                       }`}
                     />
