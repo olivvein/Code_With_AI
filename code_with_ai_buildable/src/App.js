@@ -816,93 +816,9 @@ const App = () => {
   const editorJsRef = useRef(null);
   const editorHtmlRef = useRef(null);
   const editorBabelRef = useRef(null);
-  const [htmlCode, setHtmlCode] = useState(`<div id="app"></div>`);
+  const [htmlCode, setHtmlCode] = useState(templates[0].html);
   const [jsCode, setJsCode] =
-    useState(`//appTitle: Cool Clock with Navbar and KV Fields View and an Iframe
-
-    import React, { useEffect, useState } from "https://esm.sh/react";
-    import ReactDOM from "https://esm.sh/react-dom";
-    import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim';
-    //and instanciate it
-    twindSetup();
-    
-    const ClockApp = () => {
-        if (puter==undefined){
-            this.puter=window.puter;
-        }
-        const [time, setTime] = useState(new Date());
-        const [username, setUsername] = useState('');
-        const [kvFields, setKvFields] = useState([]);
-    
-        useEffect(() => {
-            const timerID = setInterval(() => tick(), 1000);
-            return () => clearInterval(timerID);
-        });
-    
-        
-    
-        useEffect(() => {
-            const checkUserAndFetchKV = async () => {
-                const isSignedIn = puter.auth.isSignedIn();
-                if (!isSignedIn) {
-                    puter.auth.signIn();
-                }
-                const user = await puter.auth.getUser();
-                setUsername(user.username);
-    
-                puter.kv.set('name', user.username).then((success) => {
-                    console.log("name updated");
-                });
-    
-                puter.kv.set('time', Date()).then((success) => {
-                    console.log("time updated");
-                });
-    
-                const kvList = await puter.kv.list(true);
-                setKvFields(kvList);
-            };
-            checkUserAndFetchKV();
-        }, []);
-    
-        const tick = () => {
-            setTime(new Date());
-        };
-    
-        return (
-            <div className="flex flex-col h-screen bg-gray-900 text-white">
-                <nav className="flex items-center justify-between p-4 bg-gray-800">
-                    <h1 className="text-xl font-bold">Cool Clock</h1>
-                    <span>{username}</span>
-                </nav>
-                <div className="flex-1 flex flex-col items-center justify-start p-4 space-y-4 overflow-auto">
-                    <div className="text-center">
-                        <div className="text-4xl font-mono">{time.toLocaleTimeString()}</div>
-                    </div>
-                    <div className="max-w-xl w-full">
-                        <h2 className="text-lg font-semibold mb-2">KV Fields:</h2>
-                        <ul className="bg-gray-800 p-3 rounded-lg">
-                            {kvFields.map((field, index) => (
-                                <li key={index} className="flex justify-between text-sm p-2 hover:bg-gray-700 rounded">
-                                    <span className="font-mono">{field.key}</span>
-                                    <span>{field.value}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div className="w-full h-full">
-                        <iframe
-                            className="w-full h-full"
-                            src="https://wikipedia.org"
-                            sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts allow-downloads"
-                        />
-                    </div>
-                </div>
-            </div>
-        );
-    };
-    
-    ReactDOM.render(<ClockApp />, document.getElementById('app'));
-    `);
+    useState(templates[0].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
   const consoleLog = `var oldLog = console.log;var oldError = console.error;
@@ -1242,6 +1158,8 @@ const App = () => {
                 name="Chat View"
                 resetChatMessages={resetChatMessages}
                 setChatMessages={setChatMessages}
+                jsCode={jsCode}
+                htmlCode={htmlCode}
               />
             ),
           };
@@ -1249,7 +1167,7 @@ const App = () => {
         return div;
       })
     );
-  }, [inputMessage, messageFinished, fullMessage, chatMessages]);
+  }, [inputMessage, messageFinished, fullMessage, chatMessages,jsCode,htmlCode]);
 
   //update divs Navbar
   useEffect(() => {
