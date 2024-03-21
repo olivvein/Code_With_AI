@@ -53,7 +53,7 @@ to build the app, just past the content of index.jsx in Code with AI
 - [x] search github repo readme and add to chat for ai teaching
 - [x] loading screen for chat completion and saveAs/Deploy
 - [x] Fixed : using script type="module" only if script has import  (For Vanilla JS)
-- [x] Added Promplets : Small bit so prompt that are appended to system prompt that are stored in user kv
+- [x] Added Promplets : Small bit of prompt that are appended to system prompt that are stored in user kv
 
 
  
