@@ -93,6 +93,36 @@ puter.ai.txt2speech(\`the text to speak\`).then((audio)=>{
     audio.play();
 });
 \`\`\`
+
+
+to save file:
+\`\`\`
+
+puter.fs.write('hello.txt', 'Hello, world!').then(() => {
+    console.log('File written successfully');
+}).catch((error) => {
+    console.log('Error writing file:', error);
+});
+
+\`\`\`
+
+to get filenames in a directory: 
+\`\`\`
+puter.fs.readdir('./').then((items) => {
+    // print the path of each item in the directory
+    puter.print(\`Items in the directory:<br>\${items.map((item) => item.path)}<br>\`);
+}).catch((error) => {
+    puter.print(\`Error reading directory: \${error}\`);
+});
+\`\`\`
+
+to read file:
+\`\`\`
+let content = await puter.fs.read(filename);
+\`\`\`
+
+
+
 `;
 
 

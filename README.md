@@ -52,6 +52,7 @@ to build the app, just past the content of index.jsx in Code with AI
 - [x] buildable version that include the packages for faster load time
 - [x] search github repo readme and add to chat for ai teaching
 - [x] loading screen for chat completion and saveAs/Deploy
+- [x] Fixed : using script type="module" only if script has import  (For Vanilla JS)
 
 
  
