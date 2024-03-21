@@ -56,7 +56,7 @@ const NavBar = ({
         }else{
           return { status: "active", name: prompt.name, action: "setPrompt-"+index};
         }
-      }),{ status: "active", name: "View", action: "viewPrompts" }],
+      }),{ status: "active", name: "View", action: "viewPrompts" },{ status: "active", name: "Promplets", action: "viewCustomPrompt" }],
     },
     {
       name: "Database",

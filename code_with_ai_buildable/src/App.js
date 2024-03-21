@@ -17,21 +17,71 @@ import { prompts } from "./utils/prompts";
 import { templates } from "./utils/templates";
 import ViewPrompts from "./components/ViewPrompts";
 import LoadingDiv from "./components/LoadingDiv";
+import CustomPrompt from "./components/CustomPrompt";
 
 const App = () => {
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
+  const [showCustomPrompt, setShowCustomPrompt] = useState(false);
+
+  const [userPrompts, setUserPrompts] = useState([]); // userPrompts is an array of objects of type {name: string, content: string, active: boolean}
+  const [userStringPrompt, setUserStringPrompt] = useState("");
+
+  const getPrompts = async () => {
+    try {
+      const userPrompts = await puter.kv.get("user_prompts");
+      if (userPrompts) {
+        const parsedPrompts = JSON.parse(userPrompts);
+        setUserPrompts(parsedPrompts);
+        console.log(parsedPrompts);
+        const stringPrompt = getActivePromptsToString(parsedPrompts);
+        setUserStringPrompt(stringPrompt);
+        console.log(stringPrompt);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user prompts:", error);
+    }
+  };
+
+  const updatePrompts = () => {
+    getPrompts();
+  };
+
+  const getActivePromptsToString = (parsedPrompts) => {
+    let userStrinpromptVal = "";
+    parsedPrompts.forEach((prompt) => {
+      if (prompt.active) {
+        userStrinpromptVal += prompt.content + "\n";
+      }
+    });
+    return userStrinpromptVal;
+  };
+
+  
+
+    
+
+  useEffect(() => {
+    console.log("Fetching user prompts...");
+    
+    getPrompts();
+    
+  }, []);
+
 
   async function sendMessage(message) {
     setMessageFinished(false);
     setFullMessage("");
+    
+    systemPrompt = systemPrompt
+
     console.log(systemPrompt);
     try {
       if (chatProvider === "puter") {
         const newMessage = [
           ...chatMessages,
-          { role: "user", content: message },
+          { role: "user", content: message+"\nMake 2 snippets : 1 js/jsx and 1 html" },
         ];
-        newMessage[0].content = systemPrompt;
+        newMessage[0].content = systemPrompt+" \n"+userStringPrompt;
         console.log(newMessage);
         console.log("chat with puter");
         puter.ai.chat(newMessage).then((response) => {
@@ -57,7 +107,7 @@ const App = () => {
               "\nProvide only html and jsx snippet in Markdown.\n No explaination needed. Give me the 2 code snipet in markdown.",
           },
         ];
-        newMessage[0].content = systemPrompt;
+        newMessage[0].content = systemPrompt+" \n"+userStringPrompt;
         console.log(newMessage);
         const ollama = new OpenAI({
           baseURL: ollamaConfig.baseURL,
@@ -114,7 +164,7 @@ const App = () => {
               "\nProvide only html and jsx snippet in Markdown.\n No explaination needed. Give me the 2 code snipet in markdown.",
           },
         ];
-        newMessage[0].content = systemPrompt;
+        newMessage[0].content = systemPrompt+" \n"+userStringPrompt;
         console.log(newMessage);
 
         newMessage.push({ role: "assistant", content: "..." });
@@ -124,7 +174,7 @@ const App = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ message: message, systeme: systemPrompt }),
+          body: JSON.stringify({ message: message, systeme: systemPrompt+" \n"+userStringPrompt }),
         });
 
         const reader = response.body.getReader();
@@ -154,7 +204,7 @@ const App = () => {
           ...chatMessages,
           { role: "user", content: message },
         ];
-        newMessage[0].content = systemPrompt;
+        newMessage[0].content = systemPrompt+" \n"+userStringPrompt
         console.log(newMessage);
         const openai = new OpenAI({
           apiKey: apiKey,
@@ -523,6 +573,10 @@ const App = () => {
 
     if (action === "saveAs") {
       setShowSaveAsForm(true);
+    }
+
+    if (action === "viewCustomPrompt") {
+      setShowCustomPrompt(true);
     }
 
     if (action === "viewPrompts") {
@@ -956,7 +1010,7 @@ const App = () => {
         codeSnippet.language === "tsx" ||
         codeSnippet.language === "javascript"
       ) {
-        if (codeSnippet.status == "completed" && false) {
+        if (codeSnippet.status == "completed") {
           codeSnippet.code = codeSnippet.code.replace(
             "import twindSetup",
             "import { setup as twindSetup }"
@@ -1311,11 +1365,17 @@ const App = () => {
         </div>
       )}
 
+      {showCustomPrompt && (
+        <CustomPrompt setShowCustomPrompt={setShowCustomPrompt} updatePrompts={updatePrompts}/>
+      )}
+
       {showViewPrompts && (
         <ViewPrompts
           setShowViewPrompts={setShowViewPrompts}
           selectedPrompt={selectedPrompt}
           prompts={prompts}
+          userStringPrompt={userStringPrompt}
+          
         />
       )}
       {authorisedDomain === false && (
