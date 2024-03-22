@@ -37,6 +37,11 @@ const GuideView = ({ setShowGuideView }) => {
   );
 
   const guideMessage = `# User Guide
+
+  [<img src="/github-mark.svg">](https://github.com/olivvein/Code_With_AI)
+
+
+
 ## Code Editor
 - Based on Monaco editor (Vs Code) 
 - Same shortcut

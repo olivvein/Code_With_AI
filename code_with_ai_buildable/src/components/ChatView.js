@@ -30,8 +30,10 @@ const ChatView = ({
     setGithubReadme(readme);
     
     //append new message to chat
-    const toAppend = { role: "user", content: `Do you know this repo ${repo} README.md?` };
-    const toAppend2 = { role: "assistant", content: readme };
+    const toAppend = { role: "user", content: `Do you know this repo ${repo} README.md?
+    ${readme}
+    ` };
+    const toAppend2 = { role: "assistant", content: `Yes I knw it well, what you want me to do based on ${repo}` };
     setChatMessages([...chatMessages, toAppend,toAppend2]);
     
   }

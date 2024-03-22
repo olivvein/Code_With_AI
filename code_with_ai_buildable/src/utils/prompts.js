@@ -118,7 +118,8 @@ puter.fs.readdir('./').then((items) => {
 
 to read file:
 \`\`\`
-let content = await puter.fs.read(filename);
+let file = await puter.fs.read(filename);
+let content=await file.text(); //for text file
 \`\`\`
 
 
