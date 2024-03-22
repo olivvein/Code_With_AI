@@ -1,6 +1,6 @@
-
 import React from "react";
 import LoadingDiv from "./LoadingDiv";
+import SandBox from "./SandBox";
 
 function CustomIframe({
   jsCode,
@@ -15,12 +15,12 @@ function CustomIframe({
   ];
 
   const isModule = jsCode.includes("import") || jsCode.includes("export");
-  const moduleTag= isModule ? "type=module" : "";
+  const moduleTag = isModule ? "type=module" : "";
+  return <SandBox />;
+
   return (
     <>
-      {messageFinished == 0 && (
-        <LoadingDiv message={"Loading ...."}/>
-      )}
+      {messageFinished == 0 && <LoadingDiv message={"Loading ...."} />}
       {messageFinished == 1 && (
         <iframe
           className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark border dark:border-light border-dark rounded shadow-lg"
