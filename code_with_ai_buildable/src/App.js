@@ -19,6 +19,7 @@ import ViewPrompts from "./components/ViewPrompts";
 import LoadingDiv from "./components/LoadingDiv";
 import CustomPrompt from "./components/CustomPrompt";
 
+
 const App = () => {
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
   const [showCustomPrompt, setShowCustomPrompt] = useState(false);
@@ -1125,6 +1126,12 @@ const App = () => {
       const user = await puter.auth.getUser();
       setUsername(user.username);
 
+      console.log("openWithItems:")
+      puter.ui.onLaunchedWithItems(function(items){
+        console.log(JSON.stringify(items));
+      });
+
+
       //await puter.kv.del("openai_api_key")
       //resetChatMessages();
       const openai_api_key = await puter.kv.get("openai_api_key");
@@ -1135,6 +1142,9 @@ const App = () => {
       }
     };
     updateUser();
+
+    
+
   }, []);
 
   //check if anthropic is available on port 3002
@@ -1357,6 +1367,8 @@ const App = () => {
 
   return (
     <div className="dark:bg-dark bg-light">
+      
+      
       {showLoading && (
         <div className="absolute top-0 dark:bg-dark bg-light dark:text-light text-dark left-0 w-full h-screen z-50 opacity-90">
           <LoadingDiv
