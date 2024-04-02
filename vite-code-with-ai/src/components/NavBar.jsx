@@ -82,7 +82,13 @@ const NavBar = ({
             return { status: "active", name: name, action: "toggleId-"+index};
           }
         }),
-        { status: "inactive", name: "Fullscreen", action: "fullscreen" },
+        { status: "active", name: "Fullscreen", action: "fullscreen-preview" },
+        { status: "active", name: "Columns", action: "normal-view" },
+        { status: "active", name: "Chat Settings", action: "chat-settings" },
+        { status: "active", name: "Console", action: "console-log" },
+        { status: "active", name: "Code", action: "code-view" },
+        { status: "active", name: "Code + Preview", action: "code-preview" },
+        { status: "active", name: "Chat + Preview", action: "chat-preview" },
         { status: "inactive", name: "Dark Mode", action: "darkMode" },
       ],
     },
@@ -103,7 +109,7 @@ const NavBar = ({
             <span>
               <b>Code With Ai</b>
             </span>
-            <span className="absolute left-0 top-6 text-sm px-2">
+            <span className="absolute left-0 top-7 text-sm px-2">
               By SamLePirate
             </span>
           </span>
@@ -125,7 +131,7 @@ const NavBar = ({
                 {menu.name}
               </span>
               {openMenu === menu.name && (
-                <div className="absolute backdrop-blur-xl  dark:bg-dark/30 bg-light/30 dark:text-light text-dark  left-0 mt-2 w-48  rounded-md  border border-gray-700 shadow-lg z-50 flex flex-col justify-around">
+                <div className="absolute backdrop-blur-xl  dark:bg-dark/50 bg-light/50 dark:text-light text-dark  left-0 mt-2 w-48  rounded-md  border border-gray-700 transition-appear opacity-100 shadow-lg z-50 flex flex-col justify-around">
                  
                   
                   {menu.subMenu.map((subMenu,index) => (

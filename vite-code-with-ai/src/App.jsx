@@ -30,6 +30,89 @@ const App = () => {
 
   const [insertDiv, setInsertDiv] = useState(false);
 
+  const [sizeCols, setSizeCols] = useState([0, 0, 100]);
+  const [sizeRows, setSizeRows] = useState([0,0]);
+
+
+  const animateSizesCols = (toSize,time)=>{
+    //toSize is a array of size
+    //interpolate from sizeCols to toSize with a step of 1 and a duration of 1s
+
+    let step = 50;
+    let duration = time;
+    let interval = duration/step;
+    let currentSize = sizeCols;
+    let sizeDiff = toSize.map((size,index)=>size-currentSize[index]);
+    let sizeStep = sizeDiff.map((diff)=>diff/step);
+    let i = 0;
+    let intervalId = setInterval(()=>{
+      currentSize = currentSize.map((size,index)=>size+sizeStep[index]);
+      setSizeCols(currentSize);
+
+      i++;
+      if(i>=step){
+        clearInterval(intervalId);
+      }
+    },interval);
+  }
+
+  const animateSizesRows = (toSize,time)=>{
+    //toSize is a array of size
+    //interpolate from sizeCols to toSize with a step of 1 and a duration of 1s
+
+    let step = 50;
+    let duration = time;
+    let interval = duration/step;
+    let currentSize = sizeRows;
+    let sizeDiff = toSize.map((size,index)=>size-currentSize[index]);
+    let sizeStep = sizeDiff.map((diff)=>diff/step);
+    let i = 0;
+    let intervalId = setInterval(()=>{
+      currentSize = currentSize.map((size,index)=>size+sizeStep[index]);
+      setSizeRows(currentSize);
+
+      i++;
+      if(i>=step){
+        clearInterval(intervalId);
+      }
+    },interval);
+  }
+
+  useEffect(() => {
+
+    const runCols=()=>{
+      animateSizesCols([33,34,33],800);
+    };
+    const runCols1=()=>{
+      animateSizesCols([50,50,0],800);
+    };
+    const runCols2=()=>{
+      animateSizesCols([33,34,33],500);
+    };
+    const runCols3=()=>{
+      animateSizesCols([50,0,50],500);
+    };
+
+    const runCols4=()=>{
+      animateSizesCols([50,0,50],500);
+    };
+
+    const runRows=()=>{
+      animateSizesRows([10,10],500);
+    };
+
+    
+
+    setTimeout(runCols,3000);
+    //setTimeout(runCols1,5000);
+    //setTimeout(runCols2,7000);
+    // setTimeout(runCols3,9000);
+    // setTimeout(runCols4,1000);
+    
+
+    //setTimeout(runRows,5000);
+  }, []);
+
   const getPrompts = async () => {
     try {
       const userPrompts = await puter.kv.get("user_prompts");
@@ -568,16 +651,55 @@ const App = () => {
   const sendMenuAction = (action) => {
     console.log(action);
 
+    if(action=="fullscreen-preview"){
+      animateSizesCols([0,0,100],500);
+      animateSizesRows([0,0],300);
+    }
+
+    if(action=="normal-view"){
+      animateSizesCols([30,40,30],500);
+      animateSizesRows([0,0],300);
+    }
+
+    if(action=="chat-settings"){
+      animateSizesCols([30,40,30],500);
+      animateSizesRows([50,0],300);
+    }
+
+    if(action=="console-log"){
+      animateSizesCols([30,40,30],500);
+      animateSizesRows([0,50],300);
+    }
+    if(action=="code-view"){
+      animateSizesCols([0,100,0],500);
+      animateSizesRows([0,0],300);
+    }
+    if(action=="code-preview"){
+      animateSizesCols([0,50,50],500);
+      animateSizesRows([0,0],300);
+    }
+    if(action=="chat-preview"){
+      animateSizesCols([50,0,50],500);
+      animateSizesRows([0,0],300);
+    }
     if (action.indexOf("toggleId-") !== -1) {
       console.log("setInsertDiv")
       const actionSplit = action.split("-");
       const id = actionSplit[1];
       setDivToInsert(id);
       setInsertDiv(true);
-      // setTimeout(() => {
-      //   console.log("Fini")
-      //   setInsertDiv(false);
-      // },5000);
+      //add event listener for escape key to setInsertDiv(false);
+      document.addEventListener("keydown", (event) => {
+        
+          setInsertDiv(false);
+          //remove event listener
+          document.removeEventListener("keydown", (event) => {});
+        
+      });
+
+      //in 5 secs setInsertDiv(false); if not already set to false
+      
+      
     }
     if (action === "deploy") {
       setShowDeployForm(true);
@@ -1542,7 +1664,7 @@ const App = () => {
         >
           <Space.Fill trackSize={true}>
             <Space.LeftResizable
-              size="30%"
+              size={`${sizeCols[0]}%`}   //Sige of the left resizable : Chat View
               touchHandleSize={20}
               trackSize={false}
               scrollable={true}
@@ -1566,7 +1688,7 @@ const App = () => {
             </Space.LeftResizable>
 
             <Space.LeftResizable
-              size="40%"
+              size={`${sizeCols[1]}%`}   //size of Editor
               touchHandleSize={20}
               trackSize={false}
               scrollable={true}
@@ -1588,7 +1710,7 @@ const App = () => {
                 />
               </Space.Fill>
               <Space.BottomResizable
-                size="5%"
+                size={`${sizeRows[0]}%`}
                 touchHandleSize={20}
                 trackSize={true}
                 scrollable={true}
@@ -1611,7 +1733,7 @@ const App = () => {
               </Space.BottomResizable>
             </Space.LeftResizable>
             <Space.Fill
-              size="30%"
+              size={`${sizeCols[2]}%`}   //size of right resizable : Preview
               touchHandleSize={20}
               trackSize={true}
               scrollable={true}
@@ -1634,7 +1756,7 @@ const App = () => {
                 
               </Space.Fill>
               <Space.BottomResizable
-                size="5%"
+                size={`${sizeRows[1]}%`}
                 touchHandleSize={20}
                 trackSize={true}
                 scrollable={true}

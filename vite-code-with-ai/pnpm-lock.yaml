@@ -28,6 +28,7 @@ specifiers:
   react-spaces: ^0.4.1
   sucrase: ^3.35.0
   tailwindcss: ^3.4.3
+  tailwindcss-3d: ^1.0.6
   twind: ^0.16.19
   vite: ^5.2.0
   xterm: ^5.3.0
@@ -64,6 +65,7 @@ devDependencies:
   eslint-plugin-react-refresh: 0.4.6_eslint@8.57.0
   postcss: 8.4.38
   tailwindcss: 3.4.3
+  tailwindcss-3d: 1.0.6_tailwindcss@3.4.3
   vite: 5.2.7
 
 packages:
@@ -973,6 +975,12 @@ packages:
       - debug
       - utf-8-validate
     dev: false
+
+  /@swc/helpers/0.5.8:
+    resolution: {integrity: sha512-lruDGw3pnfM3wmZHeW7JuhkGQaJjPyiKjxeGhdmfoOT53Ic9qb5JLDNaK2HUdl1zLDeX28H221UvKjfdvSLVMg==}
+    dependencies:
+      tslib: 2.6.2
+    dev: true
 
   /@types/babel__core/7.20.5:
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -2631,6 +2639,10 @@ packages:
     resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
     dev: false
 
+  /lodash/4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+    dev: true
+
   /loose-envify/1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
@@ -3452,6 +3464,16 @@ packages:
     resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
     dev: false
 
+  /tailwindcss-3d/1.0.6_tailwindcss@3.4.3:
+    resolution: {integrity: sha512-Bym5X7QZr753dIW7UIrF1VaxCmkUEAetI1DmD00xJ6mdwgfMnO5mGILGTrfmupWwasjn8FcQ13R2Wexw75t4XA==}
+    peerDependencies:
+      tailwindcss: '>=3.2.0'
+    dependencies:
+      '@swc/helpers': 0.5.8
+      lodash: 4.17.21
+      tailwindcss: 3.4.3
+    dev: true
+
   /tailwindcss/3.4.3:
     resolution: {integrity: sha512-U7sxQk/n397Bmx4JHbJx/iSOOv5G+II3f1kpLpY2QeUv5DcPdcTsYLlusZfq1NthHS1c1cZoyFmmkex1rzke0A==}
     engines: {node: '>=14.0.0'}
@@ -3517,7 +3539,6 @@ packages:
 
   /tslib/2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
-    dev: false
 
   /twind/0.16.19:
     resolution: {integrity: sha512-/9H7I/Xzji6UZ+x1V8/llcQSAI0bINqpZtvAqqTzuU/qAdzRCnrpaME8x57k8tUu2KbosjSQE85sSwcLBGD1DQ==}
