@@ -20,6 +20,7 @@ import LoadingDiv from "./components/LoadingDiv";
 import CustomPrompt from "./components/CustomPrompt";
 import LocalFileExplorer from "./components/LocalFileExplorer";
 
+
 const App = () => {
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
   const [showCustomPrompt, setShowCustomPrompt] = useState(false);
@@ -67,7 +68,6 @@ const App = () => {
     setMessageFinished(false);
     setFullMessage("");
 
-    systemPrompt = systemPrompt;
 
     console.log(systemPrompt);
     try {
