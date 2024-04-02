@@ -157,7 +157,7 @@ const NavBar = ({
           ))}
         </div>
         <div className="justify-end pt-3 px-0 ">
-          <span className="cursor-pointer cursor-pointer pt-3 pb-2 px-2  hover:bg-gray-700 hover:shadow-lg rounded-lg">
+          <span className="cursor-pointer  pt-3 pb-2 px-2  hover:bg-gray-700 hover:shadow-lg rounded-lg">
             {visibleApiKey+username}
             
           </span>

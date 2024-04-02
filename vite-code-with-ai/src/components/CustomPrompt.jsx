@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import MarkDownView from "./MarkDownView";
 
+let puter=window.puter;
+
 const CustomPrompt = ({ setShowCustomPrompt, updatePrompts }) => {
   const [userPrompts, setUserPrompts] = useState([]); // userPrompts is an array of objects of type {name: string, content: string, active: boolean}
   const [name, setName] = useState("");

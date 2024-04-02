@@ -73,8 +73,8 @@ const GithubGet = ({ setGithubReadme }) => {
           onChange={(e) => setRepo(e.target.value)}
           className="w-1/2 dark:bg-light bg-dark dark:text-dark text-light border dark:border-dark border-light rounded p-2 "
         >
-          {repos.map((repo) => (
-            <option value={repo.full_name}>{repo.full_name}</option>
+          {repos.map((repo,index) => (
+            <option key={index} value={repo.full_name}>{repo.full_name}</option>
           ))}
         </select>
       )}

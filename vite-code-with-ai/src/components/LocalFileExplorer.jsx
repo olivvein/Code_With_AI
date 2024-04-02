@@ -5,11 +5,12 @@ import axios from 'axios';
 import { FolderIcon, DocumentIcon } from '@heroicons/react/24/outline';
 
 const HOST="http://localhost:3000";
+let puter=window.puter;
 
 const LocalFileExplorer = () => {
   const [currentPath, setCurrentPath] = useState('/Users/olivierveinand/Documents/DEV');
   const [files, setFiles] = useState([]);
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [fileContent, setFileContent] = useState('');
   const [username,setUsername]=useState("");
 
