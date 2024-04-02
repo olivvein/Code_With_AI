@@ -80,8 +80,8 @@ const CustomPrompt = ({ setShowCustomPrompt, updatePrompts }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full dark:bg-gray-800 bg-white bg-opacity-50 flex items-center justify-center z-50">
-      <div className="dark:bg-gray-800 bg-white rounded-lg p-4 w-3/4 h-3/4 border dark:border-white border-gray-800 overflow-auto">
+    <div className="fixed top-0 left-0 w-full h-full backdrop-blur-xl dark:bg-dark/30 bg-light/30 dark:text-light text-dark flex flex-col items-center justify-center z-50">
+      <div className="w-3/4 h-5/6 backdrop-blur-3xl dark:bg-dark/50 bg-light/50 border flex flex-col rounded-lg  overflow-scroll justify-between p-4">
         <div>
           <h1 className="text-lg font-bold text-gray-800 dark:text-white">
             Promplets
@@ -148,7 +148,7 @@ const CustomPrompt = ({ setShowCustomPrompt, updatePrompts }) => {
           </div>
         ))}
         <button
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2 m-2 border dark:border-light border-dark"
           onClick={(e) => {
             e.preventDefault();
             setShowCustomPrompt(false);

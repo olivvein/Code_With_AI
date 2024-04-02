@@ -20,7 +20,7 @@ import LoadingDiv from "./components/LoadingDiv";
 import CustomPrompt from "./components/CustomPrompt";
 import LocalFileExplorer from "./components/LocalFileExplorer";
 
-
+let puter=window.puter;
 const App = () => {
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
   const [showCustomPrompt, setShowCustomPrompt] = useState(false);
@@ -1472,7 +1472,7 @@ const App = () => {
           <Space.Fill trackSize={true}></Space.Fill>
         </Space.Top>
         <Space.Bottom
-          size="92%"
+          size="94%"
           touchHandleSize={20}
           trackSize={false}
           scrollable={true}

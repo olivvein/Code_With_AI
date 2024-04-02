@@ -14,7 +14,7 @@ const GuideView = ({ setShowGuideView }) => {
           {...props}
           className="flex flex-col  dark:bg-black bg-white  rounded-lg"
         >
-          <span className="w-full top-0 px-4 bg-gray-600 rounded-t-lg flex justify-between">
+          <span className="w-full top-0 px-4 rounded-t-lg flex justify-between">
             <span>{isJsx}</span>
             <span>copy</span>
           </span>
@@ -128,8 +128,8 @@ litellm --config config.yaml
   `;
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full dark:bg-dark bg-light dark:text-light text-dark bg-opacity-50 flex flex-col items-center justify-center z-50">
-      <div className="w-3/4 h-3/4 opacity-100 border flex flex-col rounded-lg  overflow-y-hidden justify-between">
+    <div className="fixed top-0 left-0 w-full h-full backdrop-blur-xl dark:bg-dark/30 bg-light/30 dark:text-light text-dark flex flex-col items-center justify-center z-50">
+      <div className="w-3/4 h-3/4 backdrop-blur-3xl dark:bg-dark/50 bg-light/50 border flex flex-col rounded-lg  overflow-y-hidden justify-between">
         <span className="w-full top-0  bg-gray-600 rounded-t-lg flex justify-between">
           <button
             onClick={() => {

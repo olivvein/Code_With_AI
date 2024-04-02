@@ -22,8 +22,8 @@ const ChatSettings = ({
   
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center h-full">
+      <div className="flex flex-col w-full max-h-3/4 items-center justify-center overflow-y-scroll">
         <h1 className="text-4xl font-semibold dark:text-light text-dark">
           Chat Settings
         </h1>
@@ -69,8 +69,10 @@ const ChatSettings = ({
                 }
                 className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
               >
-                {ollamaConfig.models.map((model) => (
-                  <option value={model.id}>{model.id}</option>
+                {ollamaConfig.models.map((model,index) => (
+                  <option 
+                    key={index}
+                  value={model.id}>{model.id}</option>
                 ))}
               </select>
             </div>
@@ -100,8 +102,12 @@ const ChatSettings = ({
                     }
                     className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
                   >
-                    {openAiCongig.models.map((model) => (
-                      <option value={model.id}>{model.id}</option>
+                    {openAiCongig.models.map((model,index) => (
+
+                      <option 
+                        key={index}
+                      
+                      value={model.id}>{model.id}</option>
                     ))}
                   </select>
                   <button
@@ -126,7 +132,7 @@ const ChatSettings = ({
             className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
           >
             {prompts.map((prompt, index) => (
-              <option value={index}>{prompt.name}</option>
+              <option key={index} value={index}>{prompt.name}</option>
             ))}
           </select>
         </div>
