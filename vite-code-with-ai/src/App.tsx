@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import * as Space from "react-spaces";
 import * as Babel from "@babel/standalone";
 import OpenAI from "openai";
@@ -19,8 +19,27 @@ import ViewPrompts from "./components/ViewPrompts";
 import LoadingDiv from "./components/LoadingDiv";
 import CustomPrompt from "./components/CustomPrompt";
 import LocalFileExplorer from "./components/LocalFileExplorer";
+import SandpackWrapper from "./components/SandpackWrapper";
 
 let puter = window.puter;
+
+type CodeFile = {
+  path: string;
+  code: string;
+};
+
+type Task = {
+  id: number;
+  description: string;
+};
+
+interface TaskList {
+  nb_tasks: number;
+  tasklist: string;
+}
+
+const INITIAL_FILES: CodeFile[] = [];
+
 const App = () => {
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
   const [showCustomPrompt, setShowCustomPrompt] = useState(false);
@@ -31,84 +50,191 @@ const App = () => {
   const [insertDiv, setInsertDiv] = useState(false);
 
   const [sizeCols, setSizeCols] = useState([0, 0, 100]);
-  const [sizeRows, setSizeRows] = useState([0,0]);
+  const [sizeRows, setSizeRows] = useState([0, 0]);
 
+  const [files, setFiles] = useState<CodeFile[]>(INITIAL_FILES);
+  const [sandboxFiles, setSandboxFiles] = useState({});
 
-  const animateSizesCols = (toSize,time)=>{
+  const [modifiedFiles, setModifiedFiles] = useState();
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    console.log("SandBox Files updated");
+    console.log(sandboxFiles);
+  }, [sandboxFiles]);
+
+  const handleFileModification = useCallback(
+    (filePath: string, fileCode: string) => {
+      console.log("File modification ?");
+      if (!filePath || !fileCode) {
+        console.error("Invalid file path or code.");
+        return;
+      }
+
+      if (filePath.indexOf("/") === -1) {
+        filePath = "/" + filePath;
+      }
+
+      setIsLoading(true);
+
+      const newSandboxedFiles = { ...sandboxFiles };
+
+      newSandboxedFiles[filePath] = { code: fileCode };
+
+      console.log(newSandboxedFiles);
+      console.log(files);
+
+      const filesArray = Object.keys(newSandboxedFiles).map((key) => {
+        return { path: key, code: newSandboxedFiles[key].code };
+      });
+
+      setFiles(filesArray);
+      setSandboxFiles(newSandboxedFiles);
+
+      console.log(files);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+    },
+    []
+  );
+
+  const applyInitialFiles = () => {
+    setFiles(INITIAL_FILES);
+  };
+
+  const updateSandboxFiles = (files: any) => {
+    console.log("Update the file from Sandbox");
+    if (!files) {
+      return;
+    }
+    const filesArray = Object.keys(files).map((key) => {
+      return { path: key, code: files[key].code };
+    });
+    setFiles(filesArray);
+    setSandboxFiles(files);
+
+    console.log("Set the files");
+    console.log(filesArray);
+  };
+
+  const convertFilesToString = (theFiles: any) => {
+    let str = "This is my codebase :\n";
+    for (const key in theFiles) {
+      str += "//file : " + key + "\n";
+      str += theFiles[key].code + "\n";
+    }
+    return str;
+  };
+
+  const extractFileModification = (message: string) => {
+    const fileRegex = /\/\/file: (.*)/;
+    const fileMatch = message.match(fileRegex);
+    if (fileMatch && fileMatch.length > 1) {
+      return fileMatch[1].trim();
+    }
+    return "";
+  };
+
+  const extractTasklist = (message: string) => {
+    const tasklistRegex = /#start tasklist\s*([\s\S]*?)\s*#end tasklist/;
+    const tasklistMatch = message.match(tasklistRegex);
+    if (tasklistMatch) {
+      const tasklist = tasklistMatch[1].trim();
+      const tasks = tasklist
+        .split(/\d+\.\s*/g)
+        .slice(1)
+        .map((task, index) => ({
+          id: index + 1,
+          description: task.trim(),
+        }));
+      return tasks;
+    }
+    return [];
+  };
+
+  const extractNbTasks = (message: string) => {
+    const nbTasksRegex = /\/\/nb_tasks: (\d+)/;
+    const nbTasksMatch = message.match(nbTasksRegex);
+    if (nbTasksMatch) {
+      return parseInt(nbTasksMatch[1], 10);
+    }
+    return 0;
+  };
+
+  const animateSizesCols = (toSize, time) => {
     //toSize is a array of size
     //interpolate from sizeCols to toSize with a step of 1 and a duration of 1s
 
     let step = 50;
     let duration = time;
-    let interval = duration/step;
+    let interval = duration / step;
     let currentSize = sizeCols;
-    let sizeDiff = toSize.map((size,index)=>size-currentSize[index]);
-    let sizeStep = sizeDiff.map((diff)=>diff/step);
+    let sizeDiff = toSize.map((size, index) => size - currentSize[index]);
+    let sizeStep = sizeDiff.map((diff) => diff / step);
     let i = 0;
-    let intervalId = setInterval(()=>{
-      currentSize = currentSize.map((size,index)=>size+sizeStep[index]);
+    let intervalId = setInterval(() => {
+      currentSize = currentSize.map((size, index) => size + sizeStep[index]);
       setSizeCols(currentSize);
 
       i++;
-      if(i>=step){
+      if (i >= step) {
         clearInterval(intervalId);
       }
-    },interval);
-  }
+    }, interval);
+  };
 
-  const animateSizesRows = (toSize,time)=>{
+  const animateSizesRows = (toSize, time) => {
     //toSize is a array of size
     //interpolate from sizeCols to toSize with a step of 1 and a duration of 1s
 
     let step = 50;
     let duration = time;
-    let interval = duration/step;
+    let interval = duration / step;
     let currentSize = sizeRows;
-    let sizeDiff = toSize.map((size,index)=>size-currentSize[index]);
-    let sizeStep = sizeDiff.map((diff)=>diff/step);
+    let sizeDiff = toSize.map((size, index) => size - currentSize[index]);
+    let sizeStep = sizeDiff.map((diff) => diff / step);
     let i = 0;
-    let intervalId = setInterval(()=>{
-      currentSize = currentSize.map((size,index)=>size+sizeStep[index]);
+    let intervalId = setInterval(() => {
+      currentSize = currentSize.map((size, index) => size + sizeStep[index]);
       setSizeRows(currentSize);
 
       i++;
-      if(i>=step){
+      if (i >= step) {
         clearInterval(intervalId);
       }
-    },interval);
-  }
+    }, interval);
+  };
 
   useEffect(() => {
-
-    const runCols=()=>{
-      animateSizesCols([33,34,33],800);
+    const runCols = () => {
+      animateSizesCols([33, 34, 33], 800);
     };
-    const runCols1=()=>{
-      animateSizesCols([50,50,0],800);
+    const runCols1 = () => {
+      animateSizesCols([50, 50, 0], 800);
     };
-    const runCols2=()=>{
-      animateSizesCols([33,34,33],500);
+    const runCols2 = () => {
+      animateSizesCols([33, 34, 33], 500);
     };
-    const runCols3=()=>{
-      animateSizesCols([50,0,50],500);
-    };
-
-    const runCols4=()=>{
-      animateSizesCols([50,0,50],500);
+    const runCols3 = () => {
+      animateSizesCols([50, 0, 50], 500);
     };
 
-    const runRows=()=>{
-      animateSizesRows([10,10],500);
+    const runCols4 = () => {
+      animateSizesCols([50, 0, 50], 500);
     };
 
-    
+    const runRows = () => {
+      animateSizesRows([10, 10], 500);
+    };
 
-    setTimeout(runCols,3000);
+    setTimeout(runCols, 3000);
     //setTimeout(runCols1,5000);
     //setTimeout(runCols2,7000);
     // setTimeout(runCols3,9000);
     // setTimeout(runCols4,1000);
-    
 
     //setTimeout(runRows,5000);
   }, []);
@@ -144,6 +270,16 @@ const App = () => {
   };
 
   useEffect(() => {
+    console.log("Sandbox Files updated");
+    console.log(sandboxFiles);
+
+    const fileArray = Object.keys(sandboxFiles).map((key) => {
+      return { path: key, code: sandboxFiles[key].code };
+    });
+    setFiles(fileArray);
+  }, [sandboxFiles]);
+
+  useEffect(() => {
     console.log("Fetching user prompts...");
 
     getPrompts();
@@ -152,6 +288,24 @@ const App = () => {
   async function sendMessage(message) {
     setMessageFinished(false);
     setFullMessage("");
+
+    if (prompts[selectedPrompt].type === "sandbox") {
+      const filesString = convertFilesToString(sandboxFiles);
+      chatMessages.push({ role: "user", content: filesString });
+      chatMessages.push({
+        role: "assistant",
+        content: "Ok, i've read your codebase.\n what do you want to do?",
+      });
+
+      if (taskList.length == 0) {
+        message = message + "\nJust do the tasklist and only the tasklist";
+      } else {
+        message = `Ok, write the Full file for task ${
+          taskToDo + 1
+        } and only the Full file for task ${taskToDo + 1}`;
+        setTaskToDo(taskToDo + 1);
+      }
+    }
 
     console.log(systemPrompt);
     try {
@@ -241,9 +395,7 @@ const App = () => {
           ...chatMessages,
           {
             role: "user",
-            content:
-              message +
-              "\nProvide only html and jsx snippet in Markdown.\n No explaination needed. Give me the 2 code snipet in markdown.",
+            content: message,
           },
         ];
         newMessage[0].content = systemPrompt + " \n" + userStringPrompt;
@@ -646,60 +798,54 @@ const App = () => {
 
   const [divToInsert, setDivToInsert] = useState(null);
 
-  
-
   const sendMenuAction = (action) => {
     console.log(action);
 
-    if(action=="fullscreen-preview"){
-      animateSizesCols([0,0,100],500);
-      animateSizesRows([0,0],300);
+    if (action == "fullscreen-preview") {
+      animateSizesCols([0, 0, 100], 500);
+      animateSizesRows([0, 0], 300);
     }
 
-    if(action=="normal-view"){
-      animateSizesCols([30,40,30],500);
-      animateSizesRows([0,0],300);
+    if (action == "normal-view") {
+      animateSizesCols([30, 40, 30], 500);
+      animateSizesRows([0, 0], 300);
     }
 
-    if(action=="chat-settings"){
-      animateSizesCols([30,40,30],500);
-      animateSizesRows([50,0],300);
+    if (action == "chat-settings") {
+      animateSizesCols([30, 40, 30], 500);
+      animateSizesRows([50, 0], 300);
     }
 
-    if(action=="console-log"){
-      animateSizesCols([30,40,30],500);
-      animateSizesRows([0,50],300);
+    if (action == "console-log") {
+      animateSizesCols([30, 40, 30], 500);
+      animateSizesRows([0, 50], 300);
     }
-    if(action=="code-view"){
-      animateSizesCols([0,100,0],500);
-      animateSizesRows([0,0],300);
+    if (action == "code-view") {
+      animateSizesCols([0, 100, 0], 500);
+      animateSizesRows([0, 0], 300);
     }
-    if(action=="code-preview"){
-      animateSizesCols([0,50,50],500);
-      animateSizesRows([0,0],300);
+    if (action == "code-preview") {
+      animateSizesCols([0, 50, 50], 500);
+      animateSizesRows([0, 0], 300);
     }
-    if(action=="chat-preview"){
-      animateSizesCols([50,0,50],500);
-      animateSizesRows([0,0],300);
+    if (action == "chat-preview") {
+      animateSizesCols([50, 0, 50], 500);
+      animateSizesRows([0, 0], 300);
     }
     if (action.indexOf("toggleId-") !== -1) {
-      console.log("setInsertDiv")
+      console.log("setInsertDiv");
       const actionSplit = action.split("-");
       const id = actionSplit[1];
       setDivToInsert(id);
       setInsertDiv(true);
       //add event listener for escape key to setInsertDiv(false);
       document.addEventListener("keydown", (event) => {
-        
-          setInsertDiv(false);
-          //remove event listener
-          document.removeEventListener("keydown", (event) => {});
-        
+        setInsertDiv(false);
+        //remove event listener
+        document.removeEventListener("keydown", (event) => {});
       });
 
       //in 5 secs setInsertDiv(false); if not already set to false
-      
-      
     }
     if (action === "deploy") {
       setShowDeployForm(true);
@@ -1014,32 +1160,60 @@ const App = () => {
   const [jsCode, setJsCode] = useState(templates[0].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
-  const [theIds,setTheIds]=useState([1,2,3,4,5,6]);
-  const [visiblesIds,setVisiblesIds]=useState([true,true,true,true,true,false]);
-  const [theNames,setTheNames]=useState(["Code Editor","Chat Settings","App Preview","Log Section","Chat View","Local File Explorer"]);
+  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6]);
+  const [visiblesIds, setVisiblesIds] = useState([
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+  ]);
+  const [theNames, setTheNames] = useState([
+    "Code Editor",
+    "Chat Settings",
+    "App Preview",
+    "Log Section",
+    "Chat View",
+    "Sandbox",
+  ]);
 
-  const changeVisibleId=(id,id2)=>{
-    setTheIds([theIds[0],theIds[1],theIds[5],theIds[3],theIds[4],theIds[2]]);
+  const changeVisibleId = (id, id2) => {
+    setTheIds([
+      theIds[0],
+      theIds[1],
+      theIds[5],
+      theIds[3],
+      theIds[4],
+      theIds[2],
+    ]);
     //setVisiblesIds([visiblesIds[0],visiblesIds[1],visiblesIds[5],visiblesIds[3],visiblesIds[4],visiblesIds[2]]);
-    setTheNames([theNames[0],theNames[1],theNames[5],theNames[3],theNames[4],theNames[2]]);
+    setTheNames([
+      theNames[0],
+      theNames[1],
+      theNames[5],
+      theNames[3],
+      theNames[4],
+      theNames[2],
+    ]);
   };
-  
-  const switchDiv=(from,to)=>{
-    let theTo=to-1;
 
-    console.log("switching",from,theTo)
+  const switchDiv = (from, to) => {
+    let theTo = to - 1;
 
-    const newIds=[...theIds];
-    const newNames=[...theNames];
+    console.log("switching", from, theTo);
 
-    newIds[from]=newIds[theTo];
-    newIds[theTo]=theIds[from];
+    const newIds = [...theIds];
+    const newNames = [...theNames];
+
+    newIds[from] = newIds[theTo];
+    newIds[theTo] = theIds[from];
     setTheIds(newIds);
 
-    newNames[from]=newNames[theTo];
-    newNames[theTo]=theNames[from];
+    newNames[from] = newNames[theTo];
+    newNames[theTo] = theNames[from];
     setTheNames(newNames);
-  }
+  };
 
   const consoleLog = `var oldLog = console.log;var oldError = console.error;
   var logElement =parent.document.getElementById('logs');
@@ -1151,9 +1325,16 @@ const App = () => {
     },
     {
       id: 6,
-      content: <LocalFileExplorer />,
+      content: (
+        <SandpackWrapper
+          files={{ files: files, setTheFiles: updateSandboxFiles }}
+        />
+      ),
     },
   ]);
+
+  const [taskList, setTasklist] = useState([] as Task[]);
+  const [taskToDo, setTaskToDo] = useState(-1);
 
   //handle fullMessage
   useEffect(() => {
@@ -1163,6 +1344,35 @@ const App = () => {
     //const newMessage = [...chatMessages];
     //newMessage[newMessage.length - 1].content = fullMessage;
     //setChatMessages(newMessage);
+
+    if (prompts[selectedPrompt].type === "sandbox") {
+      const taskList = extractTasklist(
+        chatMessages[chatMessages.length - 1].content
+      );
+      console.log(taskList);
+      if (taskList.length > 0) {
+        console.log("There is tasks");
+        setTasklist(taskList);
+        setTaskToDo(0);
+      }
+
+      const filename = extractFileModification(
+        chatMessages[chatMessages.length - 1].content
+      );
+      console.log("file :");
+      console.log(filename);
+      if (filename != "") {
+        console.log("there is file");
+        const fileContent = chatMessages[chatMessages.length - 1].content;
+        console.log(fileContent);
+        if (messageFinished) {
+          handleFileModification(filename, fileContent);
+        }
+      }
+
+      return;
+    }
+
     const codesSnippets = extractCodeSnippets(fullMessage);
     for (const codeSnippet of codesSnippets) {
       if (codeSnippet.language === "html") {
@@ -1241,7 +1451,7 @@ const App = () => {
         // }
       }
     }
-  }, [fullMessage]);
+  }, [fullMessage, messageFinished]);
 
   //get ollama models
   useEffect(() => {
@@ -1398,6 +1608,26 @@ const App = () => {
   //   }
   //   setParentTitle(parentTitleApp);
   // }, []);
+  useEffect(() => {
+    setDivs((prevDivs) =>
+      prevDivs.map((div) => {
+        if (div.content.type === SandpackWrapper) {
+          return {
+            ...div,
+            content: (
+              <SandpackWrapper
+                files={{ files: files, setTheFiles: updateSandboxFiles }}
+              />
+            ),
+          };
+        }
+        return div;
+      })
+    );
+  }, [
+    files,
+    messageFinished
+  ]);
 
   //update divs ChatView
   useEffect(() => {
@@ -1432,7 +1662,7 @@ const App = () => {
     fullMessage,
     chatMessages,
     jsCode,
-    htmlCode
+    htmlCode,
   ]);
 
   //update divs Navbar
@@ -1469,7 +1699,16 @@ const App = () => {
         return div;
       })
     );
-  }, [inputMessage, gptVal, apiKey, chatProvider, username, selectedPrompt,visiblesIds,theNames]);
+  }, [
+    inputMessage,
+    gptVal,
+    apiKey,
+    chatProvider,
+    username,
+    selectedPrompt,
+    visiblesIds,
+    theNames,
+  ]);
 
   //update divs ChatSettings
   useEffect(() => {
@@ -1569,13 +1808,13 @@ const App = () => {
   const [showLoading, setShowLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
 
-  const insertHere=(id)=>{
+  const insertHere = (id) => {
     console.log("insertHere");
     console.log(id);
 
-    switchDiv(divToInsert,id);
+    switchDiv(divToInsert, id);
     setInsertDiv(false);
-  }
+  };
 
   return (
     <div className="dark:bg-dark bg-light">
@@ -1651,10 +1890,7 @@ const App = () => {
           trackSize={false}
           scrollable={true}
         >
-          <Space.Fill trackSize={true}>
-
-            
-          </Space.Fill>
+          <Space.Fill trackSize={true}></Space.Fill>
         </Space.Top>
         <Space.Bottom
           size="94%"
@@ -1664,7 +1900,7 @@ const App = () => {
         >
           <Space.Fill trackSize={true}>
             <Space.LeftResizable
-              size={`${sizeCols[0]}%`}   //Sige of the left resizable : Chat View
+              size={`${sizeCols[0]}%`} //Sige of the left resizable : Chat View
               touchHandleSize={20}
               trackSize={false}
               scrollable={true}
@@ -1688,7 +1924,7 @@ const App = () => {
             </Space.LeftResizable>
 
             <Space.LeftResizable
-              size={`${sizeCols[1]}%`}   //size of Editor
+              size={`${sizeCols[1]}%`} //size of Editor
               touchHandleSize={20}
               trackSize={false}
               scrollable={true}
@@ -1733,7 +1969,7 @@ const App = () => {
               </Space.BottomResizable>
             </Space.LeftResizable>
             <Space.Fill
-              size={`${sizeCols[2]}%`}   //size of right resizable : Preview
+              size={`${sizeCols[2]}%`} //size of right resizable : Preview
               touchHandleSize={20}
               trackSize={true}
               scrollable={true}
@@ -1753,7 +1989,6 @@ const App = () => {
                   draggingId={draggingId}
                   divs={divs}
                 />
-                
               </Space.Fill>
               <Space.BottomResizable
                 size={`${sizeRows[1]}%`}
