@@ -19,7 +19,6 @@ import ViewPrompts from "./components/ViewPrompts";
 import LoadingDiv from "./components/LoadingDiv";
 import CustomPrompt from "./components/CustomPrompt";
 
-
 const App = () => {
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
   const [showCustomPrompt, setShowCustomPrompt] = useState(false);
@@ -57,32 +56,29 @@ const App = () => {
     return userStrinpromptVal;
   };
 
-  
-
-    
-
   useEffect(() => {
     console.log("Fetching user prompts...");
-    
-    getPrompts();
-    
-  }, []);
 
+    getPrompts();
+  }, []);
 
   async function sendMessage(message) {
     setMessageFinished(false);
     setFullMessage("");
-    
-    systemPrompt = systemPrompt
+
+    systemPrompt = systemPrompt;
 
     console.log(systemPrompt);
     try {
       if (chatProvider === "puter") {
         const newMessage = [
           ...chatMessages,
-          { role: "user", content: message+"\nMake 2 snippets : 1 js/jsx and 1 html" },
+          {
+            role: "user",
+            content: message + "\nMake 2 snippets : 1 js/jsx and 1 html",
+          },
         ];
-        newMessage[0].content = systemPrompt+" \n"+userStringPrompt;
+        newMessage[0].content = systemPrompt + " \n" + userStringPrompt;
         console.log(newMessage);
         console.log("chat with puter");
         puter.ai.chat(newMessage).then((response) => {
@@ -108,7 +104,7 @@ const App = () => {
               "\nProvide only html and jsx snippet in Markdown.\n No explaination needed. Give me the 2 code snipet in markdown.",
           },
         ];
-        newMessage[0].content = systemPrompt+" \n"+userStringPrompt;
+        newMessage[0].content = systemPrompt + " \n" + userStringPrompt;
         console.log(newMessage);
         const ollama = new OpenAI({
           baseURL: ollamaConfig.baseURL,
@@ -165,7 +161,7 @@ const App = () => {
               "\nProvide only html and jsx snippet in Markdown.\n No explaination needed. Give me the 2 code snipet in markdown.",
           },
         ];
-        newMessage[0].content = systemPrompt+" \n"+userStringPrompt;
+        newMessage[0].content = systemPrompt + " \n" + userStringPrompt;
         console.log(newMessage);
 
         newMessage.push({ role: "assistant", content: "..." });
@@ -175,7 +171,10 @@ const App = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ message: message, systeme: systemPrompt+" \n"+userStringPrompt }),
+          body: JSON.stringify({
+            message: message,
+            systeme: systemPrompt + " \n" + userStringPrompt,
+          }),
         });
 
         const reader = response.body.getReader();
@@ -205,7 +204,7 @@ const App = () => {
           ...chatMessages,
           { role: "user", content: message },
         ];
-        newMessage[0].content = systemPrompt+" \n"+userStringPrompt
+        newMessage[0].content = systemPrompt + " \n" + userStringPrompt;
         console.log(newMessage);
         const openai = new OpenAI({
           apiKey: apiKey,
@@ -872,8 +871,7 @@ const App = () => {
   const editorHtmlRef = useRef(null);
   const editorBabelRef = useRef(null);
   const [htmlCode, setHtmlCode] = useState(templates[0].html);
-  const [jsCode, setJsCode] =
-    useState(templates[0].js);
+  const [jsCode, setJsCode] = useState(templates[0].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
   const consoleLog = `var oldLog = console.log;var oldError = console.error;
@@ -1126,11 +1124,40 @@ const App = () => {
       const user = await puter.auth.getUser();
       setUsername(user.username);
 
-      console.log("openWithItems:")
-      puter.ui.onLaunchedWithItems(function(items){
-        console.log(JSON.stringify(items));
+      console.log("openWithItems:");
+      puter.ui.onLaunchedWithItems(async function (directories) {
+        console.log(directories);
+        for (const directory of directories) {
+          try {
+            const response = await fetch(directory.readURL);
+            const files = await response.json();
+            console.log(files);
+            for (const file in files) {
+              console.log(files[file]);
+              if (!files[file]) {
+                continue;
+              }
+              try {
+                const fileResponse = await fetch(files[file].read_url);
+                const fileData = await fileResponse.text();
+                console.log(fileData);
+                if (files[file].fsentry_name==="app.html"){
+                  setHtmlCode(fileData)
+                  editorHtmlRef.current?.setValue(fileData);
+                }
+                if (files[file].fsentry_name==="app.js"){
+                  setJsCode(fileData)
+                  editorJsRef.current?.setValue(fileData);
+                }
+              } catch (fileError) {
+                console.log(fileError);
+              }
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        }
       });
-
 
       //await puter.kv.del("openai_api_key")
       //resetChatMessages();
@@ -1142,9 +1169,6 @@ const App = () => {
       }
     };
     updateUser();
-
-    
-
   }, []);
 
   //check if anthropic is available on port 3002
@@ -1231,7 +1255,14 @@ const App = () => {
         return div;
       })
     );
-  }, [inputMessage, messageFinished, fullMessage, chatMessages,jsCode,htmlCode]);
+  }, [
+    inputMessage,
+    messageFinished,
+    fullMessage,
+    chatMessages,
+    jsCode,
+    htmlCode,
+  ]);
 
   //update divs Navbar
   useEffect(() => {
@@ -1367,18 +1398,17 @@ const App = () => {
 
   return (
     <div className="dark:bg-dark bg-light">
-      
-      
       {showLoading && (
         <div className="absolute top-0 dark:bg-dark bg-light dark:text-light text-dark left-0 w-full h-screen z-50 opacity-90">
-          <LoadingDiv
-            message={loadingMessage}
-          />
+          <LoadingDiv message={loadingMessage} />
         </div>
       )}
 
       {showCustomPrompt && (
-        <CustomPrompt setShowCustomPrompt={setShowCustomPrompt} updatePrompts={updatePrompts}/>
+        <CustomPrompt
+          setShowCustomPrompt={setShowCustomPrompt}
+          updatePrompts={updatePrompts}
+        />
       )}
 
       {showViewPrompts && (
@@ -1387,7 +1417,6 @@ const App = () => {
           selectedPrompt={selectedPrompt}
           prompts={prompts}
           userStringPrompt={userStringPrompt}
-          
         />
       )}
       {authorisedDomain === false && (
