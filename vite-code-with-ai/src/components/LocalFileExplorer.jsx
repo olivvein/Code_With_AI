@@ -21,7 +21,9 @@ const LocalFileExplorer = () => {
   useEffect(() => {
     console.log("Effect");
     // get HOST api/health
-    axios.get(HOST+'/api/health').then((response) => {
+    axios.get(HOST+'/api/health',{
+      headers: { Authorization: `Bearer ${puter.authToken}` },
+    }).then((response) => {
         console.log('Health:', response.data);
     }).catch((error) => {
       console.error('Error fetching health:', error);

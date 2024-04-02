@@ -2,6 +2,9 @@
 import React from "react";
 
 const DraggableUI = ({
+  insertDiv,
+  insertHere,
+  className,
   id,
   onDragStart,
   onDragEnd,
@@ -10,13 +13,14 @@ const DraggableUI = ({
   getDivContent,
   draggingId,
   divs,
+  order,
 }) => {
   return (
     <div
       key={id}
       className={`w-full h-full dark:bg-dark bg-light dark:text-light text-dark border dark:border-light border-dark flex flex-col rounded shadow-lg  ${
         draggingId === id ? "opacity-30" : "opacity-100"
-      }`}
+      } ${className}`}
     >
       <span className="flex justify-center border dark:border-light border-dark">
         <button
@@ -25,10 +29,11 @@ const DraggableUI = ({
           onDragEnd={onDragEnd}
           onDragOver={onDragOver}
           onDrop={(e) => onDrop(e, id)}
+          onClick={(e) => {e.preventDefault();if(insertDiv){insertHere(order);}}}
           className={`absolute left-0 top-0  border dark:border-light border-dark rounded-lg w-8 shadow-lg hover:bg-gray-400  ${
             draggingId === id ? "opacity-10" : "opacity-100"
           } ${
-            draggingId !== id && draggingId
+            (draggingId !== id && draggingId) || insertDiv
               ? "bg-red-700"
               : "dark:bg-dark bg-light"
           }`}

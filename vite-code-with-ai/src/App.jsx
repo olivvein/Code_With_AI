@@ -20,13 +20,15 @@ import LoadingDiv from "./components/LoadingDiv";
 import CustomPrompt from "./components/CustomPrompt";
 import LocalFileExplorer from "./components/LocalFileExplorer";
 
-let puter=window.puter;
+let puter = window.puter;
 const App = () => {
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
   const [showCustomPrompt, setShowCustomPrompt] = useState(false);
 
   const [userPrompts, setUserPrompts] = useState([]); // userPrompts is an array of objects of type {name: string, content: string, active: boolean}
   const [userStringPrompt, setUserStringPrompt] = useState("");
+
+  const [insertDiv, setInsertDiv] = useState(false);
 
   const getPrompts = async () => {
     try {
@@ -67,7 +69,6 @@ const App = () => {
   async function sendMessage(message) {
     setMessageFinished(false);
     setFullMessage("");
-
 
     console.log(systemPrompt);
     try {
@@ -560,8 +561,24 @@ const App = () => {
     return div.content;
   };
 
+  const [divToInsert, setDivToInsert] = useState(null);
+
+  
+
   const sendMenuAction = (action) => {
     console.log(action);
+
+    if (action.indexOf("toggleId-") !== -1) {
+      console.log("setInsertDiv")
+      const actionSplit = action.split("-");
+      const id = actionSplit[1];
+      setDivToInsert(id);
+      setInsertDiv(true);
+      // setTimeout(() => {
+      //   console.log("Fini")
+      //   setInsertDiv(false);
+      // },5000);
+    }
     if (action === "deploy") {
       setShowDeployForm(true);
     }
@@ -875,6 +892,33 @@ const App = () => {
   const [jsCode, setJsCode] = useState(templates[0].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
+  const [theIds,setTheIds]=useState([1,2,3,4,5,6]);
+  const [visiblesIds,setVisiblesIds]=useState([true,true,true,true,true,false]);
+  const [theNames,setTheNames]=useState(["Code Editor","Chat Settings","App Preview","Log Section","Chat View","Local File Explorer"]);
+
+  const changeVisibleId=(id,id2)=>{
+    setTheIds([theIds[0],theIds[1],theIds[5],theIds[3],theIds[4],theIds[2]]);
+    //setVisiblesIds([visiblesIds[0],visiblesIds[1],visiblesIds[5],visiblesIds[3],visiblesIds[4],visiblesIds[2]]);
+    setTheNames([theNames[0],theNames[1],theNames[5],theNames[3],theNames[4],theNames[2]]);
+  };
+  
+  const switchDiv=(from,to)=>{
+    let theTo=to-1;
+
+    console.log("switching",from,theTo)
+
+    const newIds=[...theIds];
+    const newNames=[...theNames];
+
+    newIds[from]=newIds[theTo];
+    newIds[theTo]=theIds[from];
+    setTheIds(newIds);
+
+    newNames[from]=newNames[theTo];
+    newNames[theTo]=theNames[from];
+    setTheNames(newNames);
+  }
+
   const consoleLog = `var oldLog = console.log;var oldError = console.error;
   var logElement =parent.document.getElementById('logs');
 
@@ -982,6 +1026,10 @@ const App = () => {
           setChatMessages={setChatMessages}
         />
       ),
+    },
+    {
+      id: 6,
+      content: <LocalFileExplorer />,
     },
   ]);
 
@@ -1142,12 +1190,12 @@ const App = () => {
                 const fileResponse = await fetch(files[file].read_url);
                 const fileData = await fileResponse.text();
                 console.log(fileData);
-                if (files[file].fsentry_name==="app.html"){
-                  setHtmlCode(fileData)
+                if (files[file].fsentry_name === "app.html") {
+                  setHtmlCode(fileData);
                   editorHtmlRef.current?.setValue(fileData);
                 }
-                if (files[file].fsentry_name==="app.js"){
-                  setJsCode(fileData)
+                if (files[file].fsentry_name === "app.js") {
+                  setJsCode(fileData);
                   editorJsRef.current?.setValue(fileData);
                 }
               } catch (fileError) {
@@ -1262,7 +1310,7 @@ const App = () => {
     fullMessage,
     chatMessages,
     jsCode,
-    htmlCode,
+    htmlCode
   ]);
 
   //update divs Navbar
@@ -1274,6 +1322,8 @@ const App = () => {
             ...div,
             content: (
               <NavBar
+                theNames={theNames}
+                visiblesIds={visiblesIds}
                 inputSubmit={inputSubmit}
                 setGptValue={setGptValue}
                 gptVal={gptVal}
@@ -1297,7 +1347,7 @@ const App = () => {
         return div;
       })
     );
-  }, [inputMessage, gptVal, apiKey, chatProvider, username, selectedPrompt]);
+  }, [inputMessage, gptVal, apiKey, chatProvider, username, selectedPrompt,visiblesIds,theNames]);
 
   //update divs ChatSettings
   useEffect(() => {
@@ -1397,6 +1447,14 @@ const App = () => {
   const [showLoading, setShowLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
 
+  const insertHere=(id)=>{
+    console.log("insertHere");
+    console.log(id);
+
+    switchDiv(divToInsert,id);
+    setInsertDiv(false);
+  }
+
   return (
     <div className="dark:bg-dark bg-light">
       {showLoading && (
@@ -1445,6 +1503,8 @@ const App = () => {
         />
       )}
       <NavBar
+        theNames={theNames}
+        visiblesIds={visiblesIds}
         inputSubmit={inputSubmit}
         setGptValue={setGptValue}
         gptVal={gptVal}
@@ -1469,7 +1529,10 @@ const App = () => {
           trackSize={false}
           scrollable={true}
         >
-          <Space.Fill trackSize={true}></Space.Fill>
+          <Space.Fill trackSize={true}>
+
+            
+          </Space.Fill>
         </Space.Top>
         <Space.Bottom
           size="94%"
@@ -1486,7 +1549,11 @@ const App = () => {
             >
               <Space.Fill trackSize={true}>
                 <DraggableUI
-                  id={5}
+                  insertDiv={insertDiv}
+                  insertHere={insertHere}
+                  className={""}
+                  id={theIds[4]}
+                  order={5}
                   onDragStart={onDragStart}
                   onDragEnd={onDragEnd}
                   onDragOver={onDragOver}
@@ -1506,7 +1573,11 @@ const App = () => {
             >
               <Space.Fill trackSize={true}>
                 <DraggableUI
-                  id={1}
+                  insertDiv={insertDiv}
+                  insertHere={insertHere}
+                  className={""}
+                  id={theIds[0]}
+                  order={1}
                   onDragStart={onDragStart}
                   onDragEnd={onDragEnd}
                   onDragOver={onDragOver}
@@ -1524,7 +1595,10 @@ const App = () => {
               >
                 <Space.Fill>
                   <DraggableUI
-                    id={2}
+                    insertDiv={insertDiv}
+                    insertHere={insertHere}
+                    id={theIds[1]}
+                    order={2}
                     onDragStart={onDragStart}
                     onDragEnd={onDragEnd}
                     onDragOver={onDragOver}
@@ -1544,7 +1618,11 @@ const App = () => {
             >
               <Space.Fill trackSize={true}>
                 <DraggableUI
-                  id={3}
+                  insertDiv={insertDiv}
+                  insertHere={insertHere}
+                  className={""}
+                  id={theIds[2]}
+                  order={3}
                   onDragStart={onDragStart}
                   onDragEnd={onDragEnd}
                   onDragOver={onDragOver}
@@ -1553,6 +1631,7 @@ const App = () => {
                   draggingId={draggingId}
                   divs={divs}
                 />
+                
               </Space.Fill>
               <Space.BottomResizable
                 size="5%"
@@ -1562,7 +1641,10 @@ const App = () => {
               >
                 <Space.Fill>
                   <DraggableUI
-                    id={4}
+                    insertDiv={insertDiv}
+                    insertHere={insertHere}
+                    id={theIds[3]}
+                    order={4}
                     onDragStart={onDragStart}
                     onDragEnd={onDragEnd}
                     onDragOver={onDragOver}

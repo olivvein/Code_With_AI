@@ -12,7 +12,9 @@ const NavBar = ({
   sendMenuAction,
   selectedPrompt,
   prompts,
-  templates
+  templates,
+  theNames,
+  visiblesIds
 }) => {
   const [openMenu, setOpenMenu] = useState("");
 
@@ -73,6 +75,13 @@ const NavBar = ({
     {
       name: "View",
       subMenu: [
+        ...theNames.map((name,index) => {
+          if(visiblesIds[index]){
+            return { status: "inactive", name: name+" ✓", action: "toggleId-"+index};
+          }else{
+            return { status: "active", name: name, action: "toggleId-"+index};
+          }
+        }),
         { status: "inactive", name: "Fullscreen", action: "fullscreen" },
         { status: "inactive", name: "Dark Mode", action: "darkMode" },
       ],
@@ -120,8 +129,10 @@ const NavBar = ({
                  
                   
                   {menu.subMenu.map((subMenu,index) => (
+                   
                     <button
                       key={index}
+                      
                       className={`rounded-xl  mx-1 text-left px-4 py-2 active:border text-sm  active:bg-gray-400 active:border-gray-700 active:text-dark transition-colors duration-100 ease-in-out hover:bg-blue-800/100 hover:text-light ${
                         subMenu.status == "inactive" ? "dark:text-gray-600 text-gray-400 " : "dark:text-light text-dark "
                       } ${
@@ -130,7 +141,7 @@ const NavBar = ({
                       ${
                         index==0 ? "mt-1" : ""
                       }
-                      ${subMenu.status == "inactive" ?"active:bg-dark/0 active:border-none active:dark:text-gray-600 active:text-gray-400 hover:bg-dark/0 dark:text-gray-600 text-gray-400  hover:dark:text-gray-600 hover:text-gray-500  cursor-auto":""}
+                      ${subMenu.status == "inactive" ?" active:bg-none active:border-dark/0 active:bg-dark/0 active:dark:text-gray-600 active:text-gray-400 hover:bg-dark/0 dark:text-gray-600 text-gray-400  hover:dark:text-gray-600 hover:text-gray-500  cursor-auto":""}
                       `}
                       // onClick={() => {
                         
