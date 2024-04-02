@@ -4,3 +4,4 @@
 *node_modules
 /AnthropicProxy
 /localFileServer
+/vite-code-with-ai/dist
