@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import MarkDownView from "./MarkDownView";
 import GithubGet from "./GithubGet";
 import MarkdownGet from "./MarkdownGet";
-
 
 const ChatView = ({
   inputSubmit,
@@ -17,44 +15,59 @@ const ChatView = ({
   jsCode,
   htmlCode,
 }) => {
-
   //a function to sanatize the html tags so that it can be shown in html as text without being executed
   const sanatizeHtmlsTags = (html) => {
-    return html.replace(/<script/g, "&lt;script").replace(/script>/g, "script&gt;");
-  }
+    return html
+      .replace(/<script/g, "&lt;script")
+      .replace(/script>/g, "script&gt;");
+  };
 
   const [githubReadme, setGithubReadme] = useState("");
 
-  const setGithubReadmeVal = (readme,repo) => {
-
+  const setGithubReadmeVal = (readme, repo) => {
     setGithubReadme(readme);
-    
+
     //append new message to chat
-    const toAppend = { role: "user", content: `Do you know this repo ${repo} README.md?
+    const toAppend = {
+      role: "user",
+      content: `Do you know this repo ${repo} README.md?
     ${readme}
-    ` };
-    const toAppend2 = { role: "assistant", content: `Yes I knw it well, what you want me to do based on ${repo}` };
-    setChatMessages([...chatMessages, toAppend,toAppend2]);
-    
-  }
+    `,
+    };
+    const toAppend2 = {
+      role: "assistant",
+      content: `Yes I knw it well, what you want me to do based on ${repo}`,
+    };
+    setChatMessages([...chatMessages, toAppend, toAppend2]);
+  };
 
-  const setCodeToChat=()=>{
-    const messageContent=`This is my updated code: \n\`\`\`html\n${htmlCode}\n\`\`\`\n\`\`\`javascript\n${jsCode}\n\`\`\`\nKeep 100% of it.`;
+  const setCodeToChat = () => {
+    const messageContent = `This is my updated code: \n\`\`\`html\n${htmlCode}\n\`\`\`\n\`\`\`javascript\n${jsCode}\n\`\`\`\nKeep 100% of it.`;
     const toAppend = { role: "user", content: messageContent };
-    const toAppend2 = { role: "assistant", content: "Ok, I will keep 100% of this code and write the full app with your next request. What you want me to add to that app?\nMy next response will be this code with additional functionalities." };
-    setChatMessages([...chatMessages, toAppend,toAppend2]);
-
-  }
+    const toAppend2 = {
+      role: "assistant",
+      content:
+        "Ok, I will keep 100% of this code and write the full app with your next request. What you want me to add to that app?\nMy next response will be this code with additional functionalities.",
+    };
+    setChatMessages([...chatMessages, toAppend, toAppend2]);
+  };
 
   return (
     <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark">
-      <div className="w-full h-full">
+      <div className="w-full h-full p-2">
         <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark">
-          <GithubGet setGithubReadme={setGithubReadmeVal}/>
-          <MarkdownGet setGithubReadme={setGithubReadmeVal}/>
-          <button className="w-1/4 dark:bg-dark bg-light dark:text-light text-dark rounded p-2 border dark:border-light border-dark"
-          onClick={setCodeToChat}
-          >Add Code to Chat</button>
+          <div className="flex w-full flex-col justify-between">
+            <GithubGet setGithubReadme={setGithubReadmeVal} />
+            <MarkdownGet setGithubReadme={setGithubReadmeVal} />
+            <div className="my-2">
+              <button
+                className="w-1/2 dark:bg-dark bg-light dark:text-light text-dark rounded p-2 border dark:border-light border-dark"
+                onClick={setCodeToChat}
+              >
+                Add Code to Chat
+              </button>
+            </div>
+          </div>
           <div className="w-full h-5/6 dark:bg-dark bg-light dark:text-light text-dark overflow-y-scroll">
             {chatMessages.map((message, index) => {
               if (message.role !== "system") {

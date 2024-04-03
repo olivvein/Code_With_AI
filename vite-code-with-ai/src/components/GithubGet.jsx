@@ -45,7 +45,7 @@ const GithubGet = ({ setGithubReadme }) => {
   };
 
   return (
-    <div className="m-2">
+    <div className="my-2">
       <input
         type="text"
         value={search}
@@ -65,7 +65,7 @@ const GithubGet = ({ setGithubReadme }) => {
           value={repo}
           onChange={(e) => setRepo(e.target.value)}
           placeholder="user/repo"
-          className="w-1/2 dark:bg-light bg-dark dark:text-dark text-light border dark:border-dark border-light rounded p-2 "
+          className="w-1/2 dark:bg-light bg-dark dark:text-dark text-light border dark:border-dark border-light rounded p-2 mt-2"
         />
       ) : (
         <select

@@ -1578,7 +1578,7 @@ const App = () => {
   }
 
   return (
-    <div className="dark:bg-dark bg-light">
+    <div className="dark:bg-black bg-black">
       {showLoading && (
         <div className="absolute top-0 dark:bg-dark bg-light dark:text-light text-dark left-0 w-full h-screen z-50 opacity-90">
           <LoadingDiv message={loadingMessage} />
@@ -1657,17 +1657,18 @@ const App = () => {
           </Space.Fill>
         </Space.Top>
         <Space.Bottom
+        className="w-full dark:bg-black bg-black"
           size="94%"
           touchHandleSize={20}
           trackSize={false}
-          scrollable={true}
+          scrollable={false}
         >
           <Space.Fill trackSize={true}>
             <Space.LeftResizable
               size={`${sizeCols[0]}%`}   //Sige of the left resizable : Chat View
               touchHandleSize={20}
               trackSize={false}
-              scrollable={true}
+              scrollable={false}
             >
               <Space.Fill trackSize={true}>
                 <DraggableUI
@@ -1691,7 +1692,7 @@ const App = () => {
               size={`${sizeCols[1]}%`}   //size of Editor
               touchHandleSize={20}
               trackSize={false}
-              scrollable={true}
+              scrollable={false}
             >
               <Space.Fill trackSize={true}>
                 <DraggableUI
@@ -1713,7 +1714,7 @@ const App = () => {
                 size={`${sizeRows[0]}%`}
                 touchHandleSize={20}
                 trackSize={true}
-                scrollable={true}
+                scrollable={false}
               >
                 <Space.Fill>
                   <DraggableUI
@@ -1736,7 +1737,7 @@ const App = () => {
               size={`${sizeCols[2]}%`}   //size of right resizable : Preview
               touchHandleSize={20}
               trackSize={true}
-              scrollable={true}
+              scrollable={false}
             >
               <Space.Fill trackSize={true}>
                 <DraggableUI
@@ -1759,7 +1760,7 @@ const App = () => {
                 size={`${sizeRows[1]}%`}
                 touchHandleSize={20}
                 trackSize={true}
-                scrollable={true}
+                scrollable={false}
               >
                 <Space.Fill>
                   <DraggableUI

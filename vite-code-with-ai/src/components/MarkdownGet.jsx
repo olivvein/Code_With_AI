@@ -15,7 +15,7 @@ const MarkdownGet = ({ setGithubReadme }) => {
   };
 
   return (
-    <div className="m-2">
+    <div className="my-2">
       <input
         type="text"
         value={url}

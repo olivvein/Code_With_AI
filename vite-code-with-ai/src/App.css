@@ -17,6 +17,15 @@
 
 }
 
+.notTilted {
+  perspective: 150px;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease-in-out;
+  transform: rotateY(0deg) scale(0.96) rotateX(0deg);
+  overflow:hidden;
+
+}
+
 .tilted:hover {
   border-color:red;
   color:red;

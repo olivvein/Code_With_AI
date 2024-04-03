@@ -82,6 +82,7 @@ const NavBar = ({
             return { status: "active", name: name, action: "toggleId-"+index};
           }
         }),
+        { status: "inactive", name: "------------------", action: "none" },
         { status: "active", name: "Fullscreen", action: "fullscreen-preview" },
         { status: "active", name: "Columns", action: "normal-view" },
         { status: "active", name: "Chat Settings", action: "chat-settings" },
