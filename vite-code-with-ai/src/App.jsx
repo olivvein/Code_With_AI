@@ -477,7 +477,7 @@ const App = () => {
   const saveFullCode = (htmlCode, jsCode) => {
     let fullCode =
       `<!DOCTYPE html>
-  <html lang="en">
+  <html lang="en" style="background-color: transparent !important;color-scheme: none;backdrop-filter: blur(10px);height:100%">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

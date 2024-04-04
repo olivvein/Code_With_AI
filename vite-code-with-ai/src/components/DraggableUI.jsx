@@ -30,13 +30,13 @@ const DraggableUI = ({
       onDragOver={onDragOver}
       onDragStart={(e) => onDragStart(e, id)}
       style={{ cursor: "grab" }}
-      className={`w-full h-full dark:bg-dark bg-light dark:text-light text-dark   flex flex-col rounded shadow-lg  ${
+      className={`w-full h-full dark:bg-dark bg-light dark:text-light text-dark   flex flex-col rounded shadow-lg  drop-shadow-[0_5px_5px_rgba(255,255,255,0.25)] ${
         draggingId === id ? "opacity-30 " : "opacity-100"
-      } ${className}  ${
+      } ${
         (draggingId !== id && draggingId) || insertDiv
-          ? "tilted "
-          : " border dark:border-light border-dark notTilted"
-      }`}
+          ? "tilted-right "
+          : ` border dark:border-light border-dark ${className?.indexOf("tilted")==-1?"notTilted":""} `
+      } ${className} `}
     >
       {(draggingId !== id && draggingId) || insertDiv ? (
         <div
