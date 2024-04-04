@@ -2,6 +2,6 @@
 /code_with_ai_buildable/node_modules
 /code_with_ai_buildable/dist
 *node_modules
-/AnthropicProxy
-/localFileServer
+/AnthropicProxy/node_modules
+/localFileServer/node_modules
 /vite-code-with-ai/dist
