@@ -33,88 +33,80 @@ const App = () => {
   const [insertDiv, setInsertDiv] = useState(false);
 
   const [sizeCols, setSizeCols] = useState([0, 0, 100]);
-  const [sizeRows, setSizeRows] = useState([0,0]);
-  const [sizeContent,setSizeContent]=useState(97);
+  const [sizeRows, setSizeRows] = useState([0, 0]);
+  const [sizeContent, setSizeContent] = useState(97);
 
- 
-
-  
-
-  const animateSizesCols = (toSize,time)=>{
+  const animateSizesCols = (toSize, time) => {
     //toSize is a array of size
     //interpolate from sizeCols to toSize with a step of 1 and a duration of 1s
 
     let step = 50;
     let duration = time;
-    let interval = duration/step;
+    let interval = duration / step;
     let currentSize = sizeCols;
-    let sizeDiff = toSize.map((size,index)=>size-currentSize[index]);
-    let sizeStep = sizeDiff.map((diff)=>diff/step);
+    let sizeDiff = toSize.map((size, index) => size - currentSize[index]);
+    let sizeStep = sizeDiff.map((diff) => diff / step);
     let i = 0;
-    let intervalId = setInterval(()=>{
-      currentSize = currentSize.map((size,index)=>size+sizeStep[index]);
+    let intervalId = setInterval(() => {
+      currentSize = currentSize.map((size, index) => size + sizeStep[index]);
       setSizeCols(currentSize);
 
       i++;
-      if(i>=step){
+      if (i >= step) {
         clearInterval(intervalId);
       }
-    },interval);
-  }
+    }, interval);
+  };
 
-  const animateSizesRows = (toSize,time)=>{
+  const animateSizesRows = (toSize, time) => {
     //toSize is a array of size
     //interpolate from sizeCols to toSize with a step of 1 and a duration of 1s
 
     let step = 50;
     let duration = time;
-    let interval = duration/step;
+    let interval = duration / step;
     let currentSize = sizeRows;
-    let sizeDiff = toSize.map((size,index)=>size-currentSize[index]);
-    let sizeStep = sizeDiff.map((diff)=>diff/step);
+    let sizeDiff = toSize.map((size, index) => size - currentSize[index]);
+    let sizeStep = sizeDiff.map((diff) => diff / step);
     let i = 0;
-    let intervalId = setInterval(()=>{
-      currentSize = currentSize.map((size,index)=>size+sizeStep[index]);
+    let intervalId = setInterval(() => {
+      currentSize = currentSize.map((size, index) => size + sizeStep[index]);
       setSizeRows(currentSize);
 
       i++;
-      if(i>=step){
+      if (i >= step) {
         clearInterval(intervalId);
       }
-    },interval);
-  }
+    }, interval);
+  };
 
   useEffect(() => {
-
-    const runCols=()=>{
-      animateSizesCols([33,34,33],800);
+    const runCols = () => {
+      animateSizesCols([33, 34, 33], 800);
     };
-    const runCols1=()=>{
-      animateSizesCols([50,50,0],800);
+    const runCols1 = () => {
+      animateSizesCols([50, 50, 0], 800);
     };
-    const runCols2=()=>{
-      animateSizesCols([33,34,33],500);
+    const runCols2 = () => {
+      animateSizesCols([33, 34, 33], 500);
     };
-    const runCols3=()=>{
-      animateSizesCols([50,0,50],500);
-    };
-
-    const runCols4=()=>{
-      animateSizesCols([50,0,50],500);
+    const runCols3 = () => {
+      animateSizesCols([50, 0, 50], 500);
     };
 
-    const runRows=()=>{
-      animateSizesRows([10,10],500);
+    const runCols4 = () => {
+      animateSizesCols([50, 0, 50], 500);
     };
 
-    
+    const runRows = () => {
+      animateSizesRows([10, 10], 500);
+    };
 
-    setTimeout(runCols,3000);
+    setTimeout(runCols, 3000);
     //setTimeout(runCols1,5000);
     //setTimeout(runCols2,7000);
     // setTimeout(runCols3,9000);
     // setTimeout(runCols4,1000);
-    
 
     //setTimeout(runRows,5000);
   }, []);
@@ -660,60 +652,54 @@ const App = () => {
 
   const [divToInsert, setDivToInsert] = useState(null);
 
-  
-
   const sendMenuAction = (action) => {
     console.log(action);
 
-    if(action=="fullscreen-preview"){
-      animateSizesCols([0,0,100],500);
-      animateSizesRows([0,0],300);
+    if (action == "fullscreen-preview") {
+      animateSizesCols([0, 0, 100], 500);
+      animateSizesRows([0, 0], 300);
     }
 
-    if(action=="normal-view"){
-      animateSizesCols([30,40,30],500);
-      animateSizesRows([0,0],300);
+    if (action == "normal-view") {
+      animateSizesCols([30, 40, 30], 500);
+      animateSizesRows([0, 0], 300);
     }
 
-    if(action=="chat-settings"){
-      animateSizesCols([30,40,30],500);
-      animateSizesRows([50,0],300);
+    if (action == "chat-settings") {
+      animateSizesCols([30, 40, 30], 500);
+      animateSizesRows([50, 0], 300);
     }
 
-    if(action=="console-log"){
-      animateSizesCols([30,40,30],500);
-      animateSizesRows([0,50],300);
+    if (action == "console-log") {
+      animateSizesCols([30, 40, 30], 500);
+      animateSizesRows([0, 50], 300);
     }
-    if(action=="code-view"){
-      animateSizesCols([0,100,0],500);
-      animateSizesRows([0,0],300);
+    if (action == "code-view") {
+      animateSizesCols([0, 100, 0], 500);
+      animateSizesRows([0, 0], 300);
     }
-    if(action=="code-preview"){
-      animateSizesCols([0,50,50],500);
-      animateSizesRows([0,0],300);
+    if (action == "code-preview") {
+      animateSizesCols([0, 50, 50], 500);
+      animateSizesRows([0, 0], 300);
     }
-    if(action=="chat-preview"){
-      animateSizesCols([50,0,50],500);
-      animateSizesRows([0,0],300);
+    if (action == "chat-preview") {
+      animateSizesCols([50, 0, 50], 500);
+      animateSizesRows([0, 0], 300);
     }
     if (action.indexOf("toggleId-") !== -1) {
-      console.log("setInsertDiv")
+      console.log("setInsertDiv");
       const actionSplit = action.split("-");
       const id = actionSplit[1];
       setDivToInsert(id);
       setInsertDiv(true);
       //add event listener for escape key to setInsertDiv(false);
       document.addEventListener("keydown", (event) => {
-        
-          setInsertDiv(false);
-          //remove event listener
-          document.removeEventListener("keydown", (event) => {});
-        
+        setInsertDiv(false);
+        //remove event listener
+        document.removeEventListener("keydown", (event) => {});
       });
 
       //in 5 secs setInsertDiv(false); if not already set to false
-      
-      
     }
     if (action === "deploy") {
       setShowDeployForm(true);
@@ -1028,34 +1014,62 @@ const App = () => {
   const [jsCode, setJsCode] = useState(templates[0].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
-  const [theIds,setTheIds]=useState([1,2,3,4,5,6]);
-  const [visiblesIds,setVisiblesIds]=useState([true,true,true,true,true,false]);
-  const [theNames,setTheNames]=useState(["Code Editor","Chat Settings","App Preview","Log Section","Chat View","Sandbox"]);
+  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6]);
+  const [visiblesIds, setVisiblesIds] = useState([
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+  ]);
+  const [theNames, setTheNames] = useState([
+    "Code Editor",
+    "Chat Settings",
+    "App Preview",
+    "Log Section",
+    "Chat View",
+    "Sandbox",
+  ]);
 
-  const changeVisibleId=(id,id2)=>{
-    setTheIds([theIds[0],theIds[1],theIds[5],theIds[3],theIds[4],theIds[2]]);
+  const changeVisibleId = (id, id2) => {
+    setTheIds([
+      theIds[0],
+      theIds[1],
+      theIds[5],
+      theIds[3],
+      theIds[4],
+      theIds[2],
+    ]);
     //setVisiblesIds([visiblesIds[0],visiblesIds[1],visiblesIds[5],visiblesIds[3],visiblesIds[4],visiblesIds[2]]);
-    setTheNames([theNames[0],theNames[1],theNames[5],theNames[3],theNames[4],theNames[2]]);
+    setTheNames([
+      theNames[0],
+      theNames[1],
+      theNames[5],
+      theNames[3],
+      theNames[4],
+      theNames[2],
+    ]);
   };
-  
-  const switchDiv=(from,to)=>{
-    let theTo=to-1;
 
-    console.log("switching",from,theTo)
+  const switchDiv = (from, to) => {
+    let theTo = to - 1;
 
-    const newIds=[...theIds];
-    const newNames=[...theNames];
+    console.log("switching", from, theTo);
 
-    newIds[from]=newIds[theTo];
-    newIds[theTo]=theIds[from];
+    const newIds = [...theIds];
+    const newNames = [...theNames];
+
+    newIds[from] = newIds[theTo];
+    newIds[theTo] = theIds[from];
     setTheIds(newIds);
 
-    newNames[from]=newNames[theTo];
-    newNames[theTo]=theNames[from];
+    newNames[from] = newNames[theTo];
+    newNames[theTo] = theNames[from];
     setTheNames(newNames);
-  }
+  };
 
-  const perfMonitor=`function getMemoryInfo() {
+  const perfMonitor = `function getMemoryInfo() {
     if (window.performance && window.performance.memory) {
       const usedJSHeapSize = window.performance.memory.usedJSHeapSize;
       const totalJSHeapSize = window.performance.memory.totalJSHeapSize;
@@ -1424,35 +1438,32 @@ const App = () => {
     setAppName(appTitle);
   }, [jsCode]);
 
-
-
   useEffect(() => {
     const updateSize = () => {
       console.log("resize");
-      const navbar = document.getElementById('theNavbar');
+      const navbar = document.getElementById("theNavbar");
       if (navbar) {
         //get navbar height in percent of window height
         const navbarHeight = navbar.clientHeight;
         const windowHeight = window.innerHeight;
-        console.log({navbarHeight})
-        console.log({windowHeight})
+        console.log({ navbarHeight });
+        console.log({ windowHeight });
         const navbarHeightPercent = (navbarHeight / windowHeight) * 100;
         console.log("Size:");
-        console.log(navbarHeightPercent)
-        setSizeContent(99-navbarHeightPercent);
+        console.log(navbarHeightPercent);
+        setSizeContent(99 - navbarHeightPercent);
       }
-    }
+    };
 
     // Call updateSize at the start in case the window is already the right size
     updateSize();
 
     // Attach the event listener
-    window.addEventListener('resize', updateSize);
+    window.addEventListener("resize", updateSize);
 
     // Cleanup function to remove the event listener when the component unmounts
-    return () => window.removeEventListener('resize', updateSize);
-  }, [templates,jsCode]); // Empty array ensures that effect is only run on mount and unmount
-
+    return () => window.removeEventListener("resize", updateSize);
+  }, [templates, jsCode]); // Empty array ensures that effect is only run on mount and unmount
 
   const [parentTitle, setParentTitle] = useState("");
   const [authorisedDomain, setAuthorisedDomain] = useState(true);
@@ -1502,7 +1513,7 @@ const App = () => {
     fullMessage,
     chatMessages,
     jsCode,
-    htmlCode
+    htmlCode,
   ]);
 
   //update divs Navbar
@@ -1539,7 +1550,16 @@ const App = () => {
         return div;
       })
     );
-  }, [inputMessage, gptVal, apiKey, chatProvider, username, selectedPrompt,visiblesIds,theNames]);
+  }, [
+    inputMessage,
+    gptVal,
+    apiKey,
+    chatProvider,
+    username,
+    selectedPrompt,
+    visiblesIds,
+    theNames,
+  ]);
 
   //update divs ChatSettings
   useEffect(() => {
@@ -1639,224 +1659,439 @@ const App = () => {
   const [showLoading, setShowLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
 
-  const insertHere=(id)=>{
+  const insertHere = (id) => {
     console.log("insertHere");
     console.log(id);
 
-    switchDiv(divToInsert,id);
+    switchDiv(divToInsert, id);
     setInsertDiv(false);
-  }
+  };
+
+  const MobileView = window.innerWidth<800?true:false;
 
   return (
-    <div className="dark:bg-black bg-black">
-      {showLoading && (
-        <div className="absolute top-0 dark:bg-dark bg-light dark:text-light text-dark left-0 w-full h-screen z-50 opacity-90">
-          <LoadingDiv message={loadingMessage} />
-        </div>
-      )}
-
-      {showCustomPrompt && (
-        <CustomPrompt
-          setShowCustomPrompt={setShowCustomPrompt}
-          updatePrompts={updatePrompts}
-        />
-      )}
-
-      {showViewPrompts && (
-        <ViewPrompts
-          setShowViewPrompts={setShowViewPrompts}
-          selectedPrompt={selectedPrompt}
-          prompts={prompts}
-          userStringPrompt={userStringPrompt}
-        />
-      )}
-      {authorisedDomain === false && (
-        <div className="fixed top-0 left-0 w-full h-full dark:bg-dark bg-light dark:text-light text-dark bg-opacity-50 flex items-center justify-center z-50">
-          <p>Only available on puter.com</p>
-        </div>
-      )}
-      {showGuideView && <GuideView setShowGuideView={setShowGuideView} />}
-      {showDeployForm && (
-        <DeployForm
-          appName={appName}
-          setAppNameVal={setAppNameVal}
-          subdomain={"subdomain"}
-          setSubdomainVal={() => {}}
-          deploy={downloadCode}
-          cancel={setShowDeployForm}
-        />
-      )}
-      {showSaveAsForm && (
-        <SaveAsForm
-          appName={appName}
-          setAppNameVal={setAppNameVal}
-          saveAs={saveAs}
-          cancelSaveAs={setShowSaveAsForm}
-        />
-      )}
-      <div>
-      <NavBar
-        theNames={theNames}
-        visiblesIds={visiblesIds}
-        inputSubmit={inputSubmit}
-        setGptValue={setGptValue}
-        gptVal={gptVal}
-        resetApiKey={resetApiKey}
-        visibleApiKey={visibleApiKey}
-        username={username}
-        inputMessage={inputMessage}
-        setInputVal={setInputVal}
-        setChatProvider={setChatProvider}
-        chatProvider={chatProvider}
-        ollamaConfig={ollamaConfig}
-        sendMenuAction={sendMenuAction}
-        setSystemPromptVal={setSystemPromptVal}
-        selectedPrompt={selectedPrompt}
-        prompts={prompts}
-        templates={templates}
-      />
-      </div>
-      <Space.ViewPort className="w-full dark:bg-dark bg-light">
-        <Space.Top
-          size="50px"
-          touchHandleSize={20}
-          trackSize={false}
-          scrollable={true}
-        >
-          <Space.Fill trackSize={true}>
-
-            
-          </Space.Fill>
-        </Space.Top>
-        <Space.Bottom
-        className="w-full dark:bg-black bg-black"
-          size={`${sizeContent}%`}
-          touchHandleSize={20}
-          trackSize={false}
-          scrollable={false}
-        >
-          <Space.Fill trackSize={true}>
-            <Space.LeftResizable
-              size={`${sizeCols[0]}%`}   //Sige of the left resizable : Chat View
+    <>
+      {MobileView ? (
+        <div className="dark:bg-black bg-black">
+          {showLoading && (
+            <div className="absolute top-0 dark:bg-dark bg-light dark:text-light text-dark left-0 w-full h-screen z-50 opacity-90">
+              <LoadingDiv message={loadingMessage} />
+            </div>
+          )}
+          {showCustomPrompt && (
+            <CustomPrompt
+              setShowCustomPrompt={setShowCustomPrompt}
+              updatePrompts={updatePrompts}
+            />
+          )}
+          {showViewPrompts && (
+            <ViewPrompts
+              setShowViewPrompts={setShowViewPrompts}
+              selectedPrompt={selectedPrompt}
+              prompts={prompts}
+              userStringPrompt={userStringPrompt}
+            />
+          )}
+          {authorisedDomain === false && (
+            <div className="fixed top-0 left-0 w-full h-full dark:bg-dark bg-light dark:text-light text-dark bg-opacity-50 flex items-center justify-center z-50">
+              <p>Only available on puter.com</p>
+            </div>
+          )}
+          {showGuideView && <GuideView setShowGuideView={setShowGuideView} />}
+          {showDeployForm && (
+            <DeployForm
+              appName={appName}
+              setAppNameVal={setAppNameVal}
+              subdomain={"subdomain"}
+              setSubdomainVal={() => {}}
+              deploy={downloadCode}
+              cancel={setShowDeployForm}
+            />
+          )}
+          {showSaveAsForm && (
+            <SaveAsForm
+              appName={appName}
+              setAppNameVal={setAppNameVal}
+              saveAs={saveAs}
+              cancelSaveAs={setShowSaveAsForm}
+            />
+          )}
+          <div>
+            <NavBar
+              theNames={theNames}
+              visiblesIds={visiblesIds}
+              inputSubmit={inputSubmit}
+              setGptValue={setGptValue}
+              gptVal={gptVal}
+              resetApiKey={resetApiKey}
+              visibleApiKey={visibleApiKey}
+              username={username}
+              inputMessage={inputMessage}
+              setInputVal={setInputVal}
+              setChatProvider={setChatProvider}
+              chatProvider={chatProvider}
+              ollamaConfig={ollamaConfig}
+              sendMenuAction={sendMenuAction}
+              setSystemPromptVal={setSystemPromptVal}
+              selectedPrompt={selectedPrompt}
+              prompts={prompts}
+              templates={templates}
+            />
+          </div>
+          <Space.ViewPort className="w-full dark:bg-dark bg-light">
+            <Space.Top
+              size="50px"
+              touchHandleSize={20}
+              trackSize={false}
+              scrollable={true}
+            >
+              <Space.Fill trackSize={true}></Space.Fill>
+            </Space.Top>
+            <Space.Bottom
+              className="w-full dark:bg-black bg-black"
+              size={`${sizeContent}%`}
               touchHandleSize={20}
               trackSize={false}
               scrollable={false}
             >
               <Space.Fill trackSize={true}>
-                <DraggableUI
-                  insertDiv={insertDiv}
-                  insertHere={insertHere}
-                  className={""}
-                  id={theIds[4]}
-                  order={5}
-                  onDragStart={onDragStart}
-                  onDragEnd={onDragEnd}
-                  onDragOver={onDragOver}
-                  onDrop={onDrop}
-                  getDivContent={getDivContent}
-                  draggingId={draggingId}
-                  divs={divs}
-                />
+                <Space.BottomResizable
+                  size={`${sizeCols[0]}%`}
+                  touchHandleSize={20}
+                  trackSize={false}
+                  scrollable={false}
+                >
+                  <Space.Fill trackSize={true}>
+                    <DraggableUI
+                      insertDiv={insertDiv}
+                      insertHere={insertHere}
+                      className={""}
+                      id={theIds[4]}
+                      order={5}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                      onDragOver={onDragOver}
+                      onDrop={onDrop}
+                      getDivContent={getDivContent}
+                      draggingId={draggingId}
+                      divs={divs}
+                    />
+                  </Space.Fill>
+                </Space.BottomResizable>
+                <Space.BottomResizable
+                  size={`${sizeCols[1]}%`}
+                  touchHandleSize={20}
+                  trackSize={false}
+                  scrollable={false}
+                >
+                  <Space.Fill trackSize={true}>
+                    <DraggableUI
+                      insertDiv={insertDiv}
+                      insertHere={insertHere}
+                      className={""}
+                      id={theIds[0]}
+                      order={1}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                      onDragOver={onDragOver}
+                      onDrop={onDrop}
+                      getDivContent={getDivContent}
+                      draggingId={draggingId}
+                      divs={divs}
+                    />
+                  </Space.Fill>
+                  <Space.BottomResizable
+                    size={`${sizeRows[0]}%`}
+                    touchHandleSize={20}
+                    trackSize={true}
+                    scrollable={false}
+                  >
+                    <Space.Fill>
+                      <DraggableUI
+                        insertDiv={insertDiv}
+                        insertHere={insertHere}
+                        id={theIds[1]}
+                        order={2}
+                        className={""}
+                        onDragStart={onDragStart}
+                        onDragEnd={onDragEnd}
+                        onDragOver={onDragOver}
+                        onDrop={onDrop}
+                        getDivContent={getDivContent}
+                        draggingId={draggingId}
+                        divs={divs}
+                      />
+                    </Space.Fill>
+                  </Space.BottomResizable>
+                </Space.BottomResizable>
+                <Space.BottomResizable
+                  size={`${sizeCols[2]}%`}
+                  touchHandleSize={20}
+                  trackSize={true}
+                  scrollable={false}
+                >
+                  <Space.Fill trackSize={true}>
+                    <DraggableUI
+                      insertDiv={insertDiv}
+                      insertHere={insertHere}
+                      className={""}
+                      id={theIds[2]}
+                      order={3}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                      onDragOver={onDragOver}
+                      onDrop={onDrop}
+                      getDivContent={getDivContent}
+                      draggingId={draggingId}
+                      divs={divs}
+                    />
+                  </Space.Fill>
+                  <Space.BottomResizable
+                    size={`${sizeRows[1]}%`}
+                    touchHandleSize={20}
+                    trackSize={true}
+                    scrollable={false}
+                  >
+                    <Space.Fill>
+                      <DraggableUI
+                        insertDiv={insertDiv}
+                        insertHere={insertHere}
+                        id={theIds[3]}
+                        className={""}
+                        order={4}
+                        onDragStart={onDragStart}
+                        onDragEnd={onDragEnd}
+                        onDragOver={onDragOver}
+                        onDrop={onDrop}
+                        getDivContent={getDivContent}
+                        draggingId={draggingId}
+                        divs={divs}
+                      />
+                    </Space.Fill>
+                  </Space.BottomResizable>
+                </Space.BottomResizable>
               </Space.Fill>
-            </Space.LeftResizable>
+            </Space.Bottom>
+          </Space.ViewPort>
+        </div>
+      ) : (
+        <div className="dark:bg-black bg-black">
+          {showLoading && (
+            <div className="absolute top-0 dark:bg-dark bg-light dark:text-light text-dark left-0 w-full h-screen z-50 opacity-90">
+              <LoadingDiv message={loadingMessage} />
+            </div>
+          )}
 
-            <Space.LeftResizable
-              size={`${sizeCols[1]}%`}   //size of Editor
+          {showCustomPrompt && (
+            <CustomPrompt
+              setShowCustomPrompt={setShowCustomPrompt}
+              updatePrompts={updatePrompts}
+            />
+          )}
+
+          {showViewPrompts && (
+            <ViewPrompts
+              setShowViewPrompts={setShowViewPrompts}
+              selectedPrompt={selectedPrompt}
+              prompts={prompts}
+              userStringPrompt={userStringPrompt}
+            />
+          )}
+
+          {authorisedDomain === false && (
+            <div className="fixed top-0 left-0 w-full h-full dark:bg-dark bg-light dark:text-light text-dark bg-opacity-50 flex items-center justify-center z-50">
+              <p>Only available on puter.com</p>
+            </div>
+          )}
+
+          {showGuideView && <GuideView setShowGuideView={setShowGuideView} />}
+
+          {showDeployForm && (
+            <DeployForm
+              appName={appName}
+              setAppNameVal={setAppNameVal}
+              subdomain={"subdomain"}
+              setSubdomainVal={() => {}}
+              deploy={downloadCode}
+              cancel={setShowDeployForm}
+            />
+          )}
+
+          {showSaveAsForm && (
+            <SaveAsForm
+              appName={appName}
+              setAppNameVal={setAppNameVal}
+              saveAs={saveAs}
+              cancelSaveAs={setShowSaveAsForm}
+            />
+          )}
+
+          <div>
+            <NavBar
+              theNames={theNames}
+              visiblesIds={visiblesIds}
+              inputSubmit={inputSubmit}
+              setGptValue={setGptValue}
+              gptVal={gptVal}
+              resetApiKey={resetApiKey}
+              visibleApiKey={visibleApiKey}
+              username={username}
+              inputMessage={inputMessage}
+              setInputVal={setInputVal}
+              setChatProvider={setChatProvider}
+              chatProvider={chatProvider}
+              ollamaConfig={ollamaConfig}
+              sendMenuAction={sendMenuAction}
+              setSystemPromptVal={setSystemPromptVal}
+              selectedPrompt={selectedPrompt}
+              prompts={prompts}
+              templates={templates}
+            />
+          </div>
+
+          <Space.ViewPort className="w-full dark:bg-dark bg-light">
+            <Space.Top
+              size="50px"
+              touchHandleSize={20}
+              trackSize={false}
+              scrollable={true}
+            >
+              <Space.Fill trackSize={true}></Space.Fill>
+            </Space.Top>
+
+            <Space.Bottom
+              className="w-full dark:bg-black bg-black"
+              size={`${sizeContent}%`}
               touchHandleSize={20}
               trackSize={false}
               scrollable={false}
             >
               <Space.Fill trackSize={true}>
-                <DraggableUI
-                  insertDiv={insertDiv}
-                  insertHere={insertHere}
-                  className={""}
-                  id={theIds[0]}
-                  order={1}
-                  onDragStart={onDragStart}
-                  onDragEnd={onDragEnd}
-                  onDragOver={onDragOver}
-                  onDrop={onDrop}
-                  getDivContent={getDivContent}
-                  draggingId={draggingId}
-                  divs={divs}
-                />
-              </Space.Fill>
-              <Space.BottomResizable
-                size={`${sizeRows[0]}%`}
-                touchHandleSize={20}
-                trackSize={true}
-                scrollable={false}
-              >
-                <Space.Fill>
-                  <DraggableUI
-                    insertDiv={insertDiv}
-                    insertHere={insertHere}
-                    id={theIds[1]}
-                    order={2}
-                    className={""}
-                    onDragStart={onDragStart}
-                    onDragEnd={onDragEnd}
-                    onDragOver={onDragOver}
-                    onDrop={onDrop}
-                    getDivContent={getDivContent}
-                    draggingId={draggingId}
-                    divs={divs}
-                  />
+                <Space.LeftResizable
+                  size={`${sizeCols[0]}%`} //Sige of the left resizable : Chat View
+                  touchHandleSize={20}
+                  trackSize={false}
+                  scrollable={false}
+                >
+                  <Space.Fill trackSize={true}>
+                    <DraggableUI
+                      insertDiv={insertDiv}
+                      insertHere={insertHere}
+                      className={""}
+                      id={theIds[4]}
+                      order={5}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                      onDragOver={onDragOver}
+                      onDrop={onDrop}
+                      getDivContent={getDivContent}
+                      draggingId={draggingId}
+                      divs={divs}
+                    />
+                  </Space.Fill>
+                </Space.LeftResizable>
+
+                <Space.LeftResizable
+                  size={`${sizeCols[1]}%`} //size of Editor
+                  touchHandleSize={20}
+                  trackSize={false}
+                  scrollable={false}
+                >
+                  <Space.Fill trackSize={true}>
+                    <DraggableUI
+                      insertDiv={insertDiv}
+                      insertHere={insertHere}
+                      className={""}
+                      id={theIds[0]}
+                      order={1}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                      onDragOver={onDragOver}
+                      onDrop={onDrop}
+                      getDivContent={getDivContent}
+                      draggingId={draggingId}
+                      divs={divs}
+                    />
+                  </Space.Fill>
+
+                  <Space.BottomResizable
+                    size={`${sizeRows[0]}%`}
+                    touchHandleSize={20}
+                    trackSize={true}
+                    scrollable={false}
+                  >
+                    <Space.Fill>
+                      <DraggableUI
+                        insertDiv={insertDiv}
+                        insertHere={insertHere}
+                        id={theIds[1]}
+                        order={2}
+                        className={""}
+                        onDragStart={onDragStart}
+                        onDragEnd={onDragEnd}
+                        onDragOver={onDragOver}
+                        onDrop={onDrop}
+                        getDivContent={getDivContent}
+                        draggingId={draggingId}
+                        divs={divs}
+                      />
+                    </Space.Fill>
+                  </Space.BottomResizable>
+                </Space.LeftResizable>
+
+                <Space.Fill
+                  size={`${sizeCols[2]}%`} //size of right resizable : Preview
+                  touchHandleSize={20}
+                  trackSize={true}
+                  scrollable={false}
+                >
+                  <Space.Fill trackSize={true}>
+                    <DraggableUI
+                      insertDiv={insertDiv}
+                      insertHere={insertHere}
+                      className={""}
+                      id={theIds[2]}
+                      order={3}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                      onDragOver={onDragOver}
+                      onDrop={onDrop}
+                      getDivContent={getDivContent}
+                      draggingId={draggingId}
+                      divs={divs}
+                    />
+                  </Space.Fill>
+
+                  <Space.BottomResizable
+                    size={`${sizeRows[1]}%`}
+                    touchHandleSize={20}
+                    trackSize={true}
+                    scrollable={false}
+                  >
+                    <Space.Fill>
+                      <DraggableUI
+                        insertDiv={insertDiv}
+                        insertHere={insertHere}
+                        id={theIds[3]}
+                        className={""}
+                        order={4}
+                        onDragStart={onDragStart}
+                        onDragEnd={onDragEnd}
+                        onDragOver={onDragOver}
+                        onDrop={onDrop}
+                        getDivContent={getDivContent}
+                        draggingId={draggingId}
+                        divs={divs}
+                      />
+                    </Space.Fill>
+                  </Space.BottomResizable>
                 </Space.Fill>
-              </Space.BottomResizable>
-            </Space.LeftResizable>
-            <Space.Fill
-              size={`${sizeCols[2]}%`}   //size of right resizable : Preview
-              touchHandleSize={20}
-              trackSize={true}
-              scrollable={false}
-            >
-              <Space.Fill trackSize={true}>
-                <DraggableUI
-                  insertDiv={insertDiv}
-                  insertHere={insertHere}
-                  className={""}
-                  id={theIds[2]}
-                  order={3}
-                  onDragStart={onDragStart}
-                  onDragEnd={onDragEnd}
-                  onDragOver={onDragOver}
-                  onDrop={onDrop}
-                  getDivContent={getDivContent}
-                  draggingId={draggingId}
-                  divs={divs}
-                />
-                
               </Space.Fill>
-              <Space.BottomResizable
-                size={`${sizeRows[1]}%`}
-                touchHandleSize={20}
-                trackSize={true}
-                scrollable={false}
-              >
-                <Space.Fill>
-                  <DraggableUI
-                    insertDiv={insertDiv}
-                    insertHere={insertHere}
-                    id={theIds[3]}
-                    className={""}
-                    order={4}
-                    onDragStart={onDragStart}
-                    onDragEnd={onDragEnd}
-                    onDragOver={onDragOver}
-                    onDrop={onDrop}
-                    getDivContent={getDivContent}
-                    draggingId={draggingId}
-                    divs={divs}
-                  />
-                </Space.Fill>
-              </Space.BottomResizable>
-            </Space.Fill>
-          </Space.Fill>
-        </Space.Bottom>
-      </Space.ViewPort>
-    </div>
+            </Space.Bottom>
+          </Space.ViewPort>
+        </div>
+      )}
+    </>
   );
 };
 
