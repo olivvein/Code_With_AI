@@ -18,7 +18,9 @@ import { templates } from "./utils/templates";
 import ViewPrompts from "./components/ViewPrompts";
 import LoadingDiv from "./components/LoadingDiv";
 import CustomPrompt from "./components/CustomPrompt";
-import LocalFileExplorer from "./components/LocalFileExplorer";
+import PerformanceMonitor from "./components/PerformanceMonitor";
+import NodeboxView from "./components/NodeboxView";
+import NextSandbox from "./components/NextSandbox";
 
 let puter = window.puter;
 const App = () => {
@@ -32,6 +34,7 @@ const App = () => {
 
   const [sizeCols, setSizeCols] = useState([0, 0, 100]);
   const [sizeRows, setSizeRows] = useState([0,0]);
+  const [sizeContent,setSizeContent]=useState(97);
 
 
   const animateSizesCols = (toSize,time)=>{
@@ -427,7 +430,7 @@ const App = () => {
         jsxCode = jsxCode.replace(/import\s+.*\s+from\s+.*;/g, "");
         jsxCode = uniqueImports.join("\n") + jsxCode;
       }
-      
+
       const newCode = Babel.transform(jsxCode, {
         presets: ["react"],
       }).code;
@@ -1024,7 +1027,7 @@ const App = () => {
 
   const [theIds,setTheIds]=useState([1,2,3,4,5,6]);
   const [visiblesIds,setVisiblesIds]=useState([true,true,true,true,true,false]);
-  const [theNames,setTheNames]=useState(["Code Editor","Chat Settings","App Preview","Log Section","Chat View","Local File Explorer"]);
+  const [theNames,setTheNames]=useState(["Code Editor","Chat Settings","App Preview","Log Section","Chat View","Sandbox"]);
 
   const changeVisibleId=(id,id2)=>{
     setTheIds([theIds[0],theIds[1],theIds[5],theIds[3],theIds[4],theIds[2]]);
@@ -1048,6 +1051,31 @@ const App = () => {
     newNames[theTo]=theNames[from];
     setTheNames(newNames);
   }
+
+  const perfMonitor=`function getMemoryInfo() {
+    if (window.performance && window.performance.memory) {
+      const usedJSHeapSize = window.performance.memory.usedJSHeapSize;
+      const totalJSHeapSize = window.performance.memory.totalJSHeapSize;
+      const jsHeapSizeLimit = window.performance.memory.jsHeapSizeLimit;
+
+      return {
+        usedJSHeapSize,
+        totalJSHeapSize,
+        jsHeapSizeLimit,
+      };
+    }
+    return null;
+  }
+
+  function sendMemoryInfoToParent() {
+    const memoryInfo = getMemoryInfo();
+    if (memoryInfo) {
+      window.parent.postMessage(memoryInfo, '*');
+    }
+  }
+
+  // Send memory info to parent window every 1 second
+  setInterval(sendMemoryInfoToParent, 200);`;
 
   const consoleLog = `var oldLog = console.log;var oldError = console.error;
   var logElement =parent.document.getElementById('logs');
@@ -1074,7 +1102,8 @@ const App = () => {
     
     oldError.apply(console, arguments);
     logElement.scrollTop = logElement.scrollHeight;
-  };`;
+  };
+  ${perfMonitor}`;
 
   const [ollamaModels, setOllamaModels] = useState([]);
 
@@ -1159,7 +1188,7 @@ const App = () => {
     },
     {
       id: 6,
-      content: <LocalFileExplorer />,
+      content: <NextSandbox />,
     },
   ]);
 
@@ -1666,7 +1695,7 @@ const App = () => {
         </Space.Top>
         <Space.Bottom
         className="w-full dark:bg-black bg-black"
-          size="94%"
+          size={`${sizeContent}%`}
           touchHandleSize={20}
           trackSize={false}
           scrollable={false}

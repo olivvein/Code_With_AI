@@ -186,7 +186,7 @@ https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}
 https://api.coingecko.com/api 
 https://api.multiversx.com/economics?extract=price for EGLD  => "price"
 https://www.francetvinfo.fr/titres.rss =>   entries "title" and "summary" and "links[0] as href " and "links[1] as image " For the News with feedparser library
-
+http://ip-api.com/json/ for user location
 when you create an image, Always make the prompt a full detailled prompt, with details about the content of the image and the style of the image.
 
 always start the js by a comment with the title of the app:
@@ -258,7 +258,7 @@ https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}
 https://api.coingecko.com/api 
 https://api.multiversx.com/economics?extract=price for EGLD  => "price"
 https://www.francetvinfo.fr/titres.rss =>   entries "title" and "summary" and "links[0] as href " and "links[1] as image " For the News with feedparser library
-
+http://ip-api.com/json/ for user location
 
 always start the js by a comment with the title of the app:
 //appTitle: The title of the app
