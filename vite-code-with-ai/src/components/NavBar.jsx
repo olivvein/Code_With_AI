@@ -1,10 +1,5 @@
-
 import React, { useState } from "react";
-import PropTypes from 'prop-types';
-
-
-
-
+import PropTypes from "prop-types";
 
 const NavBar = ({
   visibleApiKey,
@@ -14,7 +9,7 @@ const NavBar = ({
   prompts,
   templates,
   theNames,
-  visiblesIds
+  visiblesIds,
 }) => {
   const [openMenu, setOpenMenu] = useState("");
 
@@ -23,10 +18,10 @@ const NavBar = ({
   };
 
   const handleHover = (menu) => {
-    if(openMenu!=""){
+    if (openMenu != "") {
       setOpenMenu(menu);
     }
-  }
+  };
 
   const menuConfig = [
     {
@@ -36,14 +31,19 @@ const NavBar = ({
         { status: "inactive", name: "Open", action: "open" },
         { status: "inactive", name: "Import", action: "import" },
         { status: "inactive", name: "Save", action: "save" },
+        { status: "inactive", name: "separator", action: "none" },
         { status: "active", name: "Save As", action: "saveAs" },
         { status: "active", name: "Deploy", action: "deploy" },
       ],
     },
     {
       name: "Templates",
-      subMenu: templates.map((template,index) => {
-        return { status: "active", name: template.name, action: "setTemplate-"+index};
+      subMenu: templates.map((template, index) => {
+        return {
+          status: "active",
+          name: template.name,
+          action: "setTemplate-" + index,
+        };
       }),
     },
     {
@@ -57,13 +57,26 @@ const NavBar = ({
     },
     {
       name: "Prompts",
-      subMenu: [...prompts.map((prompt,index) => {
-        if(index==selectedPrompt){
-          return { status: "active", name: prompt.name+" ✓", action: "setPrompt-"+index};
-        }else{
-          return { status: "active", name: prompt.name, action: "setPrompt-"+index};
-        }
-      }),{ status: "active", name: "View", action: "viewPrompts" },{ status: "active", name: "Promplets", action: "viewCustomPrompt" }],
+      subMenu: [
+        ...prompts.map((prompt, index) => {
+          if (index == selectedPrompt) {
+            return {
+              status: "active",
+              name: prompt.name + " ✓",
+              action: "setPrompt-" + index,
+            };
+          } else {
+            return {
+              status: "active",
+              name: prompt.name,
+              action: "setPrompt-" + index,
+            };
+          }
+        }),
+        { status: "inactive", name: "separator", action: "none" },
+        { status: "active", name: "View", action: "viewPrompts" },
+        { status: "active", name: "Promplets", action: "viewCustomPrompt" },
+      ],
     },
     {
       name: "Database",
@@ -75,14 +88,22 @@ const NavBar = ({
     {
       name: "View",
       subMenu: [
-        ...theNames.map((name,index) => {
-          if(visiblesIds[index]){
-            return { status: "inactive", name: name+" ✓", action: "toggleId-"+index};
-          }else{
-            return { status: "active", name: name, action: "toggleId-"+index};
+        ...theNames.map((name, index) => {
+          if (visiblesIds[index]) {
+            return {
+              status: "inactive",
+              name: name + " ✓",
+              action: "toggleId-" + index,
+            };
+          } else {
+            return {
+              status: "active",
+              name: name,
+              action: "toggleId-" + index,
+            };
           }
         }),
-        { status: "inactive", name: "------------------", action: "none" },
+        { status: "inactive", name: "separator", action: "none" },
         { status: "active", name: "Fullscreen", action: "fullscreen-preview" },
         { status: "active", name: "Columns", action: "normal-view" },
         { status: "active", name: "Chat Settings", action: "chat-settings" },
@@ -103,81 +124,81 @@ const NavBar = ({
   ];
 
   return (
-    <nav className="absolute w-full top-0 left-0 dark:bg-dark bg-light dark:text-light text-dark px-0 h-5 flex z-40">
+    <nav className="absolute w-full p-0 m-0 top-0 left-0 dark:bg-dark bg-light dark:text-light text-dark px-0 h-5 flex z-40 text-sm ">
       <div className=" w-full top-0 dark:bg-dark bg-light dark:text-light text-dark  px-0 flex justify-between">
-        <div className="w-5/6 top-0 dark:bg-dark bg-light dark:text-light text-dark pt-3 px-0">
-          <span className="left-0 top-0  px-2">
-            <span>
+        <div className="w-5/6 top-0 dark:bg-dark bg-light dark:text-light text-dark pt-1 px-0 flex">
+          <span className="left-0 top-0  px-2 flex flex-col">
+            <span className=" left-0 top-0 text-sm px-2">
               <b>Code With Ai</b>
-            </span>
-            <span className="absolute left-0 top-7 text-sm px-2">
-              By SamLePirate
             </span>
           </span>
           {menuConfig.map((menu, index) => (
             <div key={index} className="relative inline-block">
               <span
-                
                 tabIndex={index} // Makes the div focusable
                 // Handles focus event
                 onBlur={() => {
                   setTimeout(() => setOpenMenu(""), 100);
                 }}
-                onMouseOver={() => {handleHover(menu.name)}}
+                onMouseOver={() => {
+                  handleHover(menu.name);
+                }}
                 className={`${
                   openMenu == menu.name ? "bg-gray-700" : ""
-                } cursor-pointer pt-3 pb-2 px-2 active:bg-gray-700  hover:bg-blue-800 hover:text-light hover:shadow-lg rounded-lg mt-2`}
+                } cursor-pointer pt-1 pb-1 px-2 active:bg-gray-700  hover:bg-blue-800 hover:text-light hover:shadow-lg rounded-lg mt-2`}
                 onClick={() => toggleMenu(menu.name)}
               >
                 {menu.name}
               </span>
               {openMenu === menu.name && (
-                <div className="absolute backdrop-blur-xl  dark:bg-dark/50 bg-light/50 dark:text-light text-dark  left-0 mt-2 w-48  rounded-md  border border-gray-700 transition-appear opacity-100 shadow-lg z-50 flex flex-col justify-around">
-                 
-                  
-                  {menu.subMenu.map((subMenu,index) => (
-                   
-                    <button
-                      key={index}
-                      
-                      className={`rounded-xl  mx-1 text-left px-4 py-2 active:border text-sm  active:bg-gray-400 active:border-gray-700 active:text-dark transition-colors duration-100 ease-in-out hover:bg-blue-800/100 hover:text-light ${
-                        subMenu.status == "inactive" ? "dark:text-gray-600 text-gray-400 " : "dark:text-light text-dark "
-                      } ${
-                        index==menu.subMenu.length-1 ? "mb-1" : ""
-                      }
+                <div className="absolute backdrop-blur-xl  dark:bg-dark/60 bg-light/60 dark:text-light text-dark  left-0 mt-2 w-48  rounded-md  border border-gray-700 transition-appear opacity-100 shadow-lg z-50 flex flex-col justify-around">
+                  {menu.subMenu.map((subMenu, index) => (
+                    <>
+                      {subMenu.name == "separator" ? (
+                        <div className="border-b border-gray-500 mx-2 my-1"></div>
+                      ) : (
+                        <button
+                          key={index}
+                          className={`rounded-xl  mx-1 text-left px-4 py-2 active:border text-sm  active:bg-gray-400 active:border-gray-700 active:text-dark transition-colors duration-100 ease-in-out hover:bg-blue-800/100 hover:text-light ${
+                            subMenu.status == "inactive"
+                              ? "dark:text-gray-500 text-gray-400 "
+                              : "dark:text-light text-dark "
+                          } ${index == menu.subMenu.length - 1 ? "mb-1" : ""}
+                      ${index == 0 ? "mt-1" : ""}
                       ${
-                        index==0 ? "mt-1" : ""
+                        subMenu.status == "inactive"
+                          ? " active:bg-none active:border-dark/0 active:bg-dark/0 active:dark:text-gray-600 active:text-gray-400 hover:bg-dark/0 dark:text-gray-600 text-gray-400  hover:dark:text-gray-600 hover:text-gray-500  cursor-auto"
+                          : ""
                       }
-                      ${subMenu.status == "inactive" ?" active:bg-none active:border-dark/0 active:bg-dark/0 active:dark:text-gray-600 active:text-gray-400 hover:bg-dark/0 dark:text-gray-600 text-gray-400  hover:dark:text-gray-600 hover:text-gray-500  cursor-auto":""}
                       `}
-                      // onClick={() => {
-                        
-                      //   sendMenuAction(subMenu.action);
-                      //   setTimeout(() => setOpenMenu(""), 300);
-                        
-                      // }}
-                      onMouseDown={(e) => {
-                        if(subMenu.status == "inactive"){
-                          e.preventDefault();
-                          return;
-                        }
-                        sendMenuAction(subMenu.action);
-                        setTimeout(() => setOpenMenu(""), 300);
-                        
-                      }}
-                    >
-                      {subMenu.name}
-                    </button>
+                          // onClick={() => {
+
+                          //   sendMenuAction(subMenu.action);
+                          //   setTimeout(() => setOpenMenu(""), 300);
+
+                          // }}
+                          onMouseDown={(e) => {
+                            if (subMenu.status == "inactive") {
+                              e.preventDefault();
+                              return;
+                            }
+                            sendMenuAction(subMenu.action);
+                            setTimeout(() => setOpenMenu(""), 300);
+                          }}
+                        >
+                          {subMenu.name}
+                        </button>
+                      )}
+                    </>
                   ))}
                 </div>
               )}
             </div>
           ))}
         </div>
-        <div className="justify-end pt-3 px-0 ">
-          <span className="cursor-pointer  pt-3 pb-2 px-2  hover:bg-gray-700 hover:shadow-lg rounded-lg">
-            {visibleApiKey+username}
-            
+        <div className="justify-end pt-1 px-0 ">
+          <span className="cursor-pointer  pt-1 pb-1 px-2  hover:bg-gray-700 hover:shadow-lg rounded-lg">
+            {visibleApiKey + username}
           </span>
         </div>
       </div>
@@ -190,12 +211,16 @@ NavBar.propTypes = {
   username: PropTypes.string,
   sendMenuAction: PropTypes.func.isRequired,
   selectedPrompt: PropTypes.number,
-  prompts: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string.isRequired,
-  })),
-  templates: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string.isRequired,
-  })),
+  prompts: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })
+  ),
+  templates: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })
+  ),
 };
 
 export default NavBar;
