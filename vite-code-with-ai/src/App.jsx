@@ -420,6 +420,14 @@ const App = () => {
 
       //console.log(result);
       jsxCode = result.code;
+      //make sure there is no dulicate import in jsxCode
+      const imports = jsxCode.match(/import\s+.*\s+from\s+.*;/g);
+      if (imports) {
+        const uniqueImports = [...new Set(imports)];
+        jsxCode = jsxCode.replace(/import\s+.*\s+from\s+.*;/g, "");
+        jsxCode = uniqueImports.join("\n") + jsxCode;
+      }
+      
       const newCode = Babel.transform(jsxCode, {
         presets: ["react"],
       }).code;
@@ -1722,6 +1730,7 @@ const App = () => {
                     insertHere={insertHere}
                     id={theIds[1]}
                     order={2}
+                    className={""}
                     onDragStart={onDragStart}
                     onDragEnd={onDragEnd}
                     onDragOver={onDragOver}
@@ -1767,6 +1776,7 @@ const App = () => {
                     insertDiv={insertDiv}
                     insertHere={insertHere}
                     id={theIds[3]}
+                    className={""}
                     order={4}
                     onDragStart={onDragStart}
                     onDragEnd={onDragEnd}

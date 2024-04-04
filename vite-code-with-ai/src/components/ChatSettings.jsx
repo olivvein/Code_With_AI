@@ -22,7 +22,7 @@ const ChatSettings = ({
   
 
   return (
-    <div className="flex flex-col items-center justify-center h-full">
+    <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark flex flex-col items-center justify-center">
       <div className="flex flex-col w-full max-h-3/4 items-center justify-center overflow-y-scroll">
         <h1 className="text-4xl font-semibold dark:text-light text-dark">
           Chat Settings
