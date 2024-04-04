@@ -36,6 +36,9 @@ const App = () => {
   const [sizeRows, setSizeRows] = useState([0,0]);
   const [sizeContent,setSizeContent]=useState(97);
 
+ 
+
+  
 
   const animateSizesCols = (toSize,time)=>{
     //toSize is a array of size
@@ -1421,6 +1424,36 @@ const App = () => {
     setAppName(appTitle);
   }, [jsCode]);
 
+
+
+  useEffect(() => {
+    const updateSize = () => {
+      console.log("resize");
+      const navbar = document.getElementById('theNavbar');
+      if (navbar) {
+        //get navbar height in percent of window height
+        const navbarHeight = navbar.clientHeight;
+        const windowHeight = window.innerHeight;
+        console.log({navbarHeight})
+        console.log({windowHeight})
+        const navbarHeightPercent = (navbarHeight / windowHeight) * 100;
+        console.log("Size:");
+        console.log(navbarHeightPercent)
+        setSizeContent(99-navbarHeightPercent);
+      }
+    }
+
+    // Call updateSize at the start in case the window is already the right size
+    updateSize();
+
+    // Attach the event listener
+    window.addEventListener('resize', updateSize);
+
+    // Cleanup function to remove the event listener when the component unmounts
+    return () => window.removeEventListener('resize', updateSize);
+  }, [templates,jsCode]); // Empty array ensures that effect is only run on mount and unmount
+
+
   const [parentTitle, setParentTitle] = useState("");
   const [authorisedDomain, setAuthorisedDomain] = useState(true);
 
@@ -1661,6 +1694,7 @@ const App = () => {
           cancelSaveAs={setShowSaveAsForm}
         />
       )}
+      <div>
       <NavBar
         theNames={theNames}
         visiblesIds={visiblesIds}
@@ -1681,6 +1715,7 @@ const App = () => {
         prompts={prompts}
         templates={templates}
       />
+      </div>
       <Space.ViewPort className="w-full dark:bg-dark bg-light">
         <Space.Top
           size="50px"

@@ -124,7 +124,7 @@ const NavBar = ({
   ];
 
   return (
-    <nav className="absolute w-full p-0 m-0 top-0 left-0 dark:bg-dark bg-light dark:text-light text-dark px-0 h-5 flex z-40 text-sm ">
+    <nav id="theNavbar" className="absolute w-full p-0 m-0 top-0 left-0 dark:bg-dark bg-light dark:text-light text-dark px-0 h-5 flex z-40 text-sm ">
       <div className=" w-full top-0 dark:bg-dark bg-light dark:text-light text-dark  px-0 flex justify-between">
         <div className="w-5/6 top-0 dark:bg-dark bg-light dark:text-light text-dark pt-1 px-0 flex">
           <span className="left-0 top-0  px-2 flex flex-col">

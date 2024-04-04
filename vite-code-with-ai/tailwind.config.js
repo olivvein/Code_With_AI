@@ -21,7 +21,7 @@ export default {
       },
       animation: {
         fade: "fadeOut 5s ease-in-out",
-        appear: "fadeIn 0.2s ease-in-out",
+        appear: "fadeIn 0.5s ease-in-out",
       },
       // that is actual animation
       keyframes: (theme) => ({
