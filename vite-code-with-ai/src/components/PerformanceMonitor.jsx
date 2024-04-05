@@ -62,17 +62,15 @@ const PerformanceMonitor = () => {
     //   </div>
     // </div>
     <>
-      {memoryInfo ? (
+      {(memoryInfo && memoryInfo.usedJSHeapSize)&& (
       <span className="pt-1 pb-1 px-2 ">
         Iframe {(memoryInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)}{" "} Mb
       </span>
-      ) : (
-        <span>O Mb</span>
-      )}
+      ) }
 
       {performanceData.memory ? (
       <span className="pt-1 pb-1 px-2 ">
-        App {(performanceData.memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}{" "}
+        Mem: {(performanceData.memory.usedJSHeapSize / 1024 / 1024).toFixed(0)}{" "}
         Mb
       </span>
       ) : (

@@ -1123,8 +1123,7 @@ const App = () => {
     
     oldError.apply(console, arguments);
     logElement.scrollTop = logElement.scrollHeight;
-  };
-  ${perfMonitor}`;
+  };`;
 
   const [ollamaModels, setOllamaModels] = useState([]);
 
