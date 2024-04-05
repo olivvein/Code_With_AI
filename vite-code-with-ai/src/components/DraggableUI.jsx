@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useRef, useEffect} from "react";
 import "../App.css";
 
 const DraggableUI = ({
@@ -15,8 +15,28 @@ const DraggableUI = ({
   divs,
   order,
 }) => {
+
+  const divRef = useRef(null);
+
+  useEffect(() => {
+    const div = divRef.current;
+    if (div) {
+      div.addEventListener('touchstart', (e) => onDragStart(e, id));
+      div.addEventListener('touchmove', onDragOver);
+      div.addEventListener('touchend', onDragEnd);
+    }
+    return () => {
+      if (div) {
+        div.removeEventListener('touchstart', (e) => onDragStart(e, id));
+        div.removeEventListener('touchmove', onDragOver);
+        div.removeEventListener('touchend', onDragEnd);
+      }
+    };
+  }, [onDragStart, onDragOver, onDragEnd, id]);
+
   return (
     <div
+    ref={divRef}
       key={id}
       draggable
       onClick={(e) => {
@@ -35,7 +55,9 @@ const DraggableUI = ({
       } ${
         (draggingId !== id && draggingId) || insertDiv
           ? "tilted-right "
-          : ` border dark:border-light border-dark ${className?.indexOf("tilted")==-1?"notTilted":""} `
+          : ` border dark:border-light border-dark ${
+              className?.indexOf("tilted") == -1 ? "notTilted" : ""
+            } `
       } ${className} `}
     >
       {(draggingId !== id && draggingId) || insertDiv ? (
@@ -66,15 +88,16 @@ const DraggableUI = ({
           (draggingId !== id && draggingId) || insertDiv
             ? ""
             : "dark:bg-dark bg-light"
-        }`} >
-        <span >
+        }`}
+      >
+        <span>
           <span className="w-full flex justify-center">
             {divs.find((div) => div.id === id).content.props.name}
           </span>
         </span>
       </span>
       <span className="w-full h-full border-t dark:border-t-light border-t-dark">
-      {getDivContent(id)}
+        {getDivContent(id)}
       </span>
     </div>
   );
