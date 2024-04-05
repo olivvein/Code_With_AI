@@ -38,6 +38,8 @@ const App = () => {
   const [sizeRows, setSizeRows] = useState([0, 0]);
   const [sizeContent, setSizeContent] = useState(97);
 
+  const [draggingOrder,setDraggingOrder] = useState(-1);
+
   const animateSizesCols = (toSize, time) => {
     //toSize is a array of size
     //interpolate from sizeCols to toSize with a step of 1 and a duration of 1s
@@ -621,9 +623,12 @@ const App = () => {
     setAppName(e.target.value);
   };
 
-  const onDragStart = (e, id) => {
+  
+
+  const onDragStart = (e, id,order) => {
     e.dataTransfer.setData("id", id);
     setDraggingId(id);
+    setDraggingOrder(order);
   };
 
   const onDragEnd = () => {
@@ -1024,13 +1029,15 @@ const App = () => {
     true,
     true,
     false,
+    false,
+    false,
   ]);
   const [theNames, setTheNames] = useState([
+    "Chat View",
     "Code Editor",
     "Chat Settings",
     "App Preview",
     "Log Section",
-    "Chat View",
     "Sandbox",
     "Speak to Text",
     "Text to Speak",
@@ -1133,7 +1140,7 @@ const App = () => {
 
   const [divs, setDivs] = useState([
     {
-      id: 1,
+      id: 2,
       content: (
         <CodeEditor
           handleChange={handleChange}
@@ -1155,7 +1162,7 @@ const App = () => {
       ),
     },
     {
-      id: 2,
+      id: 3,
       content: (
         <ChatSettings
           chatProvider={chatProvider}
@@ -1177,7 +1184,7 @@ const App = () => {
       ),
     },
     {
-      id: 3,
+      id: 4,
       content: (
         <CustomIframe
           jsCode={jsCode}
@@ -1189,9 +1196,9 @@ const App = () => {
         />
       ),
     },
-    { id: 4, content: <LogSection name="Log Section" /> },
+    { id: 5, content: <LogSection name="Log Section" /> },
     {
-      id: 5,
+      id: 1,
       content: (
         <ChatView
           inputSubmit={inputSubmit}
@@ -1773,6 +1780,7 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
+                      draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
@@ -1796,6 +1804,7 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
+                    draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
@@ -1818,6 +1827,7 @@ const App = () => {
                   >
                     <Space.Fill>
                       <DraggableUI
+                      draggingOrder={draggingOrder}
                         insertDiv={insertDiv}
                         insertHere={insertHere}
                         id={theIds[1]}
@@ -1842,6 +1852,7 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
+                    draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
@@ -1864,6 +1875,7 @@ const App = () => {
                   >
                     <Space.Fill>
                       <DraggableUI
+                      draggingOrder={draggingOrder}
                         insertDiv={insertDiv}
                         insertHere={insertHere}
                         id={theIds[3]}
@@ -1985,11 +1997,12 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
+                    draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
-                      id={theIds[4]}
-                      order={5}
+                      id={theIds[0]}
+                      order={1}
                       onDragStart={onDragStart}
                       onDragEnd={onDragEnd}
                       onDragOver={onDragOver}
@@ -2009,11 +2022,12 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
+                    draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
-                      id={theIds[0]}
-                      order={1}
+                      id={theIds[1]}
+                      order={2}
                       onDragStart={onDragStart}
                       onDragEnd={onDragEnd}
                       onDragOver={onDragOver}
@@ -2032,10 +2046,11 @@ const App = () => {
                   >
                     <Space.Fill>
                       <DraggableUI
+                      draggingOrder={draggingOrder}
                         insertDiv={insertDiv}
                         insertHere={insertHere}
-                        id={theIds[1]}
-                        order={2}
+                        id={theIds[2]}
+                        order={3}
                         className={""}
                         onDragStart={onDragStart}
                         onDragEnd={onDragEnd}
@@ -2057,11 +2072,12 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
+                    draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
-                      id={theIds[2]}
-                      order={3}
+                      id={theIds[3]}
+                      order={4}
                       onDragStart={onDragStart}
                       onDragEnd={onDragEnd}
                       onDragOver={onDragOver}
@@ -2080,11 +2096,12 @@ const App = () => {
                   >
                     <Space.Fill>
                       <DraggableUI
+                      draggingOrder={draggingOrder}
                         insertDiv={insertDiv}
                         insertHere={insertHere}
-                        id={theIds[3]}
+                        id={theIds[4]}
                         className={""}
-                        order={4}
+                        order={5}
                         onDragStart={onDragStart}
                         onDragEnd={onDragEnd}
                         onDragOver={onDragOver}

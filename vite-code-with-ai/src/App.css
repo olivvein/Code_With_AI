@@ -7,7 +7,7 @@
   100% {border-color: #2716e0;}
 }
 
-.tilted-right {
+.tilted-right{
   perspective: 150px;
   transform-style: preserve-3d;
   transition: transform 0.5s ease-in-out;
@@ -21,10 +21,9 @@
   perspective: 150px;
   transform-style: preserve-3d;
   transition: transform 0.5s ease-in-out;
-  transform: rotateY(12deg) scale(0.92) rotateX(25deg);
+  transform: rotateY(-25deg) scale(0.9) rotateX(12deg);
   border: 2px dashed white;
   overflow:hidden;
-
 }
 
 .notTilted {
@@ -36,6 +35,15 @@
 
 }
 
+.notTiltedb {
+  perspective: 150px;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease-in-out;
+  transform: skewY(0deg) scale(1);
+  overflow:hidden;
+
+}
+
 .tilted:hover {
   border-color:red;
   color:red;
@@ -43,7 +51,7 @@
 }
 
 
-.book-page-tilted-left {
+.tilted-leftb  {
   transform: skewY(-10deg) scale(0.9);
   border: 1px solid #000;
   width: 200px;
@@ -52,16 +60,18 @@
   background: #fff;
   box-shadow: -10px 10px 5px rgba(0,0,0,0.5);
   overflow: hidden;
+  transition: transform 0.5s ease-in-out;
 }
 
-.book-page-tilted-right {
-  transform: skewY(10deg);
+.tilted-rightb {
+  transform: skewY(10deg) scale(0.9);
   border: 1px solid #000;
   width: 200px;
   height: 300px;
   position: relative;
   background: #fff;
   box-shadow: 10px 10px 5px rgba(0,0,0,0.5);
+  transition: transform 0.5s ease-in-out;
 }
 
 

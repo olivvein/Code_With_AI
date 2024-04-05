@@ -1,4 +1,4 @@
-import React, {useRef, useEffect} from "react";
+import React, { useRef, useEffect } from "react";
 import "../App.css";
 
 const DraggableUI = ({
@@ -14,29 +14,29 @@ const DraggableUI = ({
   draggingId,
   divs,
   order,
+  draggingOrder
 }) => {
-
   const divRef = useRef(null);
 
   useEffect(() => {
     const div = divRef.current;
     if (div) {
-      div.addEventListener('touchstart', (e) => onDragStart(e, id));
-      div.addEventListener('touchmove', onDragOver);
-      div.addEventListener('touchend', onDragEnd);
+      div.addEventListener("touchstart", (e) => onDragStart(e, id,order));
+      div.addEventListener("touchmove", onDragOver);
+      div.addEventListener("touchend", onDragEnd);
     }
     return () => {
       if (div) {
-        div.removeEventListener('touchstart', (e) => onDragStart(e, id));
-        div.removeEventListener('touchmove', onDragOver);
-        div.removeEventListener('touchend', onDragEnd);
+        div.removeEventListener("touchstart", (e) => onDragStart(e, id,order));
+        div.removeEventListener("touchmove", onDragOver);
+        div.removeEventListener("touchend", onDragEnd);
       }
     };
   }, [onDragStart, onDragOver, onDragEnd, id]);
 
   return (
     <div
-    ref={divRef}
+      ref={divRef}
       key={id}
       draggable
       onClick={(e) => {
@@ -48,13 +48,13 @@ const DraggableUI = ({
       onDrop={(e) => onDrop(e, id)}
       onDragEnd={onDragEnd}
       onDragOver={onDragOver}
-      onDragStart={(e) => onDragStart(e, id)}
+      onDragStart={(e) => onDragStart(e, id,order)}
       style={{ cursor: "grab" }}
       className={`w-full h-full dark:bg-dark bg-light dark:text-light text-dark   flex flex-col rounded shadow-lg  drop-shadow-[0_5px_5px_rgba(255,255,255,0.25)] ${
         draggingId === id ? "opacity-30 " : "opacity-100"
       } ${
         (draggingId !== id && draggingId) || insertDiv
-          ? "tilted-right "
+          ? `${draggingOrder >order ? "tilted-right " : "tilted-left "}`
           : ` border dark:border-light border-dark ${
               className?.indexOf("tilted") == -1 ? "notTilted" : ""
             } `
@@ -72,12 +72,12 @@ const DraggableUI = ({
           onDrop={(e) => onDrop(e, id)}
           onDragEnd={onDragEnd}
           onDragOver={onDragOver}
-          onDragStart={(e) => onDragStart(e, id)}
+          onDragStart={(e) => onDragStart(e, id,order)}
           style={{ cursor: "grab" }}
           className="absolute top-0 left-0 w-full h-full backdrop-blur dark:bg-dark/30 bg-light/30 z-50 flex flex-col justify-center"
         >
           <span className="text-2xl flex justify-center">
-            {divs.find((div) => div.id === id).content.props.name}
+            {divs.find((div) => div.id === id).content.props.name} 
           </span>
         </div>
       ) : (
