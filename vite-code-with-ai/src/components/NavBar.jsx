@@ -123,14 +123,13 @@ const NavBar = ({
           }
         }),
         { status: "inactive", name: "separator", action: "none" },
-        { status: "active", name: "Fullscreen", action: "fullscreen-preview" },
-        { status: "active", name: "Columns", action: "normal-view" },
+        { status: "active", name: "Preview Fullscreen", action: "fullscreen-preview" },
+        { status: "active", name: MobileView?"Chat + Preview":"Chat + Code + Preview", action: "normal-view" },
         { status: "active", name: "Chat Settings", action: "chat-settings" },
         { status: "active", name: "Console", action: "console-log" },
-        { status: "active", name: "Code", action: "code-view" },
+        { status: "active", name: "Code Fullscreen", action: "code-view" },
         { status: "active", name: "Code + Preview", action: "code-preview" },
-        { status: "active", name: "Chat + Preview", action: "chat-preview" },
-        { status: "inactive", name: "Dark Mode", action: "darkMode" },
+        { status: "active", name: "Chat + Preview", action: "chat-preview" }
       ],
     },
     {

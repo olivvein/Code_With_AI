@@ -40,6 +40,8 @@ const App = () => {
 
   const [draggingOrder,setDraggingOrder] = useState(-1);
 
+  const MobileView = window.innerWidth<800?true:false;
+
   const animateSizesCols = (toSize, time) => {
     //toSize is a array of size
     //interpolate from sizeCols to toSize with a step of 1 and a duration of 1s
@@ -84,35 +86,64 @@ const App = () => {
     }, interval);
   };
 
+  const AnimateEqualCol = () => {
+    animateSizesCols([33, 34, 33], 800);
+    animateSizesRows([0, 0], 300);
+  };
+  const AnimateChatPreviewMobile = () => {
+    animateSizesCols([30,0, 70], 800);
+    animateSizesRows([0, 0], 300);
+  };
+
+  const AnimateFullScreenPreview=()=>{
+    animateSizesCols([0, 0, 100], 500);
+      animateSizesRows([0, 0], 300);
+  }
+
+  const AnimateEditorFullscreen = () => {
+    animateSizesCols([0, 100, 0], 500);
+    animateSizesRows([0, 0], 300);
+  };
+
+  const AnimateCodePreview=()=>{
+    animateSizesCols([0, 50, 50], 500);
+    animateSizesRows([0, 0], 300);
+  }
+
+  const AnimateChatPreview=()=>{
+    animateSizesCols([50, 0, 50], 500);
+    animateSizesRows([0, 0], 300);
+  }
+
+  const AnimateChatSetting = () => {
+    animateSizesCols([0, 100, 0], 500);
+    animateSizesRows([100, 0], 300);
+  };
+
+  const AnimateChatSettingMobile = () => {
+    animateSizesCols([0, 100, 0], 500);
+    animateSizesRows([100, 0], 300);
+  };
+
+  const AnimateLog = () => {
+    animateSizesRows([0, 50], 300);
+  };
+
+  const AnimateLogMobile = () => {
+    animateSizesCols([0, 0, 100], 500);
+    animateSizesRows([0, 50], 300);
+  };
+
+  
+
   useEffect(() => {
-    const runCols = () => {
-      animateSizesCols([33, 34, 33], 800);
-    };
-    const runCols1 = () => {
-      animateSizesCols([50, 50, 0], 800);
-    };
-    const runCols2 = () => {
-      animateSizesCols([33, 34, 33], 500);
-    };
-    const runCols3 = () => {
-      animateSizesCols([50, 0, 50], 500);
-    };
+    
 
-    const runCols4 = () => {
-      animateSizesCols([50, 0, 50], 500);
-    };
-
-    const runRows = () => {
-      animateSizesRows([10, 10], 500);
-    };
-
-    setTimeout(runCols, 3000);
-    //setTimeout(runCols1,5000);
-    //setTimeout(runCols2,7000);
-    // setTimeout(runCols3,9000);
-    // setTimeout(runCols4,1000);
-
-    //setTimeout(runRows,5000);
+    if(MobileView){
+      setTimeout(AnimateChatPreviewMobile, 3000);
+    }else{
+      setTimeout(AnimateEqualCol, 3000);
+    }
   }, []);
 
   const getPrompts = async () => {
@@ -657,41 +688,57 @@ const App = () => {
     return div.content;
   };
 
+  
+
   const [divToInsert, setDivToInsert] = useState(null);
 
   const sendMenuAction = (action) => {
     console.log(action);
 
     if (action == "fullscreen-preview") {
-      animateSizesCols([0, 0, 100], 500);
-      animateSizesRows([0, 0], 300);
+      AnimateFullScreenPreview();
     }
 
     if (action == "normal-view") {
-      animateSizesCols([30, 40, 30], 500);
-      animateSizesRows([0, 0], 300);
+      if(MobileView){
+        AnimateChatPreviewMobile();
+      }else{
+        AnimateEqualCol();
+      }
     }
 
+    
+
     if (action == "chat-settings") {
-      animateSizesCols([30, 40, 30], 500);
-      animateSizesRows([50, 0], 300);
+
+      if(MobileView){
+        AnimateChatSettingMobile();
+      }else{
+        AnimateChatSetting();
+      }
+      
     }
 
     if (action == "console-log") {
-      animateSizesCols([30, 40, 30], 500);
-      animateSizesRows([0, 50], 300);
+      if(MobileView){
+        AnimateLogMobile();
+      }else{
+        AnimateLog();
+      }
     }
+
+   
+
+    
+
     if (action == "code-view") {
-      animateSizesCols([0, 100, 0], 500);
-      animateSizesRows([0, 0], 300);
+      AnimateEditorFullscreen()
     }
     if (action == "code-preview") {
-      animateSizesCols([0, 50, 50], 500);
-      animateSizesRows([0, 0], 300);
+      AnimateCodePreview()
     }
     if (action == "chat-preview") {
-      animateSizesCols([50, 0, 50], 500);
-      animateSizesRows([0, 0], 300);
+      AnimateChatPreview();
     }
     if (action.indexOf("toggleId-") !== -1) {
       console.log("setInsertDiv");
@@ -1685,7 +1732,7 @@ const App = () => {
     setInsertDiv(false);
   };
 
-  const MobileView = window.innerWidth<800?true:false;
+  
 
   return (
     <>
@@ -1785,8 +1832,8 @@ const App = () => {
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
-                      id={theIds[4]}
-                      order={5}
+                      id={theIds[0]}
+                      order={1}
                       onDragStart={onDragStart}
                       onDragEnd={onDragEnd}
                       onDragOver={onDragOver}
@@ -1809,8 +1856,8 @@ const App = () => {
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
-                      id={theIds[0]}
-                      order={1}
+                      id={theIds[1]}
+                      order={2}
                       onDragStart={onDragStart}
                       onDragEnd={onDragEnd}
                       onDragOver={onDragOver}
@@ -1831,8 +1878,8 @@ const App = () => {
                       draggingOrder={draggingOrder}
                         insertDiv={insertDiv}
                         insertHere={insertHere}
-                        id={theIds[1]}
-                        order={2}
+                        id={theIds[2]}
+                        order={3}
                         className={""}
                         onDragStart={onDragStart}
                         onDragEnd={onDragEnd}
@@ -1857,8 +1904,8 @@ const App = () => {
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
-                      id={theIds[2]}
-                      order={3}
+                      id={theIds[3]}
+                      order={4}
                       onDragStart={onDragStart}
                       onDragEnd={onDragEnd}
                       onDragOver={onDragOver}
@@ -1879,9 +1926,9 @@ const App = () => {
                       draggingOrder={draggingOrder}
                         insertDiv={insertDiv}
                         insertHere={insertHere}
-                        id={theIds[3]}
+                        id={theIds[4]}
                         className={""}
-                        order={4}
+                        order={5}
                         onDragStart={onDragStart}
                         onDragEnd={onDragEnd}
                         onDragOver={onDragOver}

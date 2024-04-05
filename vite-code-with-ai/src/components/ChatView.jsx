@@ -52,10 +52,13 @@ const ChatView = ({
     setChatMessages([...chatMessages, toAppend, toAppend2]);
   };
 
+  const MobileView = window.innerWidth<800?true:false;
+
   return (
     <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark">
       <div className="w-full h-full p-2">
         <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark">
+          {!MobileView && (
           <div className="flex w-full flex-col justify-between">
             <GithubGet setGithubReadme={setGithubReadmeVal} />
             <MarkdownGet setGithubReadme={setGithubReadmeVal} />
@@ -68,6 +71,7 @@ const ChatView = ({
               </button>
             </div>
           </div>
+          )}
           <div className="w-full h-5/6 dark:bg-dark bg-light dark:text-light text-dark overflow-y-scroll">
             {chatMessages.map((message, index) => {
               if (message.role !== "system") {
