@@ -97,12 +97,7 @@ puter.ai.txt2speech(\`the text to speak\`).then((audio)=>{
 
 to save file:
 \`\`\`
-
-puter.fs.write('hello.txt', 'Hello, world!').then(() => {
-    console.log('File written successfully');
-}).catch((error) => {
-    console.log('Error writing file:', error);
-});
+const file=await puter.fs.write('hello.txt', 'Hello, world!', { dedupeName: true },{ createMissingParents: true });
 
 \`\`\`
 
@@ -115,12 +110,74 @@ puter.fs.readdir('./').then((items) => {
     puter.print(\`Error reading directory: \${error}\`);
 });
 \`\`\`
+file.is_dir //true if directory
+file.is_dir && file.subdomains.length>0 //true if the folder is a hosted subdomain
+if file.is_dir, file.subdomains is an array of subdomain {address:string, uuid:string}
 
 to read file:
 \`\`\`
 let file = await puter.fs.read(filename);
 let content=await file.text(); //for text file
 \`\`\`
+
+
+to get the apps:
+\`\`\`
+const list=await puter.apps.list(); //array of {"title":string,"name":string,"description":string,"icon":string,"created_at":Date,stats:{"open_count":number,"user_count"number}}
+\`\`\`
+
+launch app :
+\`\`\`
+await puter.ui.launchApp(appName)  // Editor, France_Info , Code
+\`\`\`
+
+Create Window : 
+You can change the settings if needed
+\`\`\`
+puter.ui.createWindow({
+            title: 'Cool Title',  //title of window
+            content: '<h1 style="text-align:center;">My little test window!</h1>', 
+            disable_parent_window: true, //if true, the parent window will be disabled until this window is closed
+            width: 300,
+            height: 300,
+            is_resizable: false,
+            has_head: true, //if false, the window will not have a header
+            center: true,
+            show_in_taskbar: true,
+})
+\`\`\`
+
+to prompt user : (blocking use only if you know why you are doing it)
+\`\`\`
+const promptResult=await parent.puter.ui.prompt("What is your name?");
+\`\`\`
+
+
+to alert user:
+\`\`\`
+puter.ui.alert(message)  //message is a string example : "File saved successfully"
+\`\`\`
+
+
+to alert user with buttons:
+\`\`\`
+const result=await parent.puter.ui.alert('Save file ... to ... ?', [
+  {
+      label: 'Yes :)',
+      value: 'yes',
+      type: 'primary',
+  },
+  {
+      label: 'No :(',
+      value: 'no',
+      type: 'danger',
+  },
+  {
+      label: 'Cancel',
+  },
+]);
+\`\`\`
+
 
 
 

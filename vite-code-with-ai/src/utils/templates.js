@@ -302,6 +302,122 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 `;
 
+const FileExplorerJs=`//appTitle: Apps File Explorer
+
+import React, { useState, useEffect } from "https://esm.sh/react";
+import ReactDOM from "https://esm.sh/react-dom";
+import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim';
+
+twindSetup();
+
+const FileExplorer = () => {
+    const [currentPath, setCurrentPath] = useState('./');
+    const [items, setItems] = useState([]);
+    const [username, setUsername] = useState('');
+    const [dirName, setDirName] = useState('');
+
+    useEffect(() => {
+        checkSignIn();
+        listDirectory(currentPath);
+    }, [currentPath]);
+
+    const checkSignIn = () => {
+        const isSignedIn = puter.auth.isSignedIn();
+        if (!isSignedIn) {
+            puter.auth.signIn();
+        }
+        puter.auth.getUser().then(user => {
+            setUsername(user.username);
+        });
+    };
+
+    const listDirectory = async (path) => {
+        try {
+            const items = await puter.fs.readdir(path);
+            console.log(items)
+            if (items.length > 0) {
+                setDirName(items[0].dirname)
+                setItems(items);
+            }
+
+        } catch (error) {
+            console.error(\`Error reading directory: \${error}\`);
+        }
+    };
+
+    const navigateDirectory = (item) => {
+        if (item.is_dir) setCurrentPath(item.path);
+    };
+
+    const deleteItem = async (path) => {
+        try {
+            if (confirm('Are you sure you want to delete this item?')) {
+                await puter.fs.delete(path);
+                listDirectory(currentPath); // Refresh after deletion
+            }
+        } catch (error) {
+            console.error(\`Error deleting item: \${error}\`);
+        }
+    };
+
+    const goBack = () => {
+        const newPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+        setCurrentPath(newPath || './');
+    };
+
+    return (
+        <div className="p-4">
+            <header className="py-2">
+                <h1 className="text-2xl font-semibold">File Explorer</h1>
+                <p>Logged in as: {username}</p>
+                <p>{dirName}</p>
+                <button
+                    onClick={goBack}
+                    className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                    Go Back
+                </button>
+            </header>
+            <main className="mt-4">
+                <ul>
+                    {items.map(item => (
+                        <li
+                            key={item.path}
+                            className="cursor-pointer hover:bg-gray-700 p-2 flex justify-between items-center"
+                        >
+                            <span onClick={() => navigateDirectory(item)}>
+                                {item.name} {item.is_dir ? '(Folder)' : ''}
+                            </span>
+                            {item.is_dir && item.subdomains.length > 0 && (
+                                <a
+                                    href={item.subdomains[0].address}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-blue-300 hover:text-blue-500 mr-2"
+                                >
+                                    Visit Subdomain
+                                </a>
+                            )}
+                            <button
+                                onClick={() => deleteItem(item.path)}
+                                className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+                            >
+                                Delete
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </main>
+        </div>
+    );
+};
+
+ReactDOM.render(<FileExplorer />, document.getElementById("app"));
+`;
+
+const FileExplorerHtml=`<div id="app" class="h-screen bg-gray-900 text-white"></div>
+`;
+
 export const templates = [
   {
     name: "Puter Functionalities Explorer - React",
@@ -330,5 +446,12 @@ export const templates = [
     html: iframeVanillaJsHtml,
     description: "A simple app to view Wikipedia",
     framework: "vanilla js",
+  },
+  {
+    name: "Apps File Explorer - React",
+    js: FileExplorerJs,
+    html: FileExplorerHtml,
+    description: "A File Manager to see App Directory",
+    framework: "react"
   },
 ];

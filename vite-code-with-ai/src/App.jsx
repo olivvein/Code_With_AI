@@ -1092,7 +1092,7 @@ const App = () => {
   }
 
   // Send memory info to parent window every 1 second
-  setInterval(sendMemoryInfoToParent, 200);`;
+  setInterval(sendMemoryInfoToParent, 1000);`;
 
   const consoleLog = `var oldLog = console.log;var oldError = console.error;
   var logElement =parent.document.getElementById('logs');

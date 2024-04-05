@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import PerformanceMonitor from "./PerformanceMonitor";
 
+let puter = window.puter;
 const NavBar = ({
   visibleApiKey,
   username,
@@ -12,7 +14,23 @@ const NavBar = ({
   visiblesIds,
 }) => {
   const [openMenu, setOpenMenu] = useState("");
+  const [viewCount, setViewCount] = useState(0);
   const MobileView = window.innerWidth < 800 ? true : false;
+  
+  useEffect(() => {
+    const getCount = async () => {
+      const theApp =await puter.apps.get("code-with-ai");
+      //console.log(theApp);
+      setViewCount(theApp.stats.open_count);
+      console.log("The Stats:", theApp.stats.open_count);
+    };
+
+    getCount();
+    //every minute
+    const interval = setInterval(() => {
+      getCount();
+    }, 60000);
+  }, []);
 
   const toggleMenu = (menu) => {
     setOpenMenu(openMenu === menu ? "" : menu);
@@ -128,16 +146,16 @@ const NavBar = ({
 
   return (
     <>
-      {MobileView ==false ? (
+      {MobileView == false ? (
         <nav
           id="theNavbar"
           className="absolute w-full p-0 m-0 top-0 left-0 dark:bg-dark bg-light dark:text-light text-dark px-0 h-5 flex z-40 text-sm "
         >
           <div className=" w-full top-0 dark:bg-dark bg-light dark:text-light text-dark  px-0 flex justify-between">
-            <div className="w-5/6 top-0 dark:bg-dark bg-light dark:text-light text-dark pt-1 px-0 flex">
+            <div className="w-4/6 top-0 dark:bg-dark bg-light dark:text-light text-dark pt-1 px-0 flex">
               <span className="left-0 top-0  px-2 flex flex-col">
                 <span className=" left-0 top-0 text-sm px-2">
-                  <b>Code With Ai</b>
+                <b>{`Code With Ai ${viewCount.toString()}`}</b>
                 </span>
               </span>
               {menuConfig.map((menu, index) => (
@@ -201,6 +219,7 @@ const NavBar = ({
               ))}
             </div>
             <div className="justify-end pt-1 px-0 ">
+              <PerformanceMonitor />
               <span className="cursor-pointer  pt-1 pb-1 px-2  hover:bg-gray-700 hover:shadow-lg rounded-lg">
                 {visibleApiKey + username}
               </span>
@@ -212,13 +231,27 @@ const NavBar = ({
           id="theNavbar"
           className="fixed w-full p-0 m-0 top-0 left-0 dark:bg-dark bg-light dark:text-light text-dark px-0 h-5 flex z-40 text-sm"
         >
-          <div  tabIndex="9999942"  onBlur={() => {
-                      setTimeout(() => {if(openMenu==="okokokok"){setShowMenu(false)}}, 300);
-                    }} className="w-full top-0 dark:bg-dark bg-light dark:text-light text-dark px-0 flex flex-col">
+          <div
+            tabIndex="9999942"
+            onBlur={() => {
+              setTimeout(() => {
+                if (openMenu === "okokokok") {
+                  setShowMenu(false);
+                }
+              }, 300);
+            }}
+            className="w-full top-0 dark:bg-dark bg-light dark:text-light text-dark px-0 flex flex-col"
+          >
             <div className="w-full top-0 dark:bg-dark bg-light dark:text-light text-dark pt-1 px-0 flex justify-between">
               <span className="left-0 top-0 px-2 flex flex-col">
-                <span className="left-0 top-0 text-sm px-2 cursor-pointer"   onClick={(e)=>{e.preventDefault();setShowMenu(!showMenu)}}>
-                  <b>Code With Ai</b>
+                <span
+                  className="left-0 top-0 text-sm px-2 cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowMenu(!showMenu);
+                  }}
+                >
+                  <b>{`Code With Ai`}</b>
                 </span>
               </span>
               <div className="justify-end pt-1 px-0">
@@ -228,40 +261,43 @@ const NavBar = ({
               </div>
             </div>
             {showMenu && (
-            <div className="w-full top-0 dark:bg-dark bg-light dark:text-light text-dark px-0 flex flex-col">
-              {menuConfig.map((menu, index) => (
-                <div key={index} className="relative">
-                  <span
-                    tabIndex={index}
-                    onBlur={() => {
-                      setTimeout(() => {setOpenMenu("");setShowMenu(false)}, 100);
-                    }}
-                    onMouseOver={() => {
-                      handleHover(menu.name);
-                    }}
-                    className={`${
-                      openMenu == menu.name ? "bg-gray-700" : ""
-                    } cursor-pointer pt-1 pb-1 px-2 active:bg-gray-700 hover:bg-blue-800 hover:text-light hover:shadow-lg rounded-lg mt-2`}
-                    onClick={() => toggleMenu(menu.name)}
-                  >
-                    {menu.name}
-                  </span>
-                  {openMenu === menu.name && (
-                    <div className="absolute ml-20 w-2/3 top-0 right-0 backdrop-blur-xl dark:bg-dark/60 bg-light/60 dark:text-light text-dark left-0 mt-2 w-full rounded-md border border-gray-700 transition-appear opacity-100 shadow-lg z-50 flex flex-col justify-around">
-                      {menu.subMenu.map((subMenu, index) => (
-                        <>
-                          {subMenu.name == "separator" ? (
-                            <div className="border-b border-gray-500 mx-2 my-1"></div>
-                          ) : (
-                            <button
-                              key={index}
-                              className={`rounded-xl mx-1 text-left px-4 py-2 active:border text-sm active:bg-gray-400 active:border-gray-700 active:text-dark transition-colors duration-100 ease-in-out hover:bg-blue-800/100 hover:text-light ${
-                                subMenu.status == "inactive"
-                                  ? "dark:text-gray-500 text-gray-400 "
-                                  : "dark:text-light text-dark "
-                              } ${
-                                index == menu.subMenu.length - 1 ? "mb-1" : ""
-                              }
+              <div className="w-full top-0 dark:bg-dark bg-light dark:text-light text-dark px-0 flex flex-col">
+                {menuConfig.map((menu, index) => (
+                  <div key={index} className="relative">
+                    <span
+                      tabIndex={index}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setOpenMenu("");
+                          setShowMenu(false);
+                        }, 100);
+                      }}
+                      onMouseOver={() => {
+                        handleHover(menu.name);
+                      }}
+                      className={`${
+                        openMenu == menu.name ? "bg-gray-700" : ""
+                      } cursor-pointer pt-1 pb-1 px-2 active:bg-gray-700 hover:bg-blue-800 hover:text-light hover:shadow-lg rounded-lg mt-2`}
+                      onClick={() => toggleMenu(menu.name)}
+                    >
+                      {menu.name}
+                    </span>
+                    {openMenu === menu.name && (
+                      <div className="absolute ml-20 w-2/3 top-0 right-0 backdrop-blur-xl dark:bg-dark/60 bg-light/60 dark:text-light text-dark left-0 mt-2 w-full rounded-md border border-gray-700 transition-appear opacity-100 shadow-lg z-50 flex flex-col justify-around">
+                        {menu.subMenu.map((subMenu, index) => (
+                          <>
+                            {subMenu.name == "separator" ? (
+                              <div className="border-b border-gray-500 mx-2 my-1"></div>
+                            ) : (
+                              <button
+                                key={index}
+                                className={`rounded-xl mx-1 text-left px-4 py-2 active:border text-sm active:bg-gray-400 active:border-gray-700 active:text-dark transition-colors duration-100 ease-in-out hover:bg-blue-800/100 hover:text-light ${
+                                  subMenu.status == "inactive"
+                                    ? "dark:text-gray-500 text-gray-400 "
+                                    : "dark:text-light text-dark "
+                                } ${
+                                  index == menu.subMenu.length - 1 ? "mb-1" : ""
+                                }
 ${index == 0 ? "mt-1" : ""}
 ${
   subMenu.status == "inactive"
@@ -269,27 +305,29 @@ ${
     : ""
 }
  `}
-                              onMouseDown={(e) => {
-                                if (subMenu.status == "inactive") {
-                                  e.preventDefault();
-                                  return;
-                                }
-                                //setShowMenu(false);
-                                sendMenuAction(subMenu.action);
-                                
-                                setTimeout(() => {setOpenMenu(""),setShowMenu(false);}, 300);
-                              }}
-                            >
-                              {subMenu.name}
-                            </button>
-                          )}
-                        </>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                                onMouseDown={(e) => {
+                                  if (subMenu.status == "inactive") {
+                                    e.preventDefault();
+                                    return;
+                                  }
+                                  //setShowMenu(false);
+                                  sendMenuAction(subMenu.action);
+
+                                  setTimeout(() => {
+                                    setOpenMenu(""), setShowMenu(false);
+                                  }, 300);
+                                }}
+                              >
+                                {subMenu.name}
+                              </button>
+                            )}
+                          </>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </nav>
