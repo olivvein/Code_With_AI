@@ -21,6 +21,8 @@ import CustomPrompt from "./components/CustomPrompt";
 import PerformanceMonitor from "./components/PerformanceMonitor";
 import NodeboxView from "./components/NodeboxView";
 import NextSandbox from "./components/NextSandbox";
+import SpeechToText from "./components/SpeechToText";
+import TextToSpeak from "./components/TextToSpeak";
 
 let puter = window.puter;
 const App = () => {
@@ -1014,7 +1016,7 @@ const App = () => {
   const [jsCode, setJsCode] = useState(templates[0].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
-  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6]);
+  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6,7,8]);
   const [visiblesIds, setVisiblesIds] = useState([
     true,
     true,
@@ -1030,6 +1032,8 @@ const App = () => {
     "Log Section",
     "Chat View",
     "Sandbox",
+    "Speak to Text",
+    "Text to Speak",
   ]);
 
   const changeVisibleId = (id, id2) => {
@@ -1207,6 +1211,13 @@ const App = () => {
       id: 6,
       content: <NextSandbox />,
     },
+    {
+      id: 7,
+      content: <SpeechToText />,
+    },{
+      id:8,
+      content: <TextToSpeak />
+    }
   ]);
 
   //handle fullMessage
