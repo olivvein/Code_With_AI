@@ -44,7 +44,13 @@
 
 }
 
-.tilted:hover {
+.tilted-right:hover {
+  border-color:red;
+  color:red;
+
+}
+
+.tilted-left:hover {
   border-color:red;
   color:red;
 

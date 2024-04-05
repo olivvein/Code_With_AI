@@ -1,6 +1,6 @@
 import React, { useState ,useEffect} from 'react';
 let puter=window.puter;
-const SpeechToText = () => {
+const SpeechToText = ({name}) => {
     const [isRecording, setIsRecording] = useState(false);
     const [transcription, setTranscription] = useState("");
     const [language, setLanguage] = useState("en-US");

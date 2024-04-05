@@ -66,7 +66,7 @@ const SandpackFiles = ({ setCodeFiles ,template}) => {
   return <></>;
 };
 
-const NextSandbox = () => {
+const NextSandbox = ({name}) => {
   const [template, setTemplate] = useState("react"); // Ajoutez cet état pour le template
 
 

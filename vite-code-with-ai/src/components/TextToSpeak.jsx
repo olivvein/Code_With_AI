@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 let puter=window.puter;
-const TextToSpeak = () => {
+const TextToSpeak = ({name}) => {
   const [text, setText] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
   const audioRef = useRef(null);
@@ -62,7 +62,7 @@ const TextToSpeak = () => {
   }, [audioUrl]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="w-full h-full flex flex-col items-center justify-center">
       <h1 className="text-2xl mb-4">Text-to-Speech App</h1>
         <select
             className="w-64 p-2 mb-4 border border-gray-300 rounded"

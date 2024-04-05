@@ -1215,14 +1215,14 @@ const App = () => {
     },
     {
       id: 6,
-      content: <NextSandbox />,
+      content: (<NextSandbox name="Next Sandbox"/>),
     },
     {
       id: 7,
-      content: <SpeechToText />,
+      content: (<SpeechToText name="Speech To Text"/>),
     },{
       id:8,
-      content: <TextToSpeak />
+      content: (<TextToSpeak name="Text To Speak"/>),
     }
   ]);
 
@@ -1580,6 +1580,7 @@ const App = () => {
 
   //update divs ChatSettings
   useEffect(() => {
+    console.log(divs);
     setDivs((prevDivs) =>
       prevDivs.map((div) => {
         if (div.content.type === ChatSettings) {
