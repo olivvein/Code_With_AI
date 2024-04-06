@@ -22,6 +22,7 @@ const ChatView = ({
 
     const lines=sanatised.split("\n");
 
+
     //count the number of ```
     let count=0;
     for(let i=0;i<lines.length;i++){
@@ -40,6 +41,7 @@ const ChatView = ({
     let currentBlock=[];
     let insideBlock=false;
     let codeLang=[];
+    let textNotCode=[];
     for(let i=0;i<lines.length;i++){
       if(lines[i].includes("```")){
         if(lines[i].includes("```html")){
@@ -63,6 +65,9 @@ const ChatView = ({
       }else{
         if(insideBlock){
           currentBlock.push(lines[i]);
+        }else{
+          textNotCode.push(lines[i]);
+        
         }
       }
     }
@@ -83,7 +88,40 @@ const ChatView = ({
       );
     });
 
-    return codeblocks;
+    //replace ## to h2 in textNotCode
+    const textNoCodeH2=textNotCode.map((line,index)=>{
+
+
+      //if line has a html image, return the image
+      if(line.indexOf("<img")!=-1){
+        const imgSrc=line.split("src=")[1].split(">")[0].replace(/"/g,"");
+        return <img src={imgSrc} key={index} className="w-1/2 m-auto"/>;
+      }
+
+      if(line.indexOf("<a ")!=-1){
+        const aHref=line.split("href=")[1].split(">")[0].replace(/"/g,"");
+        const content=line.split(">")[1].split("</")[0];
+        return <a href={aHref} key={index}>{content}</a>;
+      }
+
+
+
+      if(line.indexOf("##")!=-1){
+        return <h1 key={index}>{line}</h1>;
+      }
+      else{
+        return <p  key={index}>{line}</p>;
+      }
+    });
+
+
+
+    
+
+    //get text that is not code snippet
+
+
+    return [...textNoCodeH2,...codeblocks];
     
 
   };
@@ -153,7 +191,9 @@ const ChatView = ({
                       }`}
                     >
                       {message.role == "user"
-                        ? message.content 
+                        ? sanatizeHtmlsTags(message.content).map((line, index) => (
+                          line
+                        ))
                         : sanatizeHtmlsTags(message.content).map((line, index) => (
                             line
                           ))
