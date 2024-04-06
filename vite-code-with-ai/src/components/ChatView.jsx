@@ -77,7 +77,7 @@ const ChatView = ({
               if (message.role !== "system") {
                 return (
                   <div key={index} className={`w-full overflow-y-scroll p-4`}>
-                    <MarkDownView
+                    <div
                       content={
                         message.role == "user"
                           ? "# " + message.content

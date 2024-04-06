@@ -1,5 +1,6 @@
-
 import React, { useState } from "react";
+
+
 
 
 const ChatSettings = ({
@@ -16,11 +17,8 @@ const ChatSettings = ({
   anthropicAvailable,
   setSystemPromptVal,
   selectedPrompt,
-  prompts
+  prompts,
 }) => {
-
-  
-
   return (
     <div className="w-full h-full dark:bg-dark bg-light dark:text-light text-dark flex flex-col items-center justify-center">
       <div className="flex flex-col w-full max-h-3/4 items-center justify-center overflow-y-scroll">
@@ -38,7 +36,9 @@ const ChatSettings = ({
               className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
             >
               <option value="openai">OpenAI</option>
-              {anthropicAvailable && <option value="anthropic">Anthropic</option>}
+              {anthropicAvailable && (
+                <option value="anthropic">Anthropic</option>
+              )}
               {ollamaAvailable && <option value="ollama">LiteLLM</option>}
               <option value="puter">Puter</option>
             </select>
@@ -69,10 +69,10 @@ const ChatSettings = ({
                 }
                 className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
               >
-                {ollamaConfig.models.map((model,index) => (
-                  <option 
-                    key={index}
-                  value={model.id}>{model.id}</option>
+                {ollamaConfig.models.map((model, index) => (
+                  <option key={index} value={model.id}>
+                    {model.id}
+                  </option>
                 ))}
               </select>
             </div>
@@ -102,12 +102,10 @@ const ChatSettings = ({
                     }
                     className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
                   >
-                    {openAiCongig.models.map((model,index) => (
-
-                      <option 
-                        key={index}
-                      
-                      value={model.id}>{model.id}</option>
+                    {openAiCongig.models.map((model, index) => (
+                      <option key={index} value={model.id}>
+                        {model.id}
+                      </option>
                     ))}
                   </select>
                   <button
@@ -132,7 +130,9 @@ const ChatSettings = ({
             className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2"
           >
             {prompts.map((prompt, index) => (
-              <option key={index} value={index}>{prompt.name}</option>
+              <option key={index} value={index}>
+                {prompt.name}
+              </option>
             ))}
           </select>
         </div>

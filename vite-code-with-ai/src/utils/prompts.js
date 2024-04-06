@@ -240,6 +240,23 @@ Allways use try catch to handle errors.
 If you need to use an api, make sure it does not require an api key.
 for weather use wttr.in or an other free api that does not require an api key.
 https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true  => "current_weather" : temperature, windspeed, winddirection, weathercode (wmo code use emoji for visual)
+\`\`\`
+import wmoCodeToEmoji from 'https://esm.sh/wmo-emoji';
+console.log(wmoCodeToEmoji(0));  // Output: ☀️
+console.log(wmoCodeToEmoji(3));  // Output: ☁️
+//Always display BIG emoji
+\`\`\`
+if no location is provided, use the user location with http://ip-api.com/json/ like that : 
+\`\`\`
+fetch('http://ip-api.com/json/')
+      .then((response) => response.json())
+      .then((data) => {
+        const { lat, lon, city, country } = data;
+        setLocation(\`\${city}, \${country}\`);
+        return fetch(\`https://api.open-meteo.com/v1/forecast?latitude=\${lat}&longitude=\${lon}&current_weather=true\`);
+      })
+ \`\`\`
+
 https://api.coingecko.com/api 
 https://api.multiversx.com/economics?extract=price for EGLD  => "price"
 https://www.francetvinfo.fr/titres.rss =>   entries "title" and "summary" and "links[0] as href " and "links[1] as image " For the News with feedparser library
@@ -263,7 +280,13 @@ ${puterPrompt}
 
 Based on the request, you do jsx
 
+For beatiful background, use one of the following component :
 \`\`\`
+import { Lumiflex ,Opulento,Zenitho,Novatrix,Velustro,Tranquiluxe} from "https://esm.sh/uvcanvas";
+\`\`\`
+
+always use backdrop-blur-xl, shadows and backdrop-filter for beautiful design
+always adapt to dark mode and light with dark:bg-dark and dark:text-light
 
 allways imports React and ReactDOM
 

@@ -23,6 +23,7 @@ import NodeboxView from "./components/NodeboxView";
 import NextSandbox from "./components/NextSandbox";
 import SpeechToText from "./components/SpeechToText";
 import TextToSpeak from "./components/TextToSpeak";
+import { userSettings, getUserSetting, setUserSetting } from "./utils/userSettings";
 
 let puter = window.puter;
 const App = () => {
@@ -467,6 +468,7 @@ const App = () => {
       }).code;
 
       setBabelCode(newCode);
+
       editorBabelRef.current?.setValue(newCode);
       return newCode;
     } catch (error) {
@@ -474,6 +476,44 @@ const App = () => {
       // Vous pouvez également afficher un message d'erreur à l'utilisateur ici
       setBabelCode(`Error In JSX ${error}`);
       editorBabelRef.current?.setValue(`Error In JSX ${error}`);
+      return jsxCode;
+    }
+  }
+
+  function transpileJSXForIframe(jsxCode) {
+    jsxCode = transformImports(jsxCode);
+    jsxCode = transformImports2(jsxCode);
+    jsxCode = jsxCode.replace(/\`\`\`/g, "");
+
+    try {
+      const result = transform(jsxCode, {
+        transforms: ["typescript", "jsx"],
+        jsxPragma: "React.createElement",
+        jsxFragmentPragma: "React.Fragment",
+      });
+
+      //console.log(result);
+      jsxCode = result.code;
+      //make sure there is no dulicate import in jsxCode
+      const imports = jsxCode.match(/import\s+.*\s+from\s+.*;/g);
+      if (imports) {
+        const uniqueImports = [...new Set(imports)];
+        jsxCode = jsxCode.replace(/import\s+.*\s+from\s+.*;/g, "");
+        jsxCode = uniqueImports.join("\n") + jsxCode;
+      }
+
+      const newCode = Babel.transform(jsxCode, {
+        presets: ["react"],
+      }).code;
+     
+      
+      //editorBabelRef.current?.setValue(newCode);
+      return newCode;
+    } catch (error) {
+      //console.error('Erreur de syntaxe dans le code JavaScript :', error);
+      // Vous pouvez également afficher un message d'erreur à l'utilisateur ici
+      //setBabelCode(`Error In JSX ${error}`);
+      //editorBabelRef.current?.setValue(`Error In JSX ${error}`);
       return jsxCode;
     }
   }
@@ -532,7 +572,7 @@ const App = () => {
       `script>
     <script type="module">
     const puter = window.puter;\n
-      ${transpileJSX(jsCode)}
+      ${transpileJSXForIframe(jsCode)}
     </` +
       `script>
   
@@ -1238,7 +1278,7 @@ const App = () => {
           jsCode={jsCode}
           htmlCode={htmlCode}
           consoleLog={consoleLog}
-          transpileJSX={transpileJSX}
+          transpileJSX={transpileJSXForIframe}
           messageFinished={messageFinished}
           name="App Preview"
         />
@@ -1381,7 +1421,11 @@ const App = () => {
       }
     };
 
-    getOllamaModel();
+    const useLiteLLM=getUserSetting("use-liteLLM");
+    
+    if(useLiteLLM.value){
+      getOllamaModel();
+    }
   }, []);
 
   //get openai models
@@ -1463,6 +1507,10 @@ const App = () => {
 
   //check if anthropic is available on port 3002
   useEffect(() => {
+    const useAnthropic=getUserSetting("use-anthropic-proxy");
+    if(!useAnthropic.value){
+      return;
+    }
     try {
       fetch("http://localhost:3002/health")
         .then((response) => response.text())
@@ -1505,17 +1553,14 @@ const App = () => {
 
   useEffect(() => {
     const updateSize = () => {
-      console.log("resize");
       const navbar = document.getElementById("theNavbar");
       if (navbar) {
         //get navbar height in percent of window height
         const navbarHeight = navbar.clientHeight;
         const windowHeight = window.innerHeight;
-        console.log({ navbarHeight });
-        console.log({ windowHeight });
+        
         const navbarHeightPercent = (navbarHeight / windowHeight) * 100;
-        console.log("Size:");
-        console.log(navbarHeightPercent);
+        
         setSizeContent(99 - navbarHeightPercent);
       }
     };
@@ -1707,7 +1752,7 @@ const App = () => {
                 jsCode={jsCode}
                 htmlCode={htmlCode}
                 consoleLog={consoleLog}
-                transpileJSX={transpileJSX}
+                transpileJSX={transpileJSXForIframe}
                 messageFinished={messageFinished}
                 name="App Preview"
               />
@@ -1718,6 +1763,11 @@ const App = () => {
       })
     );
   }, [jsCode, htmlCode, messageFinished]);
+
+  useEffect(() => {
+    const newCode=transpileJSX(jsCode);
+    setBabelCode(newCode);
+  }, [jsCode]);
 
   const [showDeployForm, setShowDeployForm] = useState(false);
   const [showSaveAsForm, setShowSaveAsForm] = useState(false);

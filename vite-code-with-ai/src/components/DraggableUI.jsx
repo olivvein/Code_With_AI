@@ -32,7 +32,7 @@ const DraggableUI = ({
         div.removeEventListener("touchend", onDragEnd);
       }
     };
-  }, [onDragStart, onDragOver, onDragEnd, id]);
+  }, []);
 
   return (
     <div
