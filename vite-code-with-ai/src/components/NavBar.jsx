@@ -22,15 +22,16 @@ const NavBar = ({
       const theApp = await puter.apps.get("code-with-ai");
       //console.log(theApp);
       setViewCount(theApp.stats.open_count);
-      console.log("The Stats:", theApp.stats.open_count);
+      //console.log("The Stats:", theApp.stats.open_count);
     };
-
+    if( username !== ""){
     getCount();
+    }
     //every minute
     const interval = setInterval(() => {
       getCount();
     }, 60000);
-  }, []);
+  }, [username]);
 
   const toggleMenu = (menu) => {
     setOpenMenu(openMenu === menu ? "" : menu);
@@ -186,7 +187,7 @@ const NavBar = ({
                   {openMenu === menu.name && (
                     <div className="absolute backdrop-blur-xl  dark:bg-dark/60 bg-light/60 dark:text-light text-dark  left-0 mt-2 w-48  rounded-md  border border-gray-700 transition-appear opacity-100 shadow-lg z-50 flex flex-col justify-around">
                       {menu.subMenu.map((subMenu, index) => (
-                        <>
+                        <span key={index}>
                           {subMenu.name == "separator" ? (
                             <div className="border-b border-gray-500 mx-2 my-1"></div>
                           ) : (
@@ -218,7 +219,7 @@ const NavBar = ({
                               {subMenu.name}
                             </button>
                           )}
-                        </>
+                        </span>
                       ))}
                     </div>
                   )}

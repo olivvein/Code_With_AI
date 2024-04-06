@@ -23,8 +23,10 @@ const CustomPrompt = ({ setShowCustomPrompt, updatePrompts }) => {
 
   useEffect(() => {
     console.log("Fetching user prompts...");
-
-    getPrompts();
+    if( puter.auth.isSignedIn()){
+      getPrompts();
+    }
+    
   }, []);
 
   const setNameVal = (e) => {

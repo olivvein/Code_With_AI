@@ -48,7 +48,7 @@ const App = () => {
     //toSize is a array of size
     //interpolate from sizeCols to toSize with a step of 1 and a duration of 1s
 
-    let step = 50;
+    let step = 24;
     let duration = time;
     let interval = duration / step;
     let currentSize = sizeCols;
@@ -70,7 +70,7 @@ const App = () => {
     //toSize is a array of size
     //interpolate from sizeCols to toSize with a step of 1 and a duration of 1s
 
-    let step = 50;
+    let step = 24;
     let duration = time;
     let interval = duration / step;
     let currentSize = sizeRows;
@@ -90,50 +90,50 @@ const App = () => {
 
   const AnimateEqualCol = () => {
     animateSizesCols([33, 34, 33], 800);
-    animateSizesRows([0, 0], 300);
+    animateSizesRows([0, 0], 800);
   };
   const AnimateChatPreviewMobile = () => {
     animateSizesCols([30,0, 70], 800);
-    animateSizesRows([0, 0], 300);
+    animateSizesRows([0, 0], 800);
   };
 
   const AnimateFullScreenPreview=()=>{
     animateSizesCols([0, 0, 100], 500);
-      animateSizesRows([0, 0], 300);
+      animateSizesRows([0, 0], 500);
   }
 
   const AnimateEditorFullscreen = () => {
     animateSizesCols([0, 100, 0], 500);
-    animateSizesRows([0, 0], 300);
+    animateSizesRows([0, 0], 500);
   };
 
   const AnimateCodePreview=()=>{
     animateSizesCols([0, 50, 50], 500);
-    animateSizesRows([0, 0], 300);
+    animateSizesRows([0, 0], 500);
   }
 
   const AnimateChatPreview=()=>{
     animateSizesCols([50, 0, 50], 500);
-    animateSizesRows([0, 0], 300);
+    animateSizesRows([0, 0], 500);
   }
 
   const AnimateChatSetting = () => {
     animateSizesCols([0, 100, 0], 500);
-    animateSizesRows([100, 0], 300);
+    animateSizesRows([100, 0], 500);
   };
 
   const AnimateChatSettingMobile = () => {
     animateSizesCols([0, 100, 0], 500);
-    animateSizesRows([100, 0], 300);
+    animateSizesRows([100, 0], 500);
   };
 
   const AnimateLog = () => {
-    animateSizesRows([0, 50], 300);
+    animateSizesRows([0, 50], 500);
   };
 
   const AnimateLogMobile = () => {
     animateSizesCols([0, 0, 100], 500);
-    animateSizesRows([0, 50], 300);
+    animateSizesRows([0, 50], 500);
   };
 
   
@@ -179,7 +179,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    console.log("Fetching user prompts...");
+    //console.log("Fetching user prompts...");
 
     getPrompts();
   }, []);
@@ -1424,6 +1424,8 @@ const App = () => {
     const useLiteLLM=getUserSetting("use-liteLLM");
     
     if(useLiteLLM.value){
+      console.log("Get LiteLLM Models")
+      console.log(useLiteLLM);
       getOllamaModel();
     }
   }, []);
@@ -1440,12 +1442,14 @@ const App = () => {
       });
       const modelList = await ollama.models.list();
       const theModels = modelList.data;
-      console.log(modelList);
-      console.log(theModels);
+      //console.log(modelList);
+      //console.log(theModels);
       setOpenAiCongig({ ...openAiCongig, models: theModels });
     };
-
-    getOpenAiModel();
+    if(apiKey!=""){
+      getOpenAiModel();
+    }
+    
   }, [apiKey]);
 
   //get openai api key
@@ -1458,14 +1462,13 @@ const App = () => {
       const user = await puter.auth.getUser();
       setUsername(user.username);
 
-      console.log("openWithItems:");
       puter.ui.onLaunchedWithItems(async function (directories) {
-        console.log(directories);
+        //console.log(directories);
         for (const directory of directories) {
           try {
             const response = await fetch(directory.readURL);
             const files = await response.json();
-            console.log(files);
+            //console.log(files);
             for (const file in files) {
               console.log(files[file]);
               if (!files[file]) {
@@ -1673,7 +1676,7 @@ const App = () => {
 
   //update divs ChatSettings
   useEffect(() => {
-    console.log(divs);
+    //console.log(divs);
     setDivs((prevDivs) =>
       prevDivs.map((div) => {
         if (div.content.type === ChatSettings) {

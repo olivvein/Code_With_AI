@@ -1,6 +1,4 @@
-
-
-const puterPrompt=`
+const puterPrompt = `
 you have a const avaliable for you to use:
 const puter;
 
@@ -183,16 +181,14 @@ const result=await parent.puter.ui.alert('Save file ... to ... ?', [
 
 `;
 
-
-
 const todayString = new Date().toDateString();
 
-  const timeToHumanStringInFrance = (time) => {
-    const date = new Date(time);
-    return date.toLocaleString("fr-FR");
-  };
+const timeToHumanStringInFrance = (time) => {
+  const date = new Date(time);
+  return date.toLocaleString("fr-FR");
+};
 
-  const ContextInfos = `
+const ContextInfos = `
 Today is ${todayString}.
 The time is ${timeToHumanStringInFrance(Date.now())} in France.
 `;
@@ -240,6 +236,8 @@ Allways use try catch to handle errors.
 If you need to use an api, make sure it does not require an api key.
 for weather use wttr.in or an other free api that does not require an api key.
 https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true  => "current_weather" : temperature, windspeed, winddirection, weathercode (wmo code use emoji for visual)
+
+for wind direction, show an arrow rotated in the right direction
 \`\`\`
 import wmoCodeToEmoji from 'https://esm.sh/wmo-emoji';
 console.log(wmoCodeToEmoji(0));  // Output: ☀️
@@ -248,6 +246,7 @@ console.log(wmoCodeToEmoji(3));  // Output: ☁️
 \`\`\`
 if no location is provided, use the user location with http://ip-api.com/json/ like that : 
 \`\`\`
+//Never Use navigator localisation, use ip-api instead
 fetch('http://ip-api.com/json/')
       .then((response) => response.json())
       .then((data) => {
@@ -257,10 +256,13 @@ fetch('http://ip-api.com/json/')
       })
  \`\`\`
 
+
+
 https://api.coingecko.com/api 
 https://api.multiversx.com/economics?extract=price for EGLD  => "price"
 https://www.francetvinfo.fr/titres.rss =>   entries "title" and "summary" and "links[0] as href " and "links[1] as image " For the News with feedparser library
 http://ip-api.com/json/ for user location
+https://source.unsplash.com/featured/?@{keyword} for images
 when you create an image, Always make the prompt a full detailled prompt, with details about the content of the image and the style of the image.
 
 always start the js by a comment with the title of the app:
@@ -283,6 +285,13 @@ Based on the request, you do jsx
 For beatiful background, use one of the following component :
 \`\`\`
 import { Lumiflex ,Opulento,Zenitho,Novatrix,Velustro,Tranquiluxe} from "https://esm.sh/uvcanvas";
+
+<div className="w-screen h-screen">
+  <Tranquiluxe or Lumiflex or ... />
+  <div className="absolute inset-0 backdrop-filter transition-all ease-in-out delay-150 duration-500 backdrop-blur-lg bg-opacity-30 hover:bg-opacity-50 bg-gray-900 rounded-xl border-gray-500 hover:backdrop-blur-3xl border p-8 m-4 shadow-xl drop-shadow-xl text-white flex flex-col items-center justify-center text-center">
+    ... CONTENT HERE ...
+  </div>
+</div>
 \`\`\`
 
 always use backdrop-blur-xl, shadows and backdrop-filter for beautiful design
@@ -302,7 +311,6 @@ ReactDOM.render(<TheAppYouMade />, document.getElementById("the_id_of_the_div"))
 ${ContextInfos}
 
 `;
-
 
 const promptVanillaJS = `You are a pro developer in javascript html and css.
 You can create really complex app with these languages.
@@ -364,16 +372,13 @@ ${ContextInfos}
 
 `;
 
-
-
-
-export const prompts=[
-    {
-        name:"React Pro",
-        content: promptReact
-    },
-    {
-        name:"Vanilla JS",
-        content: promptVanillaJS
-    }
-]
+export const prompts = [
+  {
+    name: "React Pro",
+    content: promptReact,
+  },
+  {
+    name: "Vanilla JS",
+    content: promptVanillaJS,
+  },
+];
