@@ -26,6 +26,7 @@ import TextToSpeak from "./components/TextToSpeak";
 
 let puter = window.puter;
 const App = () => {
+
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
   const [showCustomPrompt, setShowCustomPrompt] = useState(false);
 

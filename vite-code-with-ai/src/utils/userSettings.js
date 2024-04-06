@@ -5,10 +5,11 @@ export const userSettings = [
     {"name":"prompt-template","default":0,"description":"Template for the prompt to send to OpenAI"},
     {"name":"use-liteLLM","default":false,"description":"Use the liteLLM proxy to use LLM locally"},
     {"name":"liteLLM-url","default":"http://localhost:4000","description":"URL for the liteLLM proxy"},
-    {"name":"liteLLM-model","default":"","description":"Model to use for liteLLM"}
+    {"name":"liteLLM-model","default":"","description":"Model to use for liteLLM"},
     {"name":"use-anthropic-proxy","default":false,"description":"Use the Anthropic proxy to use Anthropic from your local machine"},
     {"name":"anthropic-url","default":"http://localhost:4001","description":"URL for the Anthropic proxy"},
-    {"name":"anthropic-model","default":"","description":"Model to use for liteLLM"}
+    {"name":"anthropic-model","default":"","description":"Model to use for liteLLM"},
     {"name":"use-file-server","default":false,"description":"Use the file server to serve files from your local machine"},
     {"name":"file-server-url","default":"http://localhost:4002","description":"URL for the file server"},
-]
+];
+
