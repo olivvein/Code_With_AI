@@ -23,6 +23,8 @@ import NodeboxView from "./components/NodeboxView";
 import NextSandbox from "./components/NextSandbox";
 import SpeechToText from "./components/SpeechToText";
 import TextToSpeak from "./components/TextToSpeak";
+import GitClient from "./components/GitClient";
+
 import { userSettings, getUserSetting, setUserSetting } from "./utils/userSettings";
 
 let puter = window.puter;
@@ -1109,7 +1111,7 @@ const App = () => {
   const [jsCode, setJsCode] = useState(templates[0].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
-  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6,7,8]);
+  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6,7,8,9]);
   const [visiblesIds, setVisiblesIds] = useState([
     true,
     true,
@@ -1119,6 +1121,7 @@ const App = () => {
     false,
     false,
     false,
+    false
   ]);
   const [theNames, setTheNames] = useState([
     "Chat View",
@@ -1129,27 +1132,10 @@ const App = () => {
     "Sandbox",
     "Speak to Text",
     "Text to Speak",
+    "Git Client",
   ]);
 
-  const changeVisibleId = (id, id2) => {
-    setTheIds([
-      theIds[0],
-      theIds[1],
-      theIds[5],
-      theIds[3],
-      theIds[4],
-      theIds[2],
-    ]);
-    //setVisiblesIds([visiblesIds[0],visiblesIds[1],visiblesIds[5],visiblesIds[3],visiblesIds[4],visiblesIds[2]]);
-    setTheNames([
-      theNames[0],
-      theNames[1],
-      theNames[5],
-      theNames[3],
-      theNames[4],
-      theNames[2],
-    ]);
-  };
+ 
 
   const switchDiv = (from, to) => {
     let theTo = to - 1;
@@ -1311,6 +1297,9 @@ const App = () => {
     },{
       id:8,
       content: (<TextToSpeak name="Text To Speak"/>),
+    },{
+      id:9,
+      content: (<GitClient name="Git Client" />),
     }
   ]);
 
