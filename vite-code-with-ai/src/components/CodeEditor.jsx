@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import TheEditorJs from "./TheEditorJs";
 import TheEditorHtml from "./TheEditorHtml";
@@ -19,9 +18,12 @@ const CodeEditor = ({
   updateCodeValueBabel,
   babelCode,
   handleEditorDidMountBabel,
+  handleEditorWillMountJs,
   name,
 }) => {
   const [theme, setTheme] = useState("vs-dark");
+
+  const [fileName, setFileName] = useState("app.jsx");
 
   const handleThemeChange = (event) => {
     setTheme(event.target.value);
@@ -58,6 +60,16 @@ const CodeEditor = ({
             not effectives
           </span>
         )}
+
+        <select
+          onChange={(e)=>setFileName(e.target.value)}
+          value={fileName}
+          className="mx-4 py-2 px-3 bg-gray-700 dark:text-light text-dark rounded outline-none"
+        >
+          <option value="app.jsx">jsx</option>
+          <option value="app.js">js</option>
+          <option value="app.tsx">ts</option>
+        </select>
         <select
           onChange={handleThemeChange}
           value={theme}
@@ -74,6 +86,8 @@ const CodeEditor = ({
           jsCode={jsCode}
           onChange={updateCodeValueJs}
           theme={theme}
+          handleEditorWillMount={handleEditorWillMountJs}
+          fileName={fileName}
         />
       ) : selectedCode === "html" ? (
         <TheEditorHtml

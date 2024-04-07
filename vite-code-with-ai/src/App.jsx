@@ -530,10 +530,74 @@ const App = () => {
     setBabelCode(value);
   }
 
+  function handleEditorWillMountJs(monaco) {
+    console.log("mount");
+    console.log(monaco);
+    console.log(monaco.languages.javascript);
+
+    
+
+
+    //monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      tsx: "react",
+      jsx: "react",
+      allowNonTsExtensions: true,
+      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      module: monaco.languages.typescript.ModuleKind.ES2015,
+      target: monaco.languages.typescript.ScriptTarget.ES2016,
+      alwaysStrict: true,
+      noEmit: true,
+      //typeRoots: ["node_modules/@types"]
+    });
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: false,
+      noSyntaxValidation: false,
+    });
+
+    
+
+  
+
+    
+
+    // Fetch and add type definitions for React and ReactDOM
+    fetch("https://unpkg.com/@types/react/index.d.ts")
+      .then((data) => data.text())
+      .then((data) => {
+        monaco.languages.typescript.javascriptDefaults.addExtraLib(
+          data,
+          "file:///node_modules/@types/react/index.d.ts"
+        );
+      });
+
+    fetch("https://unpkg.com/@types/react-dom/index.d.ts")
+      .then((data) => data.text())
+      .then((data) => {
+        monaco.languages.typescript.javascriptDefaults.addExtraLib(
+          data,
+          "file:///node_modules/@types/react-dom/index.d.ts"
+        );
+      });
+
+      const puterTypeDefinition = 'declare var puter: any;';
+
+      monaco.languages.typescript.javascriptDefaults.addExtraLib(
+        puterTypeDefinition,
+        'filename.ts' // Vous pouvez utiliser n'importe quel nom de fichier ici, il n'a pas besoin d'exister réellement
+      );
+  }
+
   function handleEditorDidMountJs(editor, monaco) {
     //console.log("mount");
     editorJsRef.current = editor;
     editorJsRef.current?.setValue(jsCode);
+    //monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
+
+    // monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+    //     noSemanticValidation: false,
+    //     noSyntaxValidation: false
+    // })
   }
 
   function handleEditorDidMountHtml(editor, monaco) {
@@ -1234,6 +1298,7 @@ const App = () => {
           updateCodeValueBabel={updateCodeValueBabel}
           babelCode={babelCode}
           handleEditorDidMountBabel={handleEditorDidMountBabel}
+          handleEditorWillMountJs={handleEditorWillMountJs}
           name="Code Editor"
         />
       ),
@@ -1532,6 +1597,7 @@ const App = () => {
   useEffect(() => {
     editorHtmlRef.current?.setValue(htmlCode);
     editorJsRef.current?.setValue(jsCode);
+
   }, [selectedCode]);
 
   useEffect(() => {
@@ -1726,6 +1792,7 @@ const App = () => {
                 updateCodeValueBabel={updateCodeValueBabel}
                 babelCode={babelCode}
                 handleEditorDidMountBabel={handleEditorDidMountBabel}
+                handleEditorWillMountJs={handleEditorWillMountJs}
                 name="Code Editor"
               />
             ),
