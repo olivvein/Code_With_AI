@@ -81,9 +81,9 @@ const ChatView = ({
     const codeblocks=codeBlocks.map((block,index)=>{
 
       return (
-        <div className="bg-black rounded-t border border-gray-400 mb-2 shadow-xl"  key={index}>
+        <div className="bg-black rounded-t border border-gray-400 mb-2 shadow-xl"  key={"co"+index}>
           <div className="border-b border-gray-400 p-2 mx-1 overflow-x-scroll" >{codeLang[index]}</div>
-          <pre className="p-2 mx-1  my-2 mt-0 overflow-x-scroll max-h-1/2 overscroll-y-scroll" key={index}>{block.join("\n")}</pre>
+          <pre className="p-2 mx-1  my-2 mt-0 overflow-x-scroll max-h-1/2 overscroll-y-scroll" key={"cod"+index}>{block.join("\n")}</pre>
         </div>
       );
     });
@@ -95,22 +95,22 @@ const ChatView = ({
       //if line has a html image, return the image
       if(line.indexOf("<img")!=-1){
         const imgSrc=line.split("src=")[1].split(">")[0].replace(/"/g,"");
-        return <img src={imgSrc} key={index} className="w-1/2 m-auto"/>;
+        return <img src={imgSrc} key={"text"+index} className="w-1/2 m-auto"/>;
       }
 
       if(line.indexOf("<a ")!=-1){
         const aHref=line.split("href=")[1].split(">")[0].replace(/"/g,"");
         const content=line.split(">")[1].split("</")[0];
-        return <a href={aHref} key={index}>{content}</a>;
+        return <a href={aHref} key={"text"+index}>{content}</a>;
       }
 
 
 
       if(line.indexOf("##")!=-1){
-        return <h1 key={index}>{line}</h1>;
+        return <h1 key={"text"+index}>{line}</h1>;
       }
       else{
-        return <p  key={index}>{line}</p>;
+        return <p  key={"text"+index}>{line}</p>;
       }
     });
 
