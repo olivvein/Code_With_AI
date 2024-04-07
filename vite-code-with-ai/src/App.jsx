@@ -25,11 +25,14 @@ import SpeechToText from "./components/SpeechToText";
 import TextToSpeak from "./components/TextToSpeak";
 import GitClient from "./components/GitClient";
 
-import { userSettings, getUserSetting, setUserSetting } from "./utils/userSettings";
+import {
+  userSettings,
+  getUserSetting,
+  setUserSetting,
+} from "./utils/userSettings";
 
 let puter = window.puter;
 const App = () => {
-
   const [systemPrompt, setSystemPrompt] = useState(prompts[0].content);
   const [showCustomPrompt, setShowCustomPrompt] = useState(false);
 
@@ -42,9 +45,9 @@ const App = () => {
   const [sizeRows, setSizeRows] = useState([0, 0]);
   const [sizeContent, setSizeContent] = useState(97);
 
-  const [draggingOrder,setDraggingOrder] = useState(-1);
+  const [draggingOrder, setDraggingOrder] = useState(-1);
 
-  const MobileView = window.innerWidth<800?true:false;
+  const MobileView = window.innerWidth < 800 ? true : false;
 
   const animateSizesCols = (toSize, time) => {
     //toSize is a array of size
@@ -95,29 +98,29 @@ const App = () => {
     animateSizesRows([0, 0], 800);
   };
   const AnimateChatPreviewMobile = () => {
-    animateSizesCols([30,0, 70], 800);
+    animateSizesCols([30, 0, 70], 800);
     animateSizesRows([0, 0], 800);
   };
 
-  const AnimateFullScreenPreview=()=>{
+  const AnimateFullScreenPreview = () => {
     animateSizesCols([0, 0, 100], 500);
-      animateSizesRows([0, 0], 500);
-  }
+    animateSizesRows([0, 0], 500);
+  };
 
   const AnimateEditorFullscreen = () => {
     animateSizesCols([0, 100, 0], 500);
     animateSizesRows([0, 0], 500);
   };
 
-  const AnimateCodePreview=()=>{
+  const AnimateCodePreview = () => {
     animateSizesCols([0, 50, 50], 500);
     animateSizesRows([0, 0], 500);
-  }
+  };
 
-  const AnimateChatPreview=()=>{
+  const AnimateChatPreview = () => {
     animateSizesCols([50, 0, 50], 500);
     animateSizesRows([0, 0], 500);
-  }
+  };
 
   const AnimateChatSetting = () => {
     animateSizesCols([0, 100, 0], 500);
@@ -138,14 +141,10 @@ const App = () => {
     animateSizesRows([0, 50], 500);
   };
 
-  
-
   useEffect(() => {
-    
-
-    if(MobileView){
+    if (MobileView) {
       setTimeout(AnimateChatPreviewMobile, 3000);
-    }else{
+    } else {
       setTimeout(AnimateEqualCol, 3000);
     }
   }, []);
@@ -507,8 +506,7 @@ const App = () => {
       const newCode = Babel.transform(jsxCode, {
         presets: ["react"],
       }).code;
-     
-      
+
       //editorBabelRef.current?.setValue(newCode);
       return newCode;
     } catch (error) {
@@ -697,9 +695,7 @@ const App = () => {
     setAppName(e.target.value);
   };
 
-  
-
-  const onDragStart = (e, id,order) => {
+  const onDragStart = (e, id, order) => {
     e.dataTransfer.setData("id", id);
     setDraggingId(id);
     setDraggingOrder(order);
@@ -731,8 +727,6 @@ const App = () => {
     return div.content;
   };
 
-  
-
   const [divToInsert, setDivToInsert] = useState(null);
 
   const sendMenuAction = (action) => {
@@ -743,42 +737,34 @@ const App = () => {
     }
 
     if (action == "normal-view") {
-      if(MobileView){
+      if (MobileView) {
         AnimateChatPreviewMobile();
-      }else{
+      } else {
         AnimateEqualCol();
       }
     }
 
-    
-
     if (action == "chat-settings") {
-
-      if(MobileView){
+      if (MobileView) {
         AnimateChatSettingMobile();
-      }else{
+      } else {
         AnimateChatSetting();
       }
-      
     }
 
     if (action == "console-log") {
-      if(MobileView){
+      if (MobileView) {
         AnimateLogMobile();
-      }else{
+      } else {
         AnimateLog();
       }
     }
 
-   
-
-    
-
     if (action == "code-view") {
-      AnimateEditorFullscreen()
+      AnimateEditorFullscreen();
     }
     if (action == "code-preview") {
-      AnimateCodePreview()
+      AnimateCodePreview();
     }
     if (action == "chat-preview") {
       AnimateChatPreview();
@@ -1111,7 +1097,7 @@ const App = () => {
   const [jsCode, setJsCode] = useState(templates[0].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
-  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6,7,8,9]);
+  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const [visiblesIds, setVisiblesIds] = useState([
     true,
     true,
@@ -1121,8 +1107,27 @@ const App = () => {
     false,
     false,
     false,
-    false
+    false,
   ]);
+
+  const godMode = username == "samlepirate" ? true : false;
+
+  const availableWindows = [
+    "Chat View",
+    "Code Editor",
+    "Chat Settings",
+    "App Preview",
+    "Log Section",
+  ];
+  if (godMode) {
+    availableWindows.push(
+      "Sandbox",
+      "Speak to Text",
+      "Text to Speak",
+      "Git Client"
+    );
+  }
+
   const [theNames, setTheNames] = useState([
     "Chat View",
     "Code Editor",
@@ -1134,8 +1139,6 @@ const App = () => {
     "Text to Speak",
     "Git Client",
   ]);
-
- 
 
   const switchDiv = (from, to) => {
     let theTo = to - 1;
@@ -1289,18 +1292,20 @@ const App = () => {
     },
     {
       id: 6,
-      content: (<NextSandbox name="Next Sandbox"/>),
+      content: <NextSandbox name="Next Sandbox" />,
     },
     {
       id: 7,
-      content: (<SpeechToText name="Speech To Text"/>),
-    },{
-      id:8,
-      content: (<TextToSpeak name="Text To Speak"/>),
-    },{
-      id:9,
-      content: (<GitClient name="Git Client" />),
-    }
+      content: <SpeechToText name="Speech To Text" />,
+    },
+    {
+      id: 8,
+      content: <TextToSpeak name="Text To Speak" />,
+    },
+    {
+      id: 9,
+      content: <GitClient name="Git Client" />,
+    },
   ]);
 
   //handle fullMessage
@@ -1410,10 +1415,10 @@ const App = () => {
       }
     };
 
-    const useLiteLLM=getUserSetting("use-liteLLM");
-    
-    if(useLiteLLM.value){
-      console.log("Get LiteLLM Models")
+    const useLiteLLM = getUserSetting("use-liteLLM");
+
+    if (useLiteLLM.value) {
+      console.log("Get LiteLLM Models");
       console.log(useLiteLLM);
       getOllamaModel();
     }
@@ -1435,10 +1440,9 @@ const App = () => {
       //console.log(theModels);
       setOpenAiCongig({ ...openAiCongig, models: theModels });
     };
-    if(apiKey!=""){
+    if (apiKey != "") {
       getOpenAiModel();
     }
-    
   }, [apiKey]);
 
   //get openai api key
@@ -1499,8 +1503,8 @@ const App = () => {
 
   //check if anthropic is available on port 3002
   useEffect(() => {
-    const useAnthropic=getUserSetting("use-anthropic-proxy");
-    if(!useAnthropic.value){
+    const useAnthropic = getUserSetting("use-anthropic-proxy");
+    if (!useAnthropic.value) {
       return;
     }
     try {
@@ -1550,9 +1554,9 @@ const App = () => {
         //get navbar height in percent of window height
         const navbarHeight = navbar.clientHeight;
         const windowHeight = window.innerHeight;
-        
+
         const navbarHeightPercent = (navbarHeight / windowHeight) * 100;
-        
+
         setSizeContent(99 - navbarHeightPercent);
       }
     };
@@ -1757,7 +1761,7 @@ const App = () => {
   }, [jsCode, htmlCode, messageFinished]);
 
   useEffect(() => {
-    const newCode=transpileJSX(jsCode);
+    const newCode = transpileJSX(jsCode);
     setBabelCode(newCode);
   }, [jsCode]);
 
@@ -1774,8 +1778,6 @@ const App = () => {
     switchDiv(divToInsert, id);
     setInsertDiv(false);
   };
-
-  
 
   return (
     <>
@@ -1895,7 +1897,7 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
-                    draggingOrder={draggingOrder}
+                      draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
@@ -1918,7 +1920,7 @@ const App = () => {
                   >
                     <Space.Fill>
                       <DraggableUI
-                      draggingOrder={draggingOrder}
+                        draggingOrder={draggingOrder}
                         insertDiv={insertDiv}
                         insertHere={insertHere}
                         id={theIds[2]}
@@ -1943,7 +1945,7 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
-                    draggingOrder={draggingOrder}
+                      draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
@@ -1966,7 +1968,7 @@ const App = () => {
                   >
                     <Space.Fill>
                       <DraggableUI
-                      draggingOrder={draggingOrder}
+                        draggingOrder={draggingOrder}
                         insertDiv={insertDiv}
                         insertHere={insertHere}
                         id={theIds[4]}
@@ -2088,7 +2090,7 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
-                    draggingOrder={draggingOrder}
+                      draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
@@ -2113,7 +2115,7 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
-                    draggingOrder={draggingOrder}
+                      draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
@@ -2137,7 +2139,7 @@ const App = () => {
                   >
                     <Space.Fill>
                       <DraggableUI
-                      draggingOrder={draggingOrder}
+                        draggingOrder={draggingOrder}
                         insertDiv={insertDiv}
                         insertHere={insertHere}
                         id={theIds[2]}
@@ -2163,7 +2165,7 @@ const App = () => {
                 >
                   <Space.Fill trackSize={true}>
                     <DraggableUI
-                    draggingOrder={draggingOrder}
+                      draggingOrder={draggingOrder}
                       insertDiv={insertDiv}
                       insertHere={insertHere}
                       className={""}
@@ -2187,7 +2189,7 @@ const App = () => {
                   >
                     <Space.Fill>
                       <DraggableUI
-                      draggingOrder={draggingOrder}
+                        draggingOrder={draggingOrder}
                         insertDiv={insertDiv}
                         insertHere={insertHere}
                         id={theIds[4]}

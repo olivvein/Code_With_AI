@@ -17,6 +17,8 @@ const NavBar = ({
   const [viewCount, setViewCount] = useState(0);
   const MobileView = window.innerWidth < 800 ? true : false;
 
+  
+
   useEffect(() => {
     const getCount = async () => {
       const theApp = await puter.apps.get("code-with-ai");
