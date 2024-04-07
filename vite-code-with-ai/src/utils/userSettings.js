@@ -6,7 +6,7 @@ export const userSettings = [
     {"name":"use-liteLLM","default":false,"description":"Use the liteLLM proxy to use LLM locally","value":""},
     {"name":"liteLLM-url","default":"http://localhost:4000","description":"URL for the liteLLM proxy","value":""},
     {"name":"liteLLM-model","default":"","description":"Model to use for liteLLM","value":""},
-    {"name":"use-anthropic-proxy","default":true,"description":"Use the Anthropic proxy to use Anthropic from your local machine","value":""},
+    {"name":"use-anthropic-proxy","default":false,"description":"Use the Anthropic proxy to use Anthropic from your local machine","value":""},
     {"name":"anthropic-url","default":"http://localhost:4001","description":"URL for the Anthropic proxy","value":""},
     {"name":"anthropic-model","default":"","description":"Model to use for liteLLM","value":""},
     {"name":"use-file-server","default":false,"description":"Use the file server to serve files from your local machine","value":""},

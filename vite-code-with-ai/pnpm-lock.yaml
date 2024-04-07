@@ -21,6 +21,7 @@ specifiers:
   eslint-plugin-react-hooks: ^4.6.0
   eslint-plugin-react-refresh: ^0.4.6
   isomorphic-git: 1.25.7
+  magic-portal: ^1.0.0
   markdown-to-jsx: ^7.4.3
   million: ^3.0.6
   openai: ^4.29.1
@@ -50,6 +51,7 @@ dependencies:
   axios: 1.6.8
   babel-loader: 9.1.3_@babel+core@7.24.3
   isomorphic-git: 1.25.7
+  magic-portal: 1.0.0
   markdown-to-jsx: 7.4.5_react@18.2.0
   million: 3.0.6
   openai: 4.32.0
@@ -3042,6 +3044,10 @@ packages:
   /lz-string/1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
     hasBin: true
+    dev: false
+
+  /magic-portal/1.0.0:
+    resolution: {integrity: sha512-RRFQ9N1LQFETObTOmDoQeyAfsUUnSW59LqVpJjFxyCYE7vHb7EkYsw9PImvcI6ZdGzYs46Yc1r47n6RptYliUw==}
     dev: false
 
   /markdown-to-jsx/7.4.5_react@18.2.0:
