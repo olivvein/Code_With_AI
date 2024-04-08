@@ -24,6 +24,8 @@ import NextSandbox from "./components/NextSandbox";
 import SpeechToText from "./components/SpeechToText";
 import TextToSpeak from "./components/TextToSpeak";
 import GitClient from "./components/GitClient";
+import FsExplorer from "./components/FsExplorer";
+import MenuBar from "./components/MenuBar";
 
 import {
   userSettings,
@@ -44,10 +46,33 @@ const App = () => {
   const [sizeCols, setSizeCols] = useState([0, 0, 100]);
   const [sizeRows, setSizeRows] = useState([0, 0]);
   const [sizeContent, setSizeContent] = useState(97);
+  const [sizeLeftMenu, setSizeLeftMenu] = useState(0);
+  const [showLeftMenu, setShowLeftMenu] = useState(false);
+
 
   const [draggingOrder, setDraggingOrder] = useState(-1);
 
   const MobileView = window.innerWidth < 800 ? true : false;
+
+  const animateLeftMenu = (toSize, time) => {
+    let step = 10;
+    let duration = time;
+    let interval = duration / step;
+    let currentSize = [sizeLeftMenu];
+    let sizeDiff = toSize.map((size, index) => size - currentSize[index]);
+    let sizeStep = sizeDiff.map((diff) => diff / step);
+    let i = 0;
+    let intervalId = setInterval(() => {
+      currentSize = currentSize.map((size, index) => size + sizeStep[index]);
+      setSizeLeftMenu(currentSize[0]);
+
+      i++;
+      if (i >= step) {
+        clearInterval(intervalId);
+      }
+    }, interval);
+  };
+    
 
   const animateSizesCols = (toSize, time) => {
     //toSize is a array of size
@@ -535,9 +560,6 @@ const App = () => {
     console.log(monaco);
     console.log(monaco.languages.javascript);
 
-    
-
-
     //monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       tsx: "react",
@@ -554,12 +576,6 @@ const App = () => {
       noSemanticValidation: false,
       noSyntaxValidation: false,
     });
-
-    
-
-  
-
-    
 
     // Fetch and add type definitions for React and ReactDOM
     fetch("https://unpkg.com/@types/react/index.d.ts")
@@ -580,12 +596,12 @@ const App = () => {
         );
       });
 
-      const puterTypeDefinition = 'declare var puter: any;';
+    const puterTypeDefinition = "declare var puter: any;";
 
-      monaco.languages.typescript.javascriptDefaults.addExtraLib(
-        puterTypeDefinition,
-        'filename.ts' // Vous pouvez utiliser n'importe quel nom de fichier ici, il n'a pas besoin d'exister réellement
-      );
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(
+      puterTypeDefinition,
+      "filename.ts" // Vous pouvez utiliser n'importe quel nom de fichier ici, il n'a pas besoin d'exister réellement
+    );
   }
 
   function handleEditorDidMountJs(editor, monaco) {
@@ -792,9 +808,15 @@ const App = () => {
   };
 
   const [divToInsert, setDivToInsert] = useState(null);
+  
 
   const sendMenuAction = (action) => {
     console.log(action);
+
+    if (action === "toggleMenu") {
+      setShowLeftMenu(!showLeftMenu);
+      animateLeftMenu(showLeftMenu ? [0] : [42], 200);
+    }
 
     if (action == "fullscreen-preview") {
       AnimateFullScreenPreview();
@@ -1161,13 +1183,16 @@ const App = () => {
   const [jsCode, setJsCode] = useState(templates[0].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
-  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   const [visiblesIds, setVisiblesIds] = useState([
     true,
     true,
     true,
     true,
     true,
+    false,
+    false,
+    false,
     false,
     false,
     false,
@@ -1182,27 +1207,23 @@ const App = () => {
     "Chat Settings",
     "App Preview",
     "Log Section",
+    "Sandbox",
+    "Speak to Text",
+    "Text to Speak",
+    "Git Client",
+    "Fs Explorer",
   ];
   if (godMode) {
     availableWindows.push(
       "Sandbox",
       "Speak to Text",
       "Text to Speak",
-      "Git Client"
+      "Git Client",
+      "Fs Explorer"
     );
   }
 
-  const [theNames, setTheNames] = useState([
-    "Chat View",
-    "Code Editor",
-    "Chat Settings",
-    "App Preview",
-    "Log Section",
-    "Sandbox",
-    "Speak to Text",
-    "Text to Speak",
-    "Git Client",
-  ]);
+  const [theNames, setTheNames] = useState(availableWindows);
 
   const switchDiv = (from, to) => {
     let theTo = to - 1;
@@ -1370,6 +1391,10 @@ const App = () => {
     {
       id: 9,
       content: <GitClient name="Git Client" />,
+    },
+    {
+      id: 10,
+      content: <FsExplorer name="Fs Explorer" />,
     },
   ]);
 
@@ -1597,7 +1622,6 @@ const App = () => {
   useEffect(() => {
     editorHtmlRef.current?.setValue(htmlCode);
     editorJsRef.current?.setValue(jsCode);
-
   }, [selectedCode]);
 
   useEffect(() => {
@@ -1686,6 +1710,7 @@ const App = () => {
     chatMessages,
     jsCode,
     htmlCode,
+    showLeftMenu,
   ]);
 
   //update divs Navbar
@@ -1837,6 +1862,7 @@ const App = () => {
   const [showGuideView, setShowGuideView] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
+
 
   const insertHere = (id) => {
     console.log("insertHere");
@@ -2149,6 +2175,18 @@ const App = () => {
               scrollable={false}
             >
               <Space.Fill trackSize={true}>
+                
+                  <Space.Left //MenuBar
+                    size={`${sizeLeftMenu}px`}
+                    touchHandleSize={20}
+                    trackSize={false}
+                    scrollable={false}
+                  >
+                    <Space.Fill trackSize={true}>
+                      <MenuBar name="Menu Bar" />
+                    </Space.Fill>
+                  </Space.Left>
+                
                 <Space.LeftResizable
                   size={`${sizeCols[0]}%`} //Sige of the left resizable : Chat View
                   touchHandleSize={20}

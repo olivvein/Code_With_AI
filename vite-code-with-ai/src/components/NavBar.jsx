@@ -17,8 +17,6 @@ const NavBar = ({
   const [viewCount, setViewCount] = useState(0);
   const MobileView = window.innerWidth < 800 ? true : false;
 
-  
-
   useEffect(() => {
     const getCount = async () => {
       const theApp = await puter.apps.get("code-with-ai");
@@ -26,13 +24,15 @@ const NavBar = ({
       setViewCount(theApp.stats.open_count);
       //console.log("The Stats:", theApp.stats.open_count);
     };
-    if( username !== ""){
-    getCount();
+    if (username !== "") {
+      getCount();
     }
     //every minute
     const interval = setInterval(() => {
       getCount();
     }, 60000);
+
+    return () => clearInterval(interval);
   }, [username]);
 
   const toggleMenu = (menu) => {
@@ -110,6 +110,7 @@ const NavBar = ({
     {
       name: "View",
       subMenu: [
+        { status: "active", name: "Show Menu", action: "toggleMenu" },
         ...theNames.map((name, index) => {
           if (visiblesIds[index]) {
             return {
@@ -187,15 +188,15 @@ const NavBar = ({
                     {menu.name}
                   </span>
                   {openMenu === menu.name && (
-                    <div className="absolute backdrop-blur-xl  dark:bg-dark/60 bg-light/60 dark:text-light text-dark  left-0 mt-2 w-48  rounded-md  border border-gray-700 transition-appear opacity-100 shadow-lg z-50 flex flex-col justify-around">
+                    <div className="absolute backdrop-blur-xl  dark:bg-dark/60 bg-light/60 dark:text-light text-dark  left-0 mt-2  rounded-md  border border-gray-700 transition-appear opacity-100 shadow-lg z-50 flex flex-col justify-around">
                       {menu.subMenu.map((subMenu, index) => (
-                        <span key={index}>
+                        <span key={index} className="w-full">
                           {subMenu.name == "separator" ? (
                             <div className="border-b border-gray-500 mx-2 my-1"></div>
                           ) : (
                             <button
                               key={index}
-                              className={`rounded-xl  mx-1 text-left px-4 py-2 active:border text-sm  active:bg-gray-400 active:border-gray-700 active:text-dark transition-colors duration-100 ease-in-out hover:bg-blue-800/100 hover:text-light ${
+                              className={`rounded mx-1 w-48 text-left px-4 py-1 active:border text-sm  active:bg-gray-400 active:border-gray-700 active:text-dark transition-colors duration-100 ease-in-out hover:bg-blue-800/100 hover:text-light ${
                                 subMenu.status == "inactive"
                                   ? "dark:text-gray-500 text-gray-400 "
                                   : "dark:text-light text-dark "
