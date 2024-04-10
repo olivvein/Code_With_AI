@@ -8,7 +8,7 @@ importScripts(
   "https://unpkg.com/magic-portal"
 );
 
-let fs = new LightningFS("localRoot4", { wipe: false });
+let fs = new LightningFS("code-root", { wipe: false });
 const portal = new MagicPortal(self);
 //self.addEventListener("message", ({ data }) => console.log(data));
 
@@ -30,8 +30,30 @@ const portal = new MagicPortal(self);
       });
     },
     clone: async (args) => {
-      fs = new LightningFS("localRoot4", { wipe: true });
+      fs = new LightningFS("code-root", { wipe: false });
       return git.clone({
+        ...args,
+        fs,
+        http: GitHttp,
+        dir,
+        onProgress(evt) {
+          mainThread.progress(evt);
+        },
+        onMessage(msg) {
+          mainThread.print(msg);
+        },
+        onAuth(url) {
+          console.log(url);
+          return mainThread.fill(url);
+        },
+        onAuthFailure({ url, auth }) {
+          console.log(auth);
+          return mainThread.rejected({ url, auth });
+        },
+      });
+    },
+    push: async (args) => {
+      return git.push({
         ...args,
         fs,
         http: GitHttp,
@@ -112,6 +134,9 @@ const portal = new MagicPortal(self);
         },
       });
     },
+    status: (args) => git.status({ ...args, fs, dir }),
+    add: (args) => git.add({ ...args, fs, dir }),
+    commit: (args) => git.commit({ ...args, fs, dir }),
     listBranches: (args) => git.listBranches({ ...args, fs, dir }),
     listFiles: (args) => git.listFiles({ ...args, fs, dir }),
     log: (args) => git.log({ ...args, fs, dir }),

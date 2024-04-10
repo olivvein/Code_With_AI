@@ -50,7 +50,6 @@ const App = () => {
   const [sizeLeftMenu, setSizeLeftMenu] = useState(0);
   const [showLeftMenu, setShowLeftMenu] = useState(false);
 
-
   const [draggingOrder, setDraggingOrder] = useState(-1);
 
   const MobileView = window.innerWidth < 800 ? true : false;
@@ -73,7 +72,6 @@ const App = () => {
       }
     }, interval);
   };
-    
 
   const animateSizesCols = (toSize, time) => {
     //toSize is a array of size
@@ -468,10 +466,59 @@ const App = () => {
     });
   }
 
+  function optimizeImports(jsxCode) {
+    const importRegex =
+      /import\s+(?:(\w+),\s+)?{([^}]*)}\s+from\s+["']([^"']+)["']/g;
+    const importMap = new Map();
+
+    // Extract import statements and group them by source
+    let match;
+    while ((match = importRegex.exec(jsxCode)) !== null) {
+      const [fullImport, defaultImport, namedImports, source] = match;
+      if (!importMap.has(source)) {
+        importMap.set(source, { defaultImport: null, namedImports: new Set() });
+      }
+      const importData = importMap.get(source);
+      if (defaultImport) {
+        importData.defaultImport = defaultImport;
+      }
+      namedImports.split(",").forEach((namedImport) => {
+        importData.namedImports.add(namedImport.trim());
+      });
+    }
+
+    // Generate optimized import statements
+    const optimizedImports = Array.from(importMap.entries())
+      .map(([source, { defaultImport, namedImports }]) => {
+        const importParts = [];
+        if (defaultImport) {
+          importParts.push(defaultImport);
+        }
+        if (namedImports.size > 0) {
+          importParts.push(`{ ${Array.from(namedImports).join(", ")} }`);
+        }
+        return `import ${importParts.join(", ")} from "${source}";`;
+      })
+      .join("\n");
+
+    // Replace the original import statements with the optimized ones
+    return jsxCode.replace(importRegex, "").trim() + "\n" + optimizedImports;
+  }
+
   function transpileJSX(jsxCode) {
     jsxCode = transformImports(jsxCode);
     jsxCode = transformImports2(jsxCode);
     jsxCode = jsxCode.replace(/\`\`\`/g, "");
+
+    const lines = jsxCode.split("\n");
+    const renderLine = lines.find((line) => line.includes("ReactDOM.render"));
+    if (renderLine) {
+      
+      lines.splice(lines.indexOf(renderLine), 1);
+      lines.push(renderLine);
+    }
+    jsxCode = lines.join("\n");
+    jsxCode = optimizeImports(jsxCode);
 
     try {
       const result = transform(jsxCode, {
@@ -482,13 +529,23 @@ const App = () => {
 
       //console.log(result);
       jsxCode = result.code;
-      //make sure there is no dulicate import in jsxCode
+      //when there is a exact duplicate import in jsxCode
       const imports = jsxCode.match(/import\s+.*\s+from\s+.*;/g);
       if (imports) {
         const uniqueImports = [...new Set(imports)];
         jsxCode = jsxCode.replace(/import\s+.*\s+from\s+.*;/g, "");
         jsxCode = uniqueImports.join("\n") + jsxCode;
       }
+
+      //when the import source from is the same, aggregate the imports
+      //for example import React ,{useState } from "react"; import { useEffect, useRed} from "react";
+      // should result in : import React {useState, useEffect, useRef} from "react";
+
+      
+
+      //Make sure the Line : ReactDOM.render...
+      // is the last line
+      // jsxCode is a string
 
       const newCode = Babel.transform(jsxCode, {
         presets: ["react"],
@@ -511,6 +568,30 @@ const App = () => {
     jsxCode = transformImports(jsxCode);
     jsxCode = transformImports2(jsxCode);
     jsxCode = jsxCode.replace(/\`\`\`/g, "");
+
+    const lines = jsxCode.split("\n");
+    const renderLine = lines.find((line) => line.includes("ReactDOM.render"));
+    if (renderLine) {
+      
+      lines.splice(lines.indexOf(renderLine), 1);
+      lines.push(renderLine);
+    }
+    jsxCode = lines.join("\n");
+    
+
+    jsxCode = optimizeImports(jsxCode);
+    
+
+    //make sure every line that start with "import " is at the top of the file
+
+    const llines = jsxCode.split("\n");
+    const importLines = llines.filter((line) => line.startsWith("import "));
+    const otherLines = llines.filter((line) => !line.startsWith("import "));
+    jsxCode = importLines.join("\n") + "\n" + otherLines.join("\n");
+
+
+
+
 
     try {
       const result = transform(jsxCode, {
@@ -809,7 +890,6 @@ const App = () => {
   };
 
   const [divToInsert, setDivToInsert] = useState(null);
-  
 
   const sendMenuAction = (action) => {
     console.log(action);
@@ -1295,6 +1375,11 @@ const App = () => {
     logElement.scrollTop = logElement.scrollHeight;
   };`;
 
+  const setJsCodeForAll = (code) => {
+    setJsCode(code);
+    editorJsRef.current?.setValue(code);
+  };
+
   const [ollamaModels, setOllamaModels] = useState([]);
 
   const [ollamaAvailable, setOllamaAvailable] = useState(true);
@@ -1395,7 +1480,7 @@ const App = () => {
     },
     {
       id: 10,
-      content: <FsExplorer name="Fs Explorer" />,
+      content: <FsExplorer name="Fs Explorer" setJsCode={setJsCodeForAll} />,
     },
   ]);
 
@@ -1864,7 +1949,6 @@ const App = () => {
   const [showLoading, setShowLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
 
-
   const insertHere = (id) => {
     console.log("insertHere");
     console.log(id);
@@ -2176,18 +2260,17 @@ const App = () => {
               scrollable={false}
             >
               <Space.Fill trackSize={true}>
-                
-                  <Space.Left //MenuBar
-                    size={`${sizeLeftMenu}px`}
-                    touchHandleSize={20}
-                    trackSize={false}
-                    scrollable={false}
-                  >
-                    <Space.Fill trackSize={true}>
-                      <MenuBar name="Menu Bar" />
-                    </Space.Fill>
-                  </Space.Left>
-                
+                <Space.Left //MenuBar
+                  size={`${sizeLeftMenu}px`}
+                  touchHandleSize={20}
+                  trackSize={false}
+                  scrollable={false}
+                >
+                  <Space.Fill trackSize={true}>
+                    <MenuBar name="Menu Bar" />
+                  </Space.Fill>
+                </Space.Left>
+
                 <Space.LeftResizable
                   size={`${sizeCols[0]}%`} //Sige of the left resizable : Chat View
                   touchHandleSize={20}

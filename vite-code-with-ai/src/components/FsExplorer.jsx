@@ -55,8 +55,8 @@ const TheEditorJs2 = ({ jsCode, fileName, handleEditorChange }) => {
   );
 };
 
-const FsExplorer = ({ name }) => {
-  const [fs, setFs] = useState(new FS("localRoot4"));
+const FsExplorer = ({ name, setJsCode }) => {
+  const [fs, setFs] = useState(new FS("code-root",{ wipe: false }));
   const [dir, setDir] = useState("/");
   const [files, setFiles] = useState([]);
   const [file, setFile] = useState({ name: "", content: "" });
@@ -113,6 +113,8 @@ const FsExplorer = ({ name }) => {
     const path = file.name.replace("//", "/");
     console.log(path);
 
+    console.log(file.content);
+
     //make file content a string of a Uint8Array
     const content = new TextEncoder().encode(file.content);
 
@@ -122,6 +124,7 @@ const FsExplorer = ({ name }) => {
         setLoading(false);
       } else {
         console.log("File saved");
+        readDir(dir);
         setLoading(false);
       }
     });
@@ -141,15 +144,60 @@ const FsExplorer = ({ name }) => {
     };
   }, [file]);
 
+  function optimizeImports(jsxCode) {
+    const importRegex =
+      /import\s+(?:(\w+),\s+)?{([^}]*)}\s+from\s+["']([^"']+)["']/g;
+    const importMap = new Map();
+
+    // Extract import statements and group them by source
+    let match;
+    while ((match = importRegex.exec(jsxCode)) !== null) {
+      const [fullImport, defaultImport, namedImports, source] = match;
+      if (!importMap.has(source)) {
+        importMap.set(source, { defaultImport: null, namedImports: new Set() });
+      }
+      const importData = importMap.get(source);
+      if (defaultImport) {
+        importData.defaultImport = defaultImport;
+      }
+      namedImports.split(",").forEach((namedImport) => {
+        importData.namedImports.add(namedImport.trim());
+      });
+    }
+
+    // Generate optimized import statements
+    const optimizedImports = Array.from(importMap.entries())
+      .map(([source, { defaultImport, namedImports }]) => {
+        const importParts = [];
+        if (defaultImport) {
+          importParts.push(defaultImport);
+        }
+        if (namedImports.size > 0) {
+          importParts.push(`{ ${Array.from(namedImports).join(", ")} }`);
+        }
+        return `import ${importParts.join(", ")} from "${source}";`;
+      })
+      .join("\n");
+
+    // Replace the original import statements with the optimized ones
+    return jsxCode.replace(importRegex, "").trim() + "\n" + optimizedImports;
+  }
+
   const readDir = (dir) => {
     setLoading(true);
     setLoadingMessage("Loading...");
-    fs.readdir(dir, (error, data) => {
+    fs.readdir(dir, async (error, data) => {
       if (error) {
         console.error(error);
       } else {
         const filesInfo = [];
+        let jsCode = "";
         for (const file of data) {
+          if (file.indexOf(".js") !== -1) {
+            //read the file and set the js code
+            const data = await fs.promises.readFile(dir + "/" + file, "utf8");
+            jsCode = "//file: " + file + "\n" + jsCode + data + "\n";
+          }
           fs.stat(dir + "/" + file, (error, stat) => {
             if (error) {
               console.error(error);
@@ -158,6 +206,32 @@ const FsExplorer = ({ name }) => {
             }
           });
         }
+        if (jsCode !== "") {
+          const lines = jsCode.split("\n");
+          const renderLine = lines.find((line) =>
+            line.includes("ReactDOM.render")
+          );
+          if (renderLine) {
+            lines.splice(lines.indexOf(renderLine), 1);
+            lines.push(renderLine);
+          }
+          jsCode = lines.join("\n");
+
+          jsCode = optimizeImports(jsCode);
+
+          //make sure every line that start with "import " is at the top of the file
+
+          const llines = jsCode.split("\n");
+          const importLines = llines.filter((line) =>
+            line.startsWith("import ")
+          );
+          const otherLines = llines.filter(
+            (line) => !line.startsWith("import ")
+          );
+          jsCode = importLines.join("\n") + "\n" + otherLines.join("\n");
+          setJsCode(jsCode);
+        }
+
         setFiles(filesInfo);
         setLoading(false);
       }
@@ -165,7 +239,7 @@ const FsExplorer = ({ name }) => {
   };
 
   const navigateTo = (path) => {
-    setFile({ name: "", content: "" })
+    setFile({ name: "", content: "" });
     setDir(path);
   };
 
@@ -173,7 +247,7 @@ const FsExplorer = ({ name }) => {
     let parts = dir.split("/");
     parts.pop();
     let newPath = parts.join("/");
-    setFile({ name: "", content: "" })
+    setFile({ name: "", content: "" });
     setDir(newPath);
   };
 
@@ -189,9 +263,10 @@ const FsExplorer = ({ name }) => {
 
   const handleEditorChange = (value, event) => {
     setFile2({ ...file, content: value });
-    console.log(value);
-    const diff = getDiff(file.content, value);
-    console.log(diff);
+    setFile({ ...file, content: value });
+    //console.log(value);
+    //const diff = getDiff(file.content, value);
+    //console.log(diff);
   };
 
   return (
@@ -217,7 +292,6 @@ const FsExplorer = ({ name }) => {
                     onClick={() => navigateTo("/")}
                     className="flex items-center space-x-2"
                   >
-                    
                     <span className=" text-blue-400">/</span>
                   </button>
                   {dir !== "/" && (
@@ -281,13 +355,11 @@ const FsExplorer = ({ name }) => {
                         fileName={file.name}
                         handleEditorChange={handleEditorChange}
                       />
-                      
                     </div>
                   ))}
               </div>
             </Space.Fill>
           </Space.Fill>
-          
         </Space.Fill>
       </Space.ViewPort>
     </div>

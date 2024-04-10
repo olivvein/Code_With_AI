@@ -14,9 +14,9 @@ import { Editor, DiffEditor } from "@monaco-editor/react";
 //import * as git from 'isomorphic-git';
 //import http from "isomorphic-git/http/web";
 //import FS from '@isomorphic-git/lightning-fs';
-const fs = new FS("localRoot4");
+const fs = new FS("code-root", { wipe: false });
 
-export default function Component() {
+export default function Component({ name }) {
   const [cloneStatus, setCloneStatus] = useState("");
   const [files, setFiles] = useState([]);
 
@@ -66,6 +66,70 @@ export default function Component() {
     );
     change.content = patch;
     setChanges((prev) => [...prev, change]);
+  };
+
+  const gitAdd = async (path) => {
+    await workerThread.setDir("/" + repo);
+    let filesList = await workerThread.listFiles({});
+    let hasAdded = false;
+    for (const file of filesList) {
+      const status = await workerThread.status({ filepath: file });
+      if (status != "unmodified") {
+        console.log("Adding " + file);
+        await workerThread.add({ filepath: file });
+        hasAdded = true;
+      }
+    }
+
+    
+  };
+
+  const gitCommit = async (message) => {
+    await workerThread.commit(message);
+    
+  };
+
+  const makeCommit=async()=>{
+    const commitArgs={
+      author: {
+        name: "olivvein",
+        email: "olivier.veinand@gmail.com",
+      },
+      message: "modified Title",
+    };
+    console.log(commitArgs)
+    const oiid = await gitCommit(commitArgs);
+    console.log("Commited");
+    console.log(oiid);
+  }
+
+
+  const gitPush = async () => {
+    await workerThread.push({
+      remote: "origin",
+      ref: "main",
+      url: "https://github.com/" + repo,
+    });
+  };
+
+  const [modifiedFiles,setModifiedFiles]=useState([]);
+
+  const gitStatus = async () => {
+    console.log("Status");
+    await workerThread.setDir("/" + repo);
+    let filesList = await workerThread.listFiles({});
+    const modified=[];
+    for (const file of filesList) {
+      const status = await workerThread.status({ filepath: file });
+      console.log();
+      if(status!="unmodified"){
+        modified.push(file + " is " + status)
+      }
+    }
+    console.log(modified);
+    setModifiedFiles(modified);
+
+    
   };
 
   const addToChanges = async (change) => {
@@ -350,21 +414,16 @@ export default function Component() {
     const getDiffs = async () => {
       try {
         setChanges([]);
-        if(commits[index] && commits[index + 1]){
-            console.log(commits[index].oid, commits[index + 1].oid);
-            await workerThread.getFileStateChanges(
-                commits[index].oid,
-                commits[index + 1].oid
-              );
-
-        }else{
-            console.log(commits[0].oid);
-            await workerThread.getFileStateChanges(
-                undefined,
-                commits[0].oid
-              );
+        if (commits[index] && commits[index + 1]) {
+          console.log(commits[index].oid, commits[index + 1].oid);
+          await workerThread.getFileStateChanges(
+            commits[index].oid,
+            commits[index + 1].oid
+          );
+        } else {
+          console.log(commits[0].oid);
+          await workerThread.getFileStateChanges(undefined, commits[0].oid);
         }
-       
       } catch (error) {
         console.log(error);
       }
@@ -406,6 +465,12 @@ export default function Component() {
                 className="bg-blue-600 px-1 hover:bg-blue-700"
               >
                 Clone on Browser
+              </button>
+              <button
+                className="bg-blue-600 px-1 hover:bg-blue-700"
+                onClick={gitStatus}
+              >
+                Status
               </button>
             </form>
           </div>
@@ -467,99 +532,117 @@ export default function Component() {
           </div>
         </div>
         <div className="flex-grow p-4 overflow-auto">
-            {myCommitAuthor && (
-          <div className="flex flex-col space-y-4">
-            <div className="flex items-center space-x-2">
-              <span><img className="rounded-lg" src={`https://eu.ui-avatars.com/api/?name=${myCommitAuthor}&size=32`}/></span>
-              <span>{myCommitAuthor}</span>
+          {myCommitAuthor && (
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center space-x-2">
+                <span>
+                  <img
+                    className="rounded-lg"
+                    src={`https://eu.ui-avatars.com/api/?name=${myCommitAuthor}&size=32`}
+                  />
+                </span>
+                <span>{myCommitAuthor}</span>
 
-              <span>{commits.length}</span>
-            </div>
-            <h4 className="text-sm font-semibold">
-              {changes.length} changed files
-            </h4>
+                <span>{commits.length}</span>
+              </div>
+              <h4 className="text-sm font-semibold">
+                {changes.length} changed files
+              </h4>
 
-            {changes.map((change, index) => (
-              <div key={index}>
-                <div className="flex flex-col space-y-1">
-                  <div className="flex items-center justify-between"></div>
-                </div>
+              {changes.map((change, index) => (
+                <div key={index}>
+                  <div className="flex flex-col space-y-1">
+                    <div className="flex items-center justify-between"></div>
+                  </div>
 
-                <div className="mt-4 bg-black p-4 rounded text-gray-500">
-                  <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    {diffCode && diffCode.path == change.path ? (
-                        <>
-                        <ChevronDownIcon
-                            onClick={() => {
+                  <div className="mt-4 bg-black p-4 rounded text-gray-500">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        {diffCode && diffCode.path == change.path ? (
+                          <>
+                            <ChevronDownIcon
+                              onClick={() => {
                                 setDiffCode({});
-                            }}
-                            className="w-5 h-5 cursor-pointer"
-                        />
-                        <span>Hide Diff Editor</span>
-                        </>
-                    ) : (
+                              }}
+                              className="w-5 h-5 cursor-pointer"
+                            />
+                            <span>Hide Diff Editor</span>
+                          </>
+                        ) : (
+                          <>
+                            <ChevronRightIcon
+                              onClick={() => {
+                                ViewDif(change);
+                              }}
+                              className="w-5 h-5 cursor-pointer"
+                            />
+                            <span>Show Diff Editor</span>
+                          </>
+                        )}
+                      </div>
+                      <span className="text-sm font-mono">
+                        {change.type + " : " + change.path}
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <CopyIcon className="w-5 h-5" />
+                        <ExternalLinkIcon className="w-5 h-5" />
+                      </div>
+                    </div>
+                    <pre className="mt-2 text-xs font-mono overflow-auto">
+                      {diffCode && diffCode.path == change.path ? (
+                        <div className=" w-full">
+                          <DiffEditor
+                            theme="vs-dark"
+                            height="400px"
+                            language={diffCode.language}
+                            original={
+                              change.type == "create"
+                                ? ""
+                                : diffCode.originalContent
+                            }
+                            modified={diffCode.oldContent}
+                          />
+                        </div>
+                      ) : (
                         <>
-                      <ChevronRightIcon
-                        onClick={() => {
-                          ViewDif(change);
-                        }}
-                        className="w-5 h-5 cursor-pointer"
-                      />
-                      <span >Show Diff Editor</span>
+                          <code>
+                            {change.content.split("\n").map((line, index) => {
+                              let classs;
+                              if (line.startsWith("+")) {
+                                classs = "bg-red-800 text-gray-200";
+                              } else if (line.startsWith("-")) {
+                                classs = "bg-green-800 text-gray-200";
+                              } else {
+                                classs = "bg-black text-gray-200";
+                              }
+                              return (
+                                <span key={index} className={classs}>
+                                  {line + "\n"}
+                                </span>
+                              );
+                            })}
+                          </code>
                         </>
                       )}
-
-                      
-                    </div>
-                    <span className="text-sm font-mono">
-                      {change.type + " : " + change.path}
-                    </span>
-                    <div className="flex items-center space-x-2">
-                   
-
-                      <CopyIcon className="w-5 h-5" />
-                      <ExternalLinkIcon className="w-5 h-5" />
-                    </div>
+                    </pre>
                   </div>
-                  <pre className="mt-2 text-xs font-mono overflow-auto">
-                    {diffCode && diffCode.path == change.path ? (
-                      <div className=" w-full">
-                        <DiffEditor
-                          theme="vs-dark"
-                          height="400px"
-                          language={diffCode.language}
-                          original={change.type=="create"?"":diffCode.originalContent}
-                          modified={diffCode.oldContent}
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <code>
-                          {change.content.split("\n").map((line, index) => {
-                            let classs;
-                            if (line.startsWith("+")) {
-                              classs = "bg-red-800 text-gray-200";
-                            } else if (line.startsWith("-")) {
-                              classs = "bg-green-800 text-gray-200";
-                            } else {
-                              classs = "bg-black text-gray-200";
-                            }
-                            return (
-                              <span key={index} className={classs}>
-                                {line + "\n"}
-                              </span>
-                            );
-                          })}
-                        </code>
-                      </>
-                    )}
-                  </pre>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+          {modifiedFiles.length>0 && (
+            <div>
+              {modifiedFiles.map((file,index)=>
+                <div key={index}>
+                  {file}
+                </div>
+              )}
+              <button className="bg-blue-500 hover:bg-blue-600 px-1" onClick={gitAdd}>Add *</button>
+              <button className="bg-blue-500 hover:bg-blue-600 px-1" onClick={makeCommit}>Commit</button>
+              
+            </div>  
             )}
+            <button className="bg-blue-500 hover:bg-blue-600 px-1" onClick={gitPush}>Push</button>
         </div>
       </div>
     </div>

@@ -13,7 +13,7 @@ import MagicPortal from "magic-portal";
 const GitClient = ({ name }) => {
   const [cloneStatus, setCloneStatus] = useState("");
   const [files, setFiles] = useState([]);
-  const fs = new FS("localRoot4");
+  const fs = new FS("code-root",{ wipe: false });
   const [worker, setWorker] = useState(null);
   const [portal, setPortal] = useState(null);
   const [workerThread, setWorkerThread] = useState(null);
