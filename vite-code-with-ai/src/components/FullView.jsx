@@ -14,7 +14,7 @@ import { Editor, DiffEditor } from "@monaco-editor/react";
 //import * as git from 'isomorphic-git';
 //import http from "isomorphic-git/http/web";
 //import FS from '@isomorphic-git/lightning-fs';
-const fs = new FS("code-root", { wipe: false });
+const fs = new FS("localRoot4", { wipe: false });
 
 export default function Component({ name }) {
   const [cloneStatus, setCloneStatus] = useState("");
@@ -80,29 +80,25 @@ export default function Component({ name }) {
         hasAdded = true;
       }
     }
-
-    
   };
 
   const gitCommit = async (message) => {
     await workerThread.commit(message);
-    
   };
 
-  const makeCommit=async()=>{
-    const commitArgs={
+  const makeCommit = async () => {
+    const commitArgs = {
       author: {
         name: "olivvein",
         email: "olivier.veinand@gmail.com",
       },
       message: "modified Title",
     };
-    console.log(commitArgs)
+    console.log(commitArgs);
     const oiid = await gitCommit(commitArgs);
     console.log("Commited");
     console.log(oiid);
-  }
-
+  };
 
   const gitPush = async () => {
     await workerThread.push({
@@ -112,24 +108,29 @@ export default function Component({ name }) {
     });
   };
 
-  const [modifiedFiles,setModifiedFiles]=useState([]);
+  const [modifiedFiles, setModifiedFiles] = useState([]);
 
   const gitStatus = async () => {
     console.log("Status");
     await workerThread.setDir("/" + repo);
     let filesList = await workerThread.listFiles({});
-    const modified=[];
+    const modified = [];
+    console.log(filesList);
     for (const file of filesList) {
       const status = await workerThread.status({ filepath: file });
-      console.log();
-      if(status!="unmodified"){
-        modified.push(file + " is " + status)
+      console.log(file);
+      if (status != "unmodified") {
+        modified.push(file + " is " + status);
       }
     }
+
     console.log(modified);
     setModifiedFiles(modified);
 
-    
+    let commits = await workerThread.log({});
+    //reverse the commits
+    //commits = commits.reverse();
+    setCommits(commits);
   };
 
   const addToChanges = async (change) => {
@@ -357,6 +358,95 @@ export default function Component({ name }) {
     return;
   };
 
+  const recursiveReadDir = async (dir) => {
+    console.log("Reading dir : ", dir);
+    const listitems = await puter.fs.readdir(dir);
+    const allFiles = [];
+    const allDirs = [];
+    for (const item of listitems) {
+      if (item.is_dir) {
+        allDirs.push(item.path);
+        const [files, ddirs] = await recursiveReadDir(item.path);
+        allDirs.push(...ddirs);
+        allFiles.push(...files);
+      } else {
+        console.log(item.name);
+        allFiles.push(item);
+      }
+      console.log(item.name);
+    }
+
+    const UniqueDirs = Array.from(new Set(allDirs));
+    return [allFiles, UniqueDirs];
+  };
+
+  const getAllPuterFiles = async () => {
+    const [files, dirs] = await recursiveReadDir(repo);
+
+    console.log(dirs);
+    const repoDirs = repo.split("/");
+    fs.mkdir("/" + repoDirs[0], (error, success) => {
+      console.log(error);
+      console.log(success);
+      fs.mkdir("/" + repoDirs[0] + "/" + repoDirs[1], (error, success) => {
+        console.log(error);
+        console.log(success);
+      });
+    });
+
+    for (const dir of dirs) {
+      try {
+        const ddir = dir.replace(dirName, "");
+        console.log("Creating dir on fs", ddir);
+        fs.mkdir(ddir, (error, success) => {
+          console.log(error);
+          console.log(success);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    console.log(files);
+    const allPaths = [];
+    for (const file of files) {
+      //remove dirName from path
+      const path = file.path.replace(dirName, "");
+      allPaths.push(path);
+    }
+    console.log(allPaths);
+    let task = 0;
+    const taskLength = allPaths.length;
+    for (const path of allPaths) {
+      console.log("Task", task, "/", taskLength);
+      console.log("Reading content of ", path);
+      const data = await puter.fs.read("." + path);
+      console.log("Writing to fs :", path);
+      const text = await data.text();
+      //console.log(text);
+      const content = new TextEncoder().encode(text);
+      fs.writeFile(path, content, (error) => {
+        if (error) {
+          console.error(error);
+          //setLoading(false);
+        } else {
+          console.log("File saved");
+          //readDir(dir);
+          //setLoading(false);
+        }
+      });
+
+      //console.log(content);
+      task = task + 1;
+      //   try {
+      //     console.log("Writing to fs :", path);
+      //     const res=await fs.promises.writeFile(path, content);
+      //     console.log(res);
+      //   } catch (error) {
+      //     console.log(error);
+      //   }
+    }
+  };
+
   const doFullClone = async () => {
     console.log("Clone started");
     setDiffCode({});
@@ -476,6 +566,12 @@ export default function Component({ name }) {
           </div>
           <div className="flex space-x-2">
             <button
+              className="bg-blue-500 hover:bg-blue-600 px-1"
+              onClick={getAllPuterFiles}
+            >
+              Import From Puter
+            </button>
+            <button
               onClick={syncDirectory}
               className="bg-blue-500 hover:bg-blue-600 px-1"
             >
@@ -499,6 +595,18 @@ export default function Component({ name }) {
                   <CodeIcon className="w-5 h-5" />
                   <span>{commit.commit.message.split("\n")[0]}</span>
                   <span>{commit.oid.slice(0, 7)}</span>
+                  <button
+                    onClick={() => {
+                      setDiffCode({});
+                      setCommitMessage(commit.commit.message);
+                      setMyCommitAuthor(commit.commit.author.name);
+                      setCommitOid(commit.oid);
+                      //getMasterDif(index);
+                      checkout(commit.oid);
+                    }}
+                  >
+                    CheckOut
+                  </button>
                   <button
                     onClick={() => {
                       setDiffCode({});
@@ -630,19 +738,31 @@ export default function Component({ name }) {
               ))}
             </div>
           )}
-          {modifiedFiles.length>0 && (
+          {modifiedFiles.length > 0 && (
             <div>
-              {modifiedFiles.map((file,index)=>
-                <div key={index}>
-                  {file}
-                </div>
-              )}
-              <button className="bg-blue-500 hover:bg-blue-600 px-1" onClick={gitAdd}>Add *</button>
-              <button className="bg-blue-500 hover:bg-blue-600 px-1" onClick={makeCommit}>Commit</button>
-              
-            </div>  
-            )}
-            <button className="bg-blue-500 hover:bg-blue-600 px-1" onClick={gitPush}>Push</button>
+              {modifiedFiles.map((file, index) => (
+                <div key={index}>{file}</div>
+              ))}
+              <button
+                className="bg-blue-500 hover:bg-blue-600 px-1"
+                onClick={gitAdd}
+              >
+                Add *
+              </button>
+              <button
+                className="bg-blue-500 hover:bg-blue-600 px-1"
+                onClick={makeCommit}
+              >
+                Commit
+              </button>
+            </div>
+          )}
+          <button
+            className="bg-blue-500 hover:bg-blue-600 px-1"
+            onClick={gitPush}
+          >
+            Push
+          </button>
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ importScripts(
   "https://unpkg.com/magic-portal"
 );
 
-let fs = new LightningFS("code-root", { wipe: false });
+let fs = new LightningFS("localRoot4", { wipe: false });
 const portal = new MagicPortal(self);
 //self.addEventListener("message", ({ data }) => console.log(data));
 
@@ -30,7 +30,6 @@ const portal = new MagicPortal(self);
       });
     },
     clone: async (args) => {
-      fs = new LightningFS("code-root", { wipe: false });
       return git.clone({
         ...args,
         fs,
