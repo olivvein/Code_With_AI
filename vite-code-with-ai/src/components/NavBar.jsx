@@ -12,6 +12,7 @@ const NavBar = ({
   templates,
   theNames,
   visiblesIds,
+  mode
 }) => {
   const [openMenu, setOpenMenu] = useState("");
   const [viewCount, setViewCount] = useState(0);
@@ -110,6 +111,7 @@ const NavBar = ({
     {
       name: "View",
       subMenu: [
+        { status: "active", name: mode==="normal"?"Go Viewer Mode":"Go Normal Mode", action: "togglePreview" },
         { status: "active", name: "Show Menu", action: "toggleMenu" },
         ...theNames.map((name, index) => {
           if (visiblesIds[index]) {

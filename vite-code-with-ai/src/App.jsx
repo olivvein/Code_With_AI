@@ -51,6 +51,7 @@ const App = () => {
   const [showLeftMenu, setShowLeftMenu] = useState(false);
 
   const [draggingOrder, setDraggingOrder] = useState(-1);
+  const [previewMode,setPreviewMode]=useState("normal");
 
   const MobileView = window.innerWidth < 800 ? true : false;
 
@@ -621,6 +622,7 @@ const App = () => {
       // Vous pouvez également afficher un message d'erreur à l'utilisateur ici
       //setBabelCode(`Error In JSX ${error}`);
       //editorBabelRef.current?.setValue(`Error In JSX ${error}`);
+
       return jsxCode;
     }
   }
@@ -893,6 +895,17 @@ const App = () => {
 
   const sendMenuAction = (action) => {
     console.log(action);
+
+    if (action == "togglePreview"){
+      console.log(previewMode);
+      if(previewMode=="normal"){
+        console.log("Going Viewer Mode");
+        setPreviewMode("viewer");
+      }else{
+        console.log("Going Normal Mode");
+        setPreviewMode("normal");
+      }
+    }
 
     if (action === "toggleMenu") {
       setShowLeftMenu(!showLeftMenu);
@@ -1442,6 +1455,7 @@ const App = () => {
           transpileJSX={transpileJSXForIframe}
           messageFinished={messageFinished}
           name="App Preview"
+          mode={previewMode}
         />
       ),
     },
@@ -1826,6 +1840,7 @@ const App = () => {
                 selectedPrompt={selectedPrompt}
                 prompts={prompts}
                 templates={templates}
+                mode={previewMode}
               />
             ),
           };
@@ -1842,6 +1857,7 @@ const App = () => {
     selectedPrompt,
     visiblesIds,
     theNames,
+    previewMode
   ]);
 
   //update divs ChatSettings
@@ -1929,6 +1945,7 @@ const App = () => {
                 transpileJSX={transpileJSXForIframe}
                 messageFinished={messageFinished}
                 name="App Preview"
+                mode={previewMode}
               />
             ),
           };
@@ -1936,7 +1953,7 @@ const App = () => {
         return div;
       })
     );
-  }, [jsCode, htmlCode, messageFinished]);
+  }, [jsCode, htmlCode, messageFinished,previewMode]);
 
   useEffect(() => {
     const newCode = transpileJSX(jsCode);
@@ -2024,6 +2041,7 @@ const App = () => {
               selectedPrompt={selectedPrompt}
               prompts={prompts}
               templates={templates}
+              mode={previewMode}
             />
           </div>
           <Space.ViewPort className="w-full dark:bg-dark bg-light">
@@ -2239,6 +2257,7 @@ const App = () => {
               selectedPrompt={selectedPrompt}
               prompts={prompts}
               templates={templates}
+              mode={previewMode}
             />
           </div>
 
