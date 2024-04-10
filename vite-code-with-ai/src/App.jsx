@@ -26,6 +26,7 @@ import TextToSpeak from "./components/TextToSpeak";
 import GitClient from "./components/GitClient";
 import FsExplorer from "./components/FsExplorer";
 import MenuBar from "./components/MenuBar";
+import FullView from "./components/FullView";
 
 import {
   userSettings,
@@ -1390,7 +1391,7 @@ const App = () => {
     },
     {
       id: 9,
-      content: <GitClient name="Git Client" />,
+      content: <FullView name="Git Client" />,
     },
     {
       id: 10,
