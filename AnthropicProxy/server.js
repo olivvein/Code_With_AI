@@ -29,7 +29,7 @@ app.post('/stream', async (req, res) => { // Changement de GET à POST
 });
 
 app.get('/health', (req, res) => { // Nouvelle route /health
-    res.send('ok');
+    res.send('anthropic-proxy');
 });
 
 const port = process.env.PORT || 3002;

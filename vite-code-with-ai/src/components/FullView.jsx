@@ -150,7 +150,7 @@ export default function Component() {
       },
       async fill(url) {
         let username = window.prompt("Username:");
-        let password = window.prompt("Password:");
+        let password = window.prompt("Personal Acces Token:");
         return { username, password };
       },
       async rejected({ url, auth }) {

@@ -47,6 +47,7 @@ const portal = new MagicPortal(self);
           return mainThread.fill(url);
         },
         onAuthFailure({ url, auth }) {
+          console.log(auth);
           return mainThread.rejected({ url, auth });
         },
       });

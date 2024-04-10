@@ -165,6 +165,7 @@ const FsExplorer = ({ name }) => {
   };
 
   const navigateTo = (path) => {
+    setFile({ name: "", content: "" })
     setDir(path);
   };
 
@@ -172,6 +173,7 @@ const FsExplorer = ({ name }) => {
     let parts = dir.split("/");
     parts.pop();
     let newPath = parts.join("/");
+    setFile({ name: "", content: "" })
     setDir(newPath);
   };
 
@@ -195,7 +197,7 @@ const FsExplorer = ({ name }) => {
   return (
     <div className="w-full h-full bg-gray-600  dark:text-light text-dark flex flex-col items-center justify-center">
       {loading && (
-        <div className="z-50 absolute top-0 left-0 w-full h-full bg-gray-800/30 backdrop-blur-xl flex items-center justify-between p-4 ">
+        <div className="z-50 absolute top-0 left-0 w-full h-full bg-gray-800/30 backdrop-blur flex items-center justify-between p-4 ">
           {loadingMessage}
         </div>
       )}
@@ -215,8 +217,8 @@ const FsExplorer = ({ name }) => {
                     onClick={() => navigateTo("/")}
                     className="flex items-center space-x-2"
                   >
-                    <ArrowNarrowRightIcon className="h-5 w-5 text-blue-400" />
-                    <span>Racine</span>
+                    
+                    <span className=" text-blue-400">/</span>
                   </button>
                   {dir !== "/" && (
                     <button
@@ -258,7 +260,7 @@ const FsExplorer = ({ name }) => {
             </Space.Fill>
           </Space.LeftResizable>
 
-          <Space.LeftResizable
+          <Space.Fill
             size={`30%`} //size of Editor
             touchHandleSize={20}
             trackSize={false}
@@ -284,36 +286,8 @@ const FsExplorer = ({ name }) => {
                   ))}
               </div>
             </Space.Fill>
-          </Space.LeftResizable>
-          <Space.Fill
-            size={`30%`} //size of Editor
-            touchHandleSize={20}
-            trackSize={false}
-            scrollable={false}
-          >
-            <Space.Fill trackSize={true} className="m-0 h-screen">
-              <div className="w-full h-full m-0">
-                {file.name != "" &&
-                  (file.name.indexOf(".md") != -1 ? (
-                    <MarkDownView
-                      content={file.content}
-                      className="dark:bg-dark bg-light dark:text-light text-dark h-full"
-                    />
-                  ) : (
-                    <div className="dark:bg-dark bg-light dark:text-light text-dark h-full filter-shadow shadow-xl drop-shadow-xl z-40">
-  
-                      <DiffEditor
-                        height="90vh"
-                        language="javascript"
-                        original={file.content}
-                        modified={file2.content}
-                        //onMount={handleEditorDidMount}
-                      />
-                    </div>
-                  ))}
-              </div>
-            </Space.Fill>
           </Space.Fill>
+          
         </Space.Fill>
       </Space.ViewPort>
     </div>
