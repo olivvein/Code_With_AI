@@ -10,6 +10,7 @@ import FS from "@isomorphic-git/lightning-fs";
 import MagicPortal from "magic-portal";
 import * as Diff from "diff";
 import { Editor, DiffEditor } from "@monaco-editor/react";
+import CommitList from "./git/CommitList";
 
 //import * as git from 'isomorphic-git';
 //import http from "isomorphic-git/http/web";
@@ -34,6 +35,7 @@ export default function Component({ name }) {
   const [commitOid, setCommitOid] = useState("");
   const [myCommitAuthor, setMyCommitAuthor] = useState("");
   const [diffCode, setDiffCode] = useState("");
+  const [allRepos, setAllRepos] = useState([]);
 
   const puter = window.puter;
 
@@ -48,25 +50,20 @@ export default function Component({ name }) {
       const helloFile = await puter.fs.write("hello.txt", "hello");
       console.log(helloFile.dirname);
       setDirName(helloFile.dirname);
+      const fetchedKeys = await puter.kv.list(true);
+      const repos = [];
+      for (const field of fetchedKeys) {
+        if (field.key.startsWith("repo-")) {
+          repos.push(field.value.replace("repo-", ""));
+        }
+      }
+
+      setAllRepos(repos);
     };
     updateUser();
   }, []);
 
-  const ManageContent = async (change) => {
-    console.log(change);
-    const oldContent = await fs.promises.readFile(
-      "/" + repo + "/" + change.path,
-      "utf8"
-    );
-    const patch = createDiffPatch(
-      change.path,
-      change.path,
-      oldContent,
-      change.content
-    );
-    change.content = patch;
-    setChanges((prev) => [...prev, change]);
-  };
+
 
   const gitAdd = async (path) => {
     await workerThread.setDir("/" + repo);
@@ -109,6 +106,8 @@ export default function Component({ name }) {
   };
 
   const [modifiedFiles, setModifiedFiles] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [currentBranch, setCurrentBranch] = useState("");
 
   const gitStatus = async () => {
     console.log("Status");
@@ -131,6 +130,13 @@ export default function Component({ name }) {
     //reverse the commits
     //commits = commits.reverse();
     setCommits(commits);
+
+    const branches = await workerThread.listBranches({remote: 'origin'});
+    setBranches(branches);
+    console.log(branches);
+    const curBranch = await workerThread.currentBranch({});
+    console.log(curBranch);
+    setCurrentBranch(curBranch);
   };
 
   const addToChanges = async (change) => {
@@ -143,8 +149,8 @@ export default function Component({ name }) {
     const patch = createDiffPatch(
       change.path,
       change.path,
-      oldContent,
-      change.content
+      change.content,
+      change.content3
     );
     change.oldContent = change.content;
     change.content = patch;
@@ -198,14 +204,14 @@ export default function Component({ name }) {
 
     const mainThread = {
       async print(message) {
-        console.log(message);
+        //console.log(message);
       },
       async progress(evt) {
         console.log(evt);
         setLoadingMessage(evt.phase + " " + evt.loaded + "/" + evt.total);
       },
       async sendChange(change) {
-        console.log(change);
+        //console.log(change);
         if (change.type !== "equal") {
           console.log("Adding", change.type);
           if (change.path.indexOf("-lock.yaml") == -1) {
@@ -277,6 +283,7 @@ export default function Component({ name }) {
   };
 
   const ViewDif = async (change) => {
+    console.log(change);
     //get commit.content and orifginal file
     const originalContent = await fs.promises.readFile(
       "/" + repo + "/" + change.path,
@@ -471,13 +478,11 @@ export default function Component({ name }) {
       })
       .then(async () => {
         //setDirFs("/" + repo);
+        await puter.kv.set("repo-" + repo, repo);
+        setAllRepos((prev) => [...prev, repo]);
+
         setLoadingMessage("Getting commits");
-        let commits = await workerThread.log({});
-        //reverse the commits
-        //commits = commits.reverse();
-        setCommits(commits);
-        //$("log").textContent += "LOG:\n" + commits  .map((c) => `  ${c.oid.slice(0, 7)}: ${c.commit.message}`) .join("\n") + "\n";
-        console.log(commits);
+        gitStatus();
         setLoading(false);
 
         // Gérer la résolution de la promesse ici
@@ -500,11 +505,29 @@ export default function Component({ name }) {
     await workerThread.checkout({ ref: oid });
   };
 
+  const checkoutAction = async (commit) => {
+    setDiffCode({});
+    setCommitMessage(commit.commit.message);
+    setMyCommitAuthor(commit.commit.author.name);
+    setCommitOid(commit.oid);
+    //getMasterDif(index);
+    checkout(commit.oid);
+  };
+
+  const compareAction = async (commit, index) => {
+    setDiffCode({});
+    setCommitMessage(commit.commit.message);
+    setMyCommitAuthor(commit.commit.author.name);
+    setCommitOid(commit.oid);
+    getMasterDif(index);
+  };
+
   const getMasterDif = (index) => {
     const getDiffs = async () => {
       try {
         setChanges([]);
         if (commits[index] && commits[index + 1]) {
+          console.log(index);
           console.log(commits[index].oid, commits[index + 1].oid);
           await workerThread.getFileStateChanges(
             commits[index].oid,
@@ -527,15 +550,22 @@ export default function Component({ name }) {
           {loadingMessage}
         </span>
       )}
-      <div className="flex flex-col w-1/4 border-r border-gray-600">
-        <div className="p-4">
+      <div className="flex flex-col w-1/3 border-r border-gray-600">
+        <div className="p-0">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold">Current Repository</h1>
-            <ChevronDownIcon className="w-5 h-5" />
+            <select
+              value={repo}
+              onChange={(event) => setRepo(event.target.value)}
+              className="text-lg my-2 py-2 w-full font-semibold text-light bg-dark"
+            >
+              {allRepos.map((repot, index) => (
+                <option key={index}>{repot}</option>
+              ))}
+            </select>
           </div>
 
-          <h2 className="mt-2 mb-4 text-sm font-medium">{repo}</h2>
-          <div className="flex space-x-2 justify-between">
+          {/* <h2 className="mt-2 mb-4 text-sm font-medium">{repo}</h2> */}
+          <div className="flex space-x-2 justify-between p-4">
             <form
               className="flex w-full space-x-2 justify-between"
               onSubmit={(e) => {
@@ -584,50 +614,30 @@ export default function Component({ name }) {
           <GitBranchIcon className="w-5 h-5" />
           <h2>Select Commit to Compare...</h2>
         </div>
-        <div className="flex-grow overflow-auto">
+        <div className="p-4 flex-grow overflow-auto">
           <div className="flex flex-col p-4 space-y-2">
-            <div className="flex flex-col space-y-1">
-              {commits.map((commit, index) => (
-                <div
-                  key={commit.oid}
-                  className="flex items-center space-x-2 border-b border-black"
-                >
-                  <CodeIcon className="w-5 h-5" />
-                  <span>{commit.commit.message.split("\n")[0]}</span>
-                  <span>{commit.oid.slice(0, 7)}</span>
-                  <button
-                    onClick={() => {
-                      setDiffCode({});
-                      setCommitMessage(commit.commit.message);
-                      setMyCommitAuthor(commit.commit.author.name);
-                      setCommitOid(commit.oid);
-                      //getMasterDif(index);
-                      checkout(commit.oid);
-                    }}
-                  >
-                    CheckOut
-                  </button>
-                  <button
-                    onClick={() => {
-                      setDiffCode({});
-                      setCommitMessage(commit.commit.message);
-                      setMyCommitAuthor(commit.commit.author.name);
-                      setCommitOid(commit.oid);
-                      getMasterDif(index);
-                    }}
-                  >
-                    Compare
-                  </button>
-                </div>
-              ))}
-            </div>
+            <CommitList commits={commits} checkout={checkoutAction} compare={compareAction}/>
           </div>
         </div>
       </div>
-      <div className="flex flex-col w-3/4">
+      <div className="flex flex-col w-2/3">
         <div className="flex items-center justify-between p-4 border-b border-gray-600">
           <div className="flex items-center space-x-2">
             <GitCommitIcon className="w-5 h-5" />
+            <select
+              value={currentBranch}
+              onChange={async (event) => {
+                setCurrentBranch(event.target.value);
+                await workerThread.checkout({ ref: event.target.value });
+                gitStatus();
+              }}
+              className="text-lg my-2 py-2 w-full font-semibold text-light bg-dark"
+            >
+              {branches.map((branch, index) => (
+                <option key={index}>{branch}</option>
+              ))}
+            </select>
+            
             <span>{commitMessage.split("\n")[0]}</span>
           </div>
           <div className="flex items-center space-x-2">
@@ -706,9 +716,9 @@ export default function Component({ name }) {
                             original={
                               change.type == "create"
                                 ? ""
-                                : diffCode.originalContent
+                                : diffCode.oldContent
                             }
-                            modified={diffCode.oldContent}
+                            modified={diffCode.content3}
                           />
                         </div>
                       ) : (
@@ -717,9 +727,9 @@ export default function Component({ name }) {
                             {change.content.split("\n").map((line, index) => {
                               let classs;
                               if (line.startsWith("+")) {
-                                classs = "bg-red-800 text-gray-200";
-                              } else if (line.startsWith("-")) {
                                 classs = "bg-green-800 text-gray-200";
+                              } else if (line.startsWith("-")) {
+                                classs = "bg-red-800 text-gray-200";
                               } else {
                                 classs = "bg-black text-gray-200";
                               }

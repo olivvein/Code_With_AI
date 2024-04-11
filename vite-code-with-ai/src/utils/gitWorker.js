@@ -97,9 +97,11 @@ const portal = new MagicPortal(self);
             type="create";
           }
           let content=await B.content();
+          let content2="";
           if (Aoid !== Boid) {
             type = "modify";
             content = await B.content();
+            content2=await A.content();
           }
           if (Aoid === undefined) {
             type = "add";
@@ -117,18 +119,26 @@ const portal = new MagicPortal(self);
 
           try {
             content = new TextDecoder().decode(content);
+            try{
+              console.log(content2);
+              content2 = new TextDecoder().decode(content2);
+            }catch(e){
+              console.log(e);
+            }
           }
           catch (e) {
             console.log(e);
           }
           if (filepath.indexOf('pnpm-lock.yaml') !== -1) {
             content="";
+            content2="";
           }
 
           mainThread.sendChange({
             path: `/${filepath}`,
             type: type,
             content: content,
+            content3:content2,
           });
         },
       });
@@ -139,5 +149,6 @@ const portal = new MagicPortal(self);
     listBranches: (args) => git.listBranches({ ...args, fs, dir }),
     listFiles: (args) => git.listFiles({ ...args, fs, dir }),
     log: (args) => git.log({ ...args, fs, dir }),
+    currentBranch: (args) => git.currentBranch({ ...args, fs, dir }),
   });
 })();
