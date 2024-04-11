@@ -120,8 +120,10 @@ const portal = new MagicPortal(self);
           try {
             content = new TextDecoder().decode(content);
             try{
-              console.log(content2);
-              content2 = new TextDecoder().decode(content2);
+              if (type === "modify"){
+                content2 = new TextDecoder().decode(content2);
+              }
+             
             }catch(e){
               console.log(e);
             }
@@ -150,5 +152,49 @@ const portal = new MagicPortal(self);
     listFiles: (args) => git.listFiles({ ...args, fs, dir }),
     log: (args) => git.log({ ...args, fs, dir }),
     currentBranch: (args) => git.currentBranch({ ...args, fs, dir }),
+    pull: async (args) => {
+      return git.pull({
+        ...args,
+        fs,
+        http: GitHttp,
+        dir,
+        onProgress(evt) {
+          mainThread.progress(evt);
+        },
+        onMessage(msg) {
+          mainThread.print(msg);
+        },
+        onAuth(url) {
+          console.log(url);
+          return mainThread.fill(url);
+        },
+        onAuthFailure({ url, auth }) {
+          console.log(auth);
+          return mainThread.rejected({ url, auth });
+        },
+      });
+    },
+    fetch: async (args) => {
+      return git.fetch({
+        ...args,
+        fs,
+        http: GitHttp,
+        dir,
+        onProgress(evt) {
+          mainThread.progress(evt);
+        },
+        onMessage(msg) {
+          mainThread.getFetch(msg);
+        },
+        onAuth(url) {
+          console.log(url);
+          return mainThread.fill(url);
+        },
+        onAuthFailure({ url, auth }) {
+          console.log(auth);
+          return mainThread.rejected({ url, auth });
+        },
+      });
+    },
   });
 })();

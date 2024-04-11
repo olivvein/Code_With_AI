@@ -36,6 +36,7 @@ export default function Component({ name }) {
   const [myCommitAuthor, setMyCommitAuthor] = useState("");
   const [diffCode, setDiffCode] = useState("");
   const [allRepos, setAllRepos] = useState([]);
+  const [fetchMessage, setFetchMessage] = useState("");
 
   const puter = window.puter;
 
@@ -58,12 +59,16 @@ export default function Component({ name }) {
         }
       }
 
+      if (repos.length > 0) {
+        setRepo(repos[0]);
+      }
+
+      
+
       setAllRepos(repos);
     };
     updateUser();
   }, []);
-
-
 
   const gitAdd = async (path) => {
     await workerThread.setDir("/" + repo);
@@ -109,8 +114,39 @@ export default function Component({ name }) {
   const [branches, setBranches] = useState([]);
   const [currentBranch, setCurrentBranch] = useState("");
 
+  const gitPull = async () => {
+    try {
+      await workerThread.pull({
+        corsProxy: "https://cors.isomorphic-git.org",
+        url: "https://github.com/" + repo,
+        depth: 20,
+        author: { name: "olivvein", email: "olivier.veinand@gmail.com" },
+      });
+      gitStatus();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const gitFetch = async () => {
+    console.log("Fetch");
+    setFetchMessage("Fetching...");
+    try {
+      await workerThread.fetch({
+        corsProxy: "https://cors.isomorphic-git.org",
+        url: "https://github.com/" + repo,
+        depth: 20,
+      });
+      gitStatus();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const gitStatus = async () => {
     console.log("Status");
+    console.log("Reading dir : ", repo);
+    //setFetchMessage("");
     await workerThread.setDir("/" + repo);
     let filesList = await workerThread.listFiles({});
     const modified = [];
@@ -130,8 +166,9 @@ export default function Component({ name }) {
     //reverse the commits
     //commits = commits.reverse();
     setCommits(commits);
+    console.log(commits);
 
-    const branches = await workerThread.listBranches({remote: 'origin'});
+    const branches = await workerThread.listBranches({ remote: "origin" });
     setBranches(branches);
     console.log(branches);
     const curBranch = await workerThread.currentBranch({});
@@ -204,7 +241,11 @@ export default function Component({ name }) {
 
     const mainThread = {
       async print(message) {
-        //console.log(message);
+        console.log(message);
+      },
+      async getFetch(message) {
+        console.log(message);
+        setFetchMessage(message);
       },
       async progress(evt) {
         console.log(evt);
@@ -273,6 +314,7 @@ export default function Component({ name }) {
     const getWorkerThread = async () => {
       const wt = await portal.get("workerThread");
       setWorkerThread(wt);
+      gitStatus();
     };
     getWorkerThread();
   }, [portal]);
@@ -614,14 +656,18 @@ export default function Component({ name }) {
           <GitBranchIcon className="w-5 h-5" />
           <h2>Select Commit to Compare...</h2>
         </div>
-        <div className="p-4 flex-grow overflow-auto">
-          <div className="flex flex-col p-4 space-y-2">
-            <CommitList commits={commits} checkout={checkoutAction} compare={compareAction}/>
+        <div className="py-4 flex-grow overflow-auto">
+          <div className="flex flex-col py-4 space-y-2">
+            <CommitList
+              commits={commits}
+              checkout={checkoutAction}
+              compare={compareAction}
+            />
           </div>
         </div>
       </div>
       <div className="flex flex-col w-2/3">
-        <div className="flex items-center justify-between p-4 border-b border-gray-600">
+        <div className="flex items-center justify-between p-4 border-b border-gray-600 text-sm">
           <div className="flex items-center space-x-2">
             <GitCommitIcon className="w-5 h-5" />
             <select
@@ -637,11 +683,23 @@ export default function Component({ name }) {
                 <option key={index}>{branch}</option>
               ))}
             </select>
-            
-            <span>{commitMessage.split("\n")[0]}</span>
+            <button
+              className="text-lg my-1 py-2  px-8 min-w-fit font-semibold text-light bg-dark flex flex-col justify-between"
+              onClick={gitFetch}
+            >
+              <span className="text-xs text-bold">Fetch</span>{" "}
+              <span className="text-xs">{fetchMessage}</span>
+            </button>
+            <button
+              className="text-lg my-1 py-2  px-8 min-w-fit font-semibold text-light bg-dark"
+              onClick={gitPull}
+            >
+              Pull
+            </button>
           </div>
+
           <div className="flex items-center space-x-2">
-            <span className="text-sm">On {commitOid}</span>
+            <span className="text-sm">On {commitOid.substring(0, 10)}</span>
             <ChevronDownIcon className="w-5 h-5" />
           </div>
           <div className="flex items-center space-x-2">
@@ -661,7 +719,9 @@ export default function Component({ name }) {
                 </span>
                 <span>{myCommitAuthor}</span>
 
-                <span>{commits.length}</span>
+                <span className="flex flex-row min-w-fit justify-start space-x-2">
+                  {commitMessage.split("\n")[0].substring(0, 50)}
+                </span>
               </div>
               <h4 className="text-sm font-semibold">
                 {changes.length} changed files
@@ -714,9 +774,7 @@ export default function Component({ name }) {
                             height="400px"
                             language={diffCode.language}
                             original={
-                              change.type == "create"
-                                ? ""
-                                : diffCode.oldContent
+                              change.type == "create" ? "" : diffCode.oldContent
                             }
                             modified={diffCode.content3}
                           />
