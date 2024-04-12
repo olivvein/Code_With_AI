@@ -17,8 +17,21 @@ Code With AI was Build in Code With Ai, quite recursive....
 available at : https://puter.com/app/code-with-ai
 
 
+## Run on your machine:
+
+```
+cd vite-code-with-ai
+pnpm install
+pnpm run dev
+
+//or
+pnpm run build
+//upload dist directory to puter dev center 
+```
+
+
 ## Building
-to build the app, just past the content of index.jsx in Code with AI
+to build an app, just past the content of index.jsx in Code with AI
 
 
 ## Fonctionalities:
