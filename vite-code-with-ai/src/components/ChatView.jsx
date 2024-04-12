@@ -206,8 +206,7 @@ const ChatView = ({
         <textarea
           type="text"
           rows={Math.max(inputMessage.split("\n").length, 2)}
-          placeholder={`Make a weather app for Ales, France
-Make a btc graph , What are the news?
+          placeholder={`Make a weather app for Ales, France.\nMake a graph for BTC, what is the news?
           `}
           className="block p-2.5 outline-none ml-2 mb-2 h-3/4  w-full p-2 w-5/6 m-auto text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           onKeyPress={(event) => {
