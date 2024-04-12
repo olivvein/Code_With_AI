@@ -170,7 +170,7 @@ const ChatView = ({
               <MarkdownGet setGithubReadme={setGithubReadmeVal} />
               <div className="my-2">
                 <button
-                  className="w-1/2 dark:bg-dark bg-light dark:text-light text-dark rounded p-2 border dark:border-light border-dark"
+                  className="w-1/2 p-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
                   onClick={setCodeToChat}
                 >
                   Add Code to Chat
@@ -211,9 +211,9 @@ const ChatView = ({
           type="text"
           rows={Math.max(inputMessage.split("\n").length, 2)}
           placeholder={`Make a weather app for Ales, France
-          Make a btc graph , What are the news?
+Make a btc graph , What are the news?
           `}
-          className="bg-light text-dark ml-2 mb-2 h-3/4 w-full m-auto border dark:border-light border-dark rounded p-2 w-5/6"
+          className="block p-2.5 outline-none ml-2 mb-2 h-3/4  w-full p-2 w-5/6 m-auto text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           onKeyPress={(event) => {
             if (event.key === "Enter" && !event.shiftKey) {
               event.preventDefault();
@@ -225,7 +225,7 @@ const ChatView = ({
         />
         <button
           onClick={resetChatMessages}
-          className="bottom-0 dark:bg-dark bg-light border dark:border-light border-dark hover:bg-gray-900 dark:text-light text-dark rounded mx-2 w-1/4"
+          className="bottom-0 mx-2 w-1/4 focus:outline-none dark:hover:bg-red-700 dark:focus:ring-red-900 py-2.5 me-2 mb-2 dark:bg-red-600 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5"
         >
           Clear Chat
         </button>
