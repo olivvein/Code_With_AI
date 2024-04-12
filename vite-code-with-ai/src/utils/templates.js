@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 `;
 
-const FileExplorerJs=`//appTitle: Apps File Explorer
+const FileExplorerJs = `//appTitle: Apps File Explorer
 
 import React, { useState, useEffect } from "https://esm.sh/react";
 import ReactDOM from "https://esm.sh/react-dom";
@@ -415,7 +415,7 @@ const FileExplorer = () => {
 ReactDOM.render(<FileExplorer />, document.getElementById("app"));
 `;
 
-const FileExplorerHtml=`<div id="app" class="h-screen bg-gray-900 text-white"></div>
+const FileExplorerHtml = `<div id="app" class="h-screen bg-gray-900 text-white"></div>
 `;
 
 export const templates = [
@@ -452,6 +452,6 @@ export const templates = [
     js: FileExplorerJs,
     html: FileExplorerHtml,
     description: "A File Manager to see App Directory",
-    framework: "react"
+    framework: "react",
   },
 ];

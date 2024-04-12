@@ -1,8 +1,8 @@
 //appTitle: Text-to-Speech App
 import React, { useState, useEffect, useRef } from "react";
 
-let puter=window.puter;
-const TextToSpeak = ({name}) => {
+let puter = window.puter;
+const TextToSpeak = ({ name }) => {
   const [text, setText] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
   const audioRef = useRef(null);
@@ -15,29 +15,29 @@ const TextToSpeak = ({name}) => {
 
   useEffect(() => {
     const getOpenaiApiKey = async () => {
-    const openai_api_key = await puter.kv.get("openai_api_key");
+      const openai_api_key = await puter.kv.get("openai_api_key");
 
       if (openai_api_key) {
         setApiKey(openai_api_key);
       }
-    }
+    };
     getOpenaiApiKey();
-    }, []);
+  }, []);
 
   const handleGenerateAudio = async () => {
     try {
-        if (!apiKey) {
-          alert("Please set your OpenAI API key");
-          return;
-        }
-      const response = await fetch('https://api.openai.com/v1/audio/speech', {
-        method: 'POST',
+      if (!apiKey) {
+        alert("Please set your OpenAI API key");
+        return;
+      }
+      const response = await fetch("https://api.openai.com/v1/audio/speech", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: 'tts-1',
+          model: "tts-1",
           input: text,
           voice: voice,
         }),
@@ -48,10 +48,10 @@ const TextToSpeak = ({name}) => {
         const url = URL.createObjectURL(blob);
         setAudioUrl(url);
       } else {
-        console.error('Error:', response.statusText);
+        console.error("Error:", response.statusText);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
@@ -64,19 +64,19 @@ const TextToSpeak = ({name}) => {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
       <h1 className="text-2xl mb-4">Text-to-Speech App</h1>
-        <select
-            className="w-64 p-2 mb-4 border border-gray-300 rounded"
-            value={voice}
-            onChange={(event) => setVoice(event.target.value)}
-        >
-            <option value="alloy">Alloy</option>
-            <option value="echo">Echo</option>
-            <option value="fable">Fable</option>
-            <option value="onyx">Onyx</option>
-            <option value="nova">Nova</option>
-            <option value="shimmer">Shimmer</option>
-        </select>
-            
+      <select
+        className="w-64 p-2 mb-4 border border-gray-300 rounded"
+        value={voice}
+        onChange={(event) => setVoice(event.target.value)}
+      >
+        <option value="alloy">Alloy</option>
+        <option value="echo">Echo</option>
+        <option value="fable">Fable</option>
+        <option value="onyx">Onyx</option>
+        <option value="nova">Nova</option>
+        <option value="shimmer">Shimmer</option>
+      </select>
+
       <textarea
         className="w-64 h-32 p-2 mb-4 border border-gray-300 rounded"
         value={text}
@@ -95,4 +95,3 @@ const TextToSpeak = ({name}) => {
 };
 
 export default TextToSpeak;
-

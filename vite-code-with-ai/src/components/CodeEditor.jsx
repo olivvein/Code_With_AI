@@ -62,7 +62,7 @@ const CodeEditor = ({
         )}
 
         <select
-          onChange={(e)=>setFileName(e.target.value)}
+          onChange={(e) => setFileName(e.target.value)}
           value={fileName}
           className="mx-4 py-2 px-3 bg-gray-700 dark:text-light text-dark rounded outline-none"
         >

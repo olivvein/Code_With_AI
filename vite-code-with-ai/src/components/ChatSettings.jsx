@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 
-
-
-
 const ChatSettings = ({
   chatProvider,
   setChatProvider,

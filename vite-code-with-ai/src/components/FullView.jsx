@@ -63,8 +63,6 @@ export default function Component({ name }) {
         setRepo(repos[0]);
       }
 
-      
-
       setAllRepos(repos);
     };
     updateUser();
@@ -181,13 +179,13 @@ export default function Component({ name }) {
     console.log("Reading file", "/" + repo + "/" + change.path);
     const oldContent = await fs.promises.readFile(
       "/" + repo + "/" + change.path,
-      "utf8"
+      "utf8",
     );
     const patch = createDiffPatch(
       change.path,
       change.path,
       change.content,
-      change.content3
+      change.content3,
     );
     change.oldContent = change.content;
     change.content = patch;
@@ -223,7 +221,7 @@ export default function Component({ name }) {
       newName,
       oldContent,
       newContent,
-      { options: { context: 8 } }
+      { options: { context: 8 } },
     );
     //console.log(simplepatch));
     return patch;
@@ -232,7 +230,7 @@ export default function Component({ name }) {
   useEffect(() => {
     // Create a new web worker
     const myWorker = new Worker(
-      new URL("../utils/gitWorker.js", import.meta.url)
+      new URL("../utils/gitWorker.js", import.meta.url),
     );
 
     const pp = new MagicPortal(myWorker);
@@ -329,7 +327,7 @@ export default function Component({ name }) {
     //get commit.content and orifginal file
     const originalContent = await fs.promises.readFile(
       "/" + repo + "/" + change.path,
-      "utf8"
+      "utf8",
     );
 
     const diffChange = { ...change, originalContent };
@@ -364,7 +362,7 @@ export default function Component({ name }) {
 
         const data = await fs.promises.readFile(
           "/" + theDirPath + "/" + path,
-          "utf8"
+          "utf8",
         );
         const blob = new Blob([data], { type: "text/plain" });
         const theNewFile = new File([blob], path);
@@ -379,7 +377,7 @@ export default function Component({ name }) {
       const allUploaded = await puter.fs.upload(
         theFilesAsFile,
         theDir.dirname,
-        { progress: progressView }
+        { progress: progressView },
       );
 
       if (!Array.isArray(allUploaded)) {
@@ -573,7 +571,7 @@ export default function Component({ name }) {
           console.log(commits[index].oid, commits[index + 1].oid);
           await workerThread.getFileStateChanges(
             commits[index].oid,
-            commits[index + 1].oid
+            commits[index + 1].oid,
           );
         } else {
           console.log(commits[0].oid);

@@ -11,7 +11,7 @@ const SaveAsForm = ({ appName, setAppNameVal, saveAs, cancelSaveAs }) => {
           Save your project in a puter folder
         </p>
         <form
-         className="w-full justify-between flex flex-col items-center"
+          className="w-full justify-between flex flex-col items-center"
           onSubmit={(e) => {
             saveAs(e);
           }}

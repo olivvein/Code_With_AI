@@ -1,5 +1,4 @@
-import moment from 'moment';
-
+import moment from "moment";
 
 const CommitList = ({ commits, checkout, compare }) => {
   return (
@@ -8,13 +7,15 @@ const CommitList = ({ commits, checkout, compare }) => {
         <div
           key={commit.oid}
           className={`flex w-full flex-row justify-between items-center space-x-2 border-b border-black p-1`}
-          
         >
-          <div className="flex flex-col cursor-pointer hover:bg-gray-700 w-10/12 p-1" onClick={() => {
-            compare(commit, index);
-          }}>
+          <div
+            className="flex flex-col cursor-pointer hover:bg-gray-700 w-10/12 p-1"
+            onClick={() => {
+              compare(commit, index);
+            }}
+          >
             <span className="text-bold my-1">
-              {commit.commit.message.split("\n")[0].substring(0,60)}
+              {commit.commit.message.split("\n")[0].substring(0, 60)}
             </span>
             <span className="flex flex-row">
               <img
@@ -30,7 +31,7 @@ const CommitList = ({ commits, checkout, compare }) => {
 
           <div className="flex flex-col w-2/12">
             <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-1 rounded text-xs"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-1 rounded text-xs"
               onClick={() => {
                 checkout(commit.oid);
               }}
