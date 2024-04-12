@@ -1263,8 +1263,8 @@ const App = () => {
   const editorJsRef = useRef(null);
   const editorHtmlRef = useRef(null);
   const editorBabelRef = useRef(null);
-  const [htmlCode, setHtmlCode] = useState(templates[0].html);
-  const [jsCode, setJsCode] = useState(templates[0].js);
+  const [htmlCode, setHtmlCode] = useState(templates[2].html);
+  const [jsCode, setJsCode] = useState(templates[2].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
   const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -1628,8 +1628,10 @@ const App = () => {
   //get openai api key
   useEffect(() => {
     const updateUser = async () => {
+      console.log("update user");
       const isSignedIn = puter.auth.isSignedIn();
       if (!isSignedIn) {
+        console.log("user is not signed in...");
         await puter.auth.signIn();
       }
       const user = await puter.auth.getUser();

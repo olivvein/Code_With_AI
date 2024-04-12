@@ -26,7 +26,10 @@ const NavBar = ({
       //console.log("The Stats:", theApp.stats.open_count);
     };
     if (username !== "") {
-      getCount();
+      const isSignedIn = puter.auth.isSignedIn();
+      if (!isSignedIn) {
+        getCount();
+      }
     }
     //every minute
     const interval = setInterval(() => {
@@ -377,12 +380,12 @@ NavBar.propTypes = {
   prompts: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
-    }),
+    })
   ),
   templates: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
-    }),
+    })
   ),
 };
 

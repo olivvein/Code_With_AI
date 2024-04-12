@@ -56,7 +56,8 @@ export default function Component({ name }) {
     const updateUser = async () => {
       const isSignedIn = puter.auth.isSignedIn();
       if (!isSignedIn) {
-        await puter.auth.signIn();
+        //await puter.auth.signIn();
+        return;
       }
       const user = await puter.auth.getUser();
       console.log(user);
