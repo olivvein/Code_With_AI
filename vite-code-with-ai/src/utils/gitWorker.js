@@ -5,7 +5,7 @@ importScripts(
   "https://unpkg.com/@isomorphic-git/lightning-fs",
   "https://unpkg.com/isomorphic-git@beta",
   "https://unpkg.com/isomorphic-git@beta/http/web/index.umd.js",
-  "https://unpkg.com/magic-portal",
+  "https://unpkg.com/magic-portal"
 );
 
 let fs = new LightningFS("localRoot4", { wipe: false });
@@ -93,15 +93,15 @@ const portal = new MagicPortal(self);
 
           // determine modification type
           let type = "equal";
-          if (commitHash1 == undefined) {
-            type = "create";
+          if (commitHash1==undefined){
+            type="create";
           }
-          let content = await B.content();
-          let content2 = "";
+          let content=await B.content();
+          let content2="";
           if (Aoid !== Boid) {
             type = "modify";
             content = await B.content();
-            content2 = await A.content();
+            content2=await A.content();
           }
           if (Aoid === undefined) {
             type = "add";
@@ -110,7 +110,7 @@ const portal = new MagicPortal(self);
           if (Boid === undefined) {
             type = "remove";
           }
-
+          
           if (Aoid === undefined && Boid === undefined) {
             console.log("Something weird happened:");
             console.log(A);
@@ -119,26 +119,28 @@ const portal = new MagicPortal(self);
 
           try {
             content = new TextDecoder().decode(content);
-            try {
-              if (type === "modify") {
+            try{
+              if (type === "modify"){
                 content2 = new TextDecoder().decode(content2);
               }
-            } catch (e) {
+             
+            }catch(e){
               console.log(e);
             }
-          } catch (e) {
+          }
+          catch (e) {
             console.log(e);
           }
-          if (filepath.indexOf("pnpm-lock.yaml") !== -1) {
-            content = "";
-            content2 = "";
+          if (filepath.indexOf('pnpm-lock.yaml') !== -1) {
+            content="";
+            content2="";
           }
 
           mainThread.sendChange({
             path: `/${filepath}`,
             type: type,
             content: content,
-            content3: content2,
+            content3:content2,
           });
         },
       });

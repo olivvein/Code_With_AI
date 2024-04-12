@@ -9,7 +9,7 @@ const CommitList = ({ commits, checkout, compare }) => {
           className={`flex w-full flex-row justify-between items-center space-x-2 border-b border-black p-1`}
         >
           <div
-            className="flex flex-col cursor-pointer hover:bg-gray-700 w-10/12 p-1"
+            className="flex flex-col cursor-pointer hover:bg-gray-700 w-full p-1"
             onClick={() => {
               compare(commit, index);
             }}
@@ -26,19 +26,20 @@ const CommitList = ({ commits, checkout, compare }) => {
               <span className="ml-2">
                 {moment(commit.commit.author.timestamp * 1000).fromNow()}
               </span>{" "}
+              <span className="ml-2">{commit.oid.substring(0, 7)}</span>
             </span>
           </div>
 
-          <div className="flex flex-col w-2/12">
+          {/* <div className="flex flex-col w-2/12">
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-1 rounded text-xs"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-1 rounded text-xs"
               onClick={() => {
-                checkout(commit.oid);
+                checkout(commit);
               }}
             >
               CheckOut
             </button>
-          </div>
+          </div> */}
         </div>
       ))}
     </div>
