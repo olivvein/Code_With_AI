@@ -14,7 +14,7 @@ const GithubGet = ({ setGithubReadme }) => {
           headers: {
             Accept: "application/vnd.github.VERSION.raw",
           },
-        }
+        },
       );
       setGithubReadme(response.data, repo);
       console.log(response.data);
@@ -31,7 +31,7 @@ const GithubGet = ({ setGithubReadme }) => {
           headers: {
             Accept: "application/vnd.github.VERSION.raw",
           },
-        }
+        },
       );
       if (response.data.items.length > 0) {
         setRepo(response.data.items[0].full_name);
@@ -50,11 +50,11 @@ const GithubGet = ({ setGithubReadme }) => {
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-1/2 dark:bg-light bg-dark dark:text-dark text-light border dark:border-dark border-light rounded p-2 "
+        className="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         placeholder="Search for repositories"
       />
       <button
-        className="w-1/2 p-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
+        className="w-1/1 ml-2 p-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
         onClick={searchRepo}
       >
         Search
@@ -65,7 +65,7 @@ const GithubGet = ({ setGithubReadme }) => {
           value={repo}
           onChange={(e) => setRepo(e.target.value)}
           placeholder="user/repo"
-          className="w-1/2 dark:bg-light bg-dark dark:text-dark text-light border dark:border-dark border-light rounded p-2 mt-2"
+          className="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-4"
         />
       ) : (
         <select
@@ -73,13 +73,15 @@ const GithubGet = ({ setGithubReadme }) => {
           onChange={(e) => setRepo(e.target.value)}
           className="w-1/2 dark:bg-light bg-dark dark:text-dark text-light border dark:border-dark border-light rounded p-2 "
         >
-          {repos.map((repo,index) => (
-            <option key={index} value={repo.full_name}>{repo.full_name}</option>
+          {repos.map((repo, index) => (
+            <option key={index} value={repo.full_name}>
+              {repo.full_name}
+            </option>
           ))}
         </select>
       )}
       <button
-        className="w-1/2 p-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
+        className="w-1/1 ml-2 p-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
         onClick={getReadme}
       >
         Get Readme

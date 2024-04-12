@@ -56,7 +56,7 @@ const TheEditorJs2 = ({ jsCode, fileName, handleEditorChange }) => {
 };
 
 const FsExplorer = ({ name, setJsCode }) => {
-  const [fs, setFs] = useState(new FS("localRoot4",{ wipe: false }));
+  const [fs, setFs] = useState(new FS("localRoot4", { wipe: false }));
   const [dir, setDir] = useState("/");
   const [files, setFiles] = useState([]);
   const [file, setFile] = useState({ name: "", content: "" });
@@ -64,7 +64,7 @@ const FsExplorer = ({ name, setJsCode }) => {
 
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Chargement...");
-  const [compatible,setCompatible]=useState(false);
+  const [compatible, setCompatible] = useState(false);
 
   useEffect(() => {
     readDir(dir);
@@ -97,7 +97,7 @@ const FsExplorer = ({ name, setJsCode }) => {
       "file1.txt",
       "file1.txt",
       file,
-      file2
+      file2,
     );
     console.log(patch);
     const stringPatch = Diff.parsePatch(patch);
@@ -118,10 +118,10 @@ const FsExplorer = ({ name, setJsCode }) => {
 
     //make file content a string of a Uint8Array
     const content = new TextEncoder().encode(file.content);
-    
+
     console.log(file.name);
 
-    fs.writeFile(file.name.replace("//","/"), content, (error) => {
+    fs.writeFile(file.name.replace("//", "/"), content, (error) => {
       if (error) {
         console.error(error);
         setLoading(false);
@@ -212,7 +212,7 @@ const FsExplorer = ({ name, setJsCode }) => {
         if (jsCode !== "") {
           const lines = jsCode.split("\n");
           const renderLine = lines.find((line) =>
-            line.includes("ReactDOM.render")
+            line.includes("ReactDOM.render"),
           );
           if (renderLine) {
             lines.splice(lines.indexOf(renderLine), 1);
@@ -226,16 +226,15 @@ const FsExplorer = ({ name, setJsCode }) => {
 
           const llines = jsCode.split("\n");
           const importLines = llines.filter((line) =>
-            line.startsWith("import ")
+            line.startsWith("import "),
           );
           const otherLines = llines.filter(
-            (line) => !line.startsWith("import ")
+            (line) => !line.startsWith("import "),
           );
           jsCode = importLines.join("\n") + "\n" + otherLines.join("\n");
-          if (compatible){
+          if (compatible) {
             setJsCode(jsCode);
           }
-          
         }
 
         setFiles(filesInfo);
@@ -294,7 +293,13 @@ const FsExplorer = ({ name, setJsCode }) => {
               <div className="flex w-full min-w-fit h-full flex-col bg-gray-600 ">
                 <span className="text-2xl p-4">{dir.replace("//", "/")}</span>
                 <div className="flex items-center p-4">
-                  <button onClick={()=>{setCompatible(!compatible)}}>For Puter {compatible?"yes":"no"}</button>
+                  <button
+                    onClick={() => {
+                      setCompatible(!compatible);
+                    }}
+                  >
+                    For Puter {compatible ? "yes" : "no"}
+                  </button>
                   <button
                     onClick={() => navigateTo("/")}
                     className="flex items-center space-x-2"

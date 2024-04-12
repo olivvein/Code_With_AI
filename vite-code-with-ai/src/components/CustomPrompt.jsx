@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MarkDownView from "./MarkDownView";
 
-let puter=window.puter;
+let puter = window.puter;
 
 const CustomPrompt = ({ setShowCustomPrompt, updatePrompts }) => {
   const [userPrompts, setUserPrompts] = useState([]); // userPrompts is an array of objects of type {name: string, content: string, active: boolean}
@@ -23,10 +23,9 @@ const CustomPrompt = ({ setShowCustomPrompt, updatePrompts }) => {
 
   useEffect(() => {
     console.log("Fetching user prompts...");
-    if( puter.auth.isSignedIn()){
+    if (puter.auth.isSignedIn()) {
       getPrompts();
     }
-    
   }, []);
 
   const setNameVal = (e) => {

@@ -13,14 +13,14 @@ import MagicPortal from "magic-portal";
 const GitClient = ({ name }) => {
   const [cloneStatus, setCloneStatus] = useState("");
   const [files, setFiles] = useState([]);
-  const fs = new FS("localRoot4",{ wipe: false });
+  const fs = new FS("localRoot4", { wipe: false });
   const [worker, setWorker] = useState(null);
   const [portal, setPortal] = useState(null);
   const [workerThread, setWorkerThread] = useState(null);
   useEffect(() => {
     // Create a new web worker
     const myWorker = new Worker(
-      new URL("../utils/gitWorker.js", import.meta.url)
+      new URL("../utils/gitWorker.js", import.meta.url),
     );
 
     const pp = new MagicPortal(myWorker);

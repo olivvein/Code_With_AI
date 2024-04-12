@@ -51,7 +51,7 @@ const App = () => {
   const [showLeftMenu, setShowLeftMenu] = useState(false);
 
   const [draggingOrder, setDraggingOrder] = useState(-1);
-  const [previewMode,setPreviewMode]=useState("normal");
+  const [previewMode, setPreviewMode] = useState("normal");
 
   const MobileView = window.innerWidth < 800 ? true : false;
 
@@ -407,7 +407,7 @@ const App = () => {
     const codeString = "```";
     const codeBlockRegex = new RegExp(
       `${codeString}(jsx|tsx|js|html|javascript)\n([\\s\\S]*?)${codeString}\n`,
-      "g"
+      "g",
     );
     let match;
     const completed = [];
@@ -426,7 +426,7 @@ const App = () => {
 
     // Check for a partial code snippet at the end of the file
     const partialCodeRegex = new RegExp(
-      `${codeString}(jsx|js|javascript)\n([\\s\\S]*)(?!${codeString})`
+      `${codeString}(jsx|js|javascript)\n([\\s\\S]*)(?!${codeString})`,
     );
     const partialMatch = partialCodeRegex.exec(markdownContent);
 
@@ -514,7 +514,6 @@ const App = () => {
     const lines = jsxCode.split("\n");
     const renderLine = lines.find((line) => line.includes("ReactDOM.render"));
     if (renderLine) {
-      
       lines.splice(lines.indexOf(renderLine), 1);
       lines.push(renderLine);
     }
@@ -541,8 +540,6 @@ const App = () => {
       //when the import source from is the same, aggregate the imports
       //for example import React ,{useState } from "react"; import { useEffect, useRed} from "react";
       // should result in : import React {useState, useEffect, useRef} from "react";
-
-      
 
       //Make sure the Line : ReactDOM.render...
       // is the last line
@@ -573,15 +570,12 @@ const App = () => {
     const lines = jsxCode.split("\n");
     const renderLine = lines.find((line) => line.includes("ReactDOM.render"));
     if (renderLine) {
-      
       lines.splice(lines.indexOf(renderLine), 1);
       lines.push(renderLine);
     }
     jsxCode = lines.join("\n");
-    
 
     jsxCode = optimizeImports(jsxCode);
-    
 
     //make sure every line that start with "import " is at the top of the file
 
@@ -589,10 +583,6 @@ const App = () => {
     const importLines = llines.filter((line) => line.startsWith("import "));
     const otherLines = llines.filter((line) => !line.startsWith("import "));
     jsxCode = importLines.join("\n") + "\n" + otherLines.join("\n");
-
-
-
-
 
     try {
       const result = transform(jsxCode, {
@@ -667,7 +657,7 @@ const App = () => {
       .then((data) => {
         monaco.languages.typescript.javascriptDefaults.addExtraLib(
           data,
-          "file:///node_modules/@types/react/index.d.ts"
+          "file:///node_modules/@types/react/index.d.ts",
         );
       });
 
@@ -676,7 +666,7 @@ const App = () => {
       .then((data) => {
         monaco.languages.typescript.javascriptDefaults.addExtraLib(
           data,
-          "file:///node_modules/@types/react-dom/index.d.ts"
+          "file:///node_modules/@types/react-dom/index.d.ts",
         );
       });
 
@@ -684,7 +674,7 @@ const App = () => {
 
     monaco.languages.typescript.javascriptDefaults.addExtraLib(
       puterTypeDefinition,
-      "filename.ts" // Vous pouvez utiliser n'importe quel nom de fichier ici, il n'a pas besoin d'exister réellement
+      "filename.ts", // Vous pouvez utiliser n'importe quel nom de fichier ici, il n'a pas besoin d'exister réellement
     );
   }
 
@@ -779,7 +769,7 @@ const App = () => {
       const site = await puter.hosting.create(subdomain, dirName);
 
       console.log(
-        `Website hosted at: <a href="https://${site.subdomain}.puter.site" target="_blank">https://${site.subdomain}.puter.site</a>`
+        `Website hosted at: <a href="https://${site.subdomain}.puter.site" target="_blank">https://${site.subdomain}.puter.site</a>`,
       );
 
       const appList = await puter.apps.list();
@@ -796,7 +786,7 @@ const App = () => {
         const response = await puter.apps.create(appData);
         console.log(
           "App created:",
-          JSON.stringify(response).split(",").join("\n")
+          JSON.stringify(response).split(",").join("\n"),
         );
         alert("App created : Success");
         setShowLoading(false);
@@ -805,7 +795,7 @@ const App = () => {
         setShowLoading(false);
         console.log(
           "Failed to create app:",
-          JSON.stringify(error).split(",").join("\n")
+          JSON.stringify(error).split(",").join("\n"),
         );
       }
     })();
@@ -896,12 +886,12 @@ const App = () => {
   const sendMenuAction = (action) => {
     console.log(action);
 
-    if (action == "togglePreview"){
+    if (action == "togglePreview") {
       console.log(previewMode);
-      if(previewMode=="normal"){
+      if (previewMode == "normal") {
         console.log("Going Viewer Mode");
         setPreviewMode("viewer");
-      }else{
+      } else {
         console.log("Going Normal Mode");
         setPreviewMode("normal");
       }
@@ -1313,7 +1303,7 @@ const App = () => {
       "Speak to Text",
       "Text to Speak",
       "Git Client",
-      "Fs Explorer"
+      "Fs Explorer",
     );
   }
 
@@ -1526,24 +1516,24 @@ const App = () => {
         if (codeSnippet.status == "completed") {
           codeSnippet.code = codeSnippet.code.replace(
             "import twindSetup",
-            "import { setup as twindSetup }"
+            "import { setup as twindSetup }",
           );
 
           codeSnippet.code = codeSnippet.code.replace(
             `from "react"`,
-            `from "https://esm.sh/react"`
+            `from "https://esm.sh/react"`,
           );
 
           codeSnippet.code = codeSnippet.code.replace("", "");
 
           codeSnippet.code = codeSnippet.code.replace(
             "/tailwind/'",
-            "/tailwind/shim'"
+            "/tailwind/shim'",
           );
 
           codeSnippet.code = codeSnippet.code.replace(
             '/tailwind/"',
-            '/tailwind/shim"'
+            '/tailwind/shim"',
           );
 
           if (codeSnippet.code.indexOf("import ReactDOM") === -1) {
@@ -1801,7 +1791,7 @@ const App = () => {
           };
         }
         return div;
-      })
+      }),
     );
   }, [
     inputMessage,
@@ -1846,7 +1836,7 @@ const App = () => {
           };
         }
         return div;
-      })
+      }),
     );
   }, [
     inputMessage,
@@ -1857,7 +1847,7 @@ const App = () => {
     selectedPrompt,
     visiblesIds,
     theNames,
-    previewMode
+    previewMode,
   ]);
 
   //update divs ChatSettings
@@ -1890,7 +1880,7 @@ const App = () => {
           };
         }
         return div;
-      })
+      }),
     );
   }, [chatProvider, ollamaConfig, openAiCongig, apiKey, selectedPrompt]);
 
@@ -1926,7 +1916,7 @@ const App = () => {
           };
         }
         return div;
-      })
+      }),
     );
   }, [jsCode, htmlCode, appName, selectedCode, babelCode]);
 
@@ -1951,9 +1941,9 @@ const App = () => {
           };
         }
         return div;
-      })
+      }),
     );
-  }, [jsCode, htmlCode, messageFinished,previewMode]);
+  }, [jsCode, htmlCode, messageFinished, previewMode]);
 
   useEffect(() => {
     const newCode = transpileJSX(jsCode);

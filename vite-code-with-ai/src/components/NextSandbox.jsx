@@ -12,12 +12,10 @@ import {
 
 import { useEffect, useState } from "react";
 
-const SandpackFiles = ({ setCodeFiles ,template}) => {
-  const { sandpack ,dispatch} = useSandpack();
-
+const SandpackFiles = ({ setCodeFiles, template }) => {
+  const { sandpack, dispatch } = useSandpack();
 
   useEffect(() => {
-   
     sandpack.resetAllFiles();
     dispatch({ type: "refresh" });
     dispatch({ type: "restart" });
@@ -66,13 +64,11 @@ const SandpackFiles = ({ setCodeFiles ,template}) => {
   return <></>;
 };
 
-const NextSandbox = ({name}) => {
+const NextSandbox = ({ name }) => {
   const [template, setTemplate] = useState("react"); // Ajoutez cet état pour le template
-
 
   const handleTemplateChange = (event) => {
     setTemplate(event.target.value);
-    
   };
 
   return (
@@ -93,9 +89,7 @@ const NextSandbox = ({name}) => {
         <option value="svelte">Svelte</option>
         <option value="angular">Angular</option>
         <option value="vite">Vite</option>
-        angular
-        vite
-
+        angular vite
       </select>
       <NextSandboxLoader template={template} />
     </div>
@@ -103,19 +97,17 @@ const NextSandbox = ({name}) => {
 };
 
 const NextSandboxLoader = ({ template }) => {
+  const [theTemplate, setTheTemplate] = useState("");
+  const [templateLoaded, setTemplateLoaded] = useState(false);
 
-    const [theTemplate,setTheTemplate]=useState('');
-    const [templateLoaded,setTemplateLoaded]=useState(false);
+  useEffect(() => {
+    setTemplateLoaded(false);
+    setTimeout(() => {
+      setTheTemplate(template);
+      setTemplateLoaded(true);
+    }, 500);
+  }, [template]);
 
-    useEffect(()=>{
-        setTemplateLoaded(false);
-        setTimeout(()=>{
-            setTheTemplate(template);
-            setTemplateLoaded(true);
-        },500);
-    },[template])
-
-   
   const files = {};
   const filesReact = {
     "/App.js": `//appTitle: Puter Functionalities Explorer
@@ -307,45 +299,48 @@ const NextSandboxLoader = ({ template }) => {
 
   return (
     <>
-    {templateLoaded && (
-    <SandpackProvider
-      files={files}
-      theme="dark"
-      template={theTemplate}
-      customSetup={{
-        dependencies: JSON.parse(getDependencies(files)),
-      }}
-      options={{
-        showNavigator: true,
-        classes: {
-          "sp-wrapper": "custom-wrapper",
-          "sp-preview": "custom-layout",
-          "sp-tab-button": "custom-tab",
-          "sp-editor": "custom-editor",
-          "sp-file-explorer": "custom-file-explorer",
-          "sp-preview-container": "custom-preview-container",
-        },
-        externalResources: [
-          "https://js.puter.com/v2/",
-          "https://cdn.tailwindcss.com",
-        ],
-      }}
-    >
-      <SandpackFiles setCodeFiles={updateSandboxFiles} template={theTemplate}/>
-      <SandpackLayout className="w-full h-full">
-        <SandpackFileExplorer className="w-full h-full filePack" />
-        <SandpackCodeEditor
-          closableTabs
-          showTabs
-          className="w-full h-full editorPack"
-        />
-        <SandpackPreview className="w-full h-full previewPack" />
-      </SandpackLayout>
-      <div className="w-full h-full  overflow-y-scroll">
-        <SandpackConsole className="w-full h-full consolePack overflow-y-scroll" />
-      </div>
-    </SandpackProvider>
-    )}
+      {templateLoaded && (
+        <SandpackProvider
+          files={files}
+          theme="dark"
+          template={theTemplate}
+          customSetup={{
+            dependencies: JSON.parse(getDependencies(files)),
+          }}
+          options={{
+            showNavigator: true,
+            classes: {
+              "sp-wrapper": "custom-wrapper",
+              "sp-preview": "custom-layout",
+              "sp-tab-button": "custom-tab",
+              "sp-editor": "custom-editor",
+              "sp-file-explorer": "custom-file-explorer",
+              "sp-preview-container": "custom-preview-container",
+            },
+            externalResources: [
+              "https://js.puter.com/v2/",
+              "https://cdn.tailwindcss.com",
+            ],
+          }}
+        >
+          <SandpackFiles
+            setCodeFiles={updateSandboxFiles}
+            template={theTemplate}
+          />
+          <SandpackLayout className="w-full h-full">
+            <SandpackFileExplorer className="w-full h-full filePack" />
+            <SandpackCodeEditor
+              closableTabs
+              showTabs
+              className="w-full h-full editorPack"
+            />
+            <SandpackPreview className="w-full h-full previewPack" />
+          </SandpackLayout>
+          <div className="w-full h-full  overflow-y-scroll">
+            <SandpackConsole className="w-full h-full consolePack overflow-y-scroll" />
+          </div>
+        </SandpackProvider>
+      )}
     </>
   );
 };

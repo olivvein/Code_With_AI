@@ -1,4 +1,3 @@
-
 import React from "react";
 
 const DeployForm = ({
@@ -19,7 +18,7 @@ const DeployForm = ({
           Deploy your app to a subdomain and create an app.
         </p>
         <form
-        className="w-full justify-between flex flex-col items-center"
+          className="w-full justify-between flex flex-col items-center"
           onSubmit={() => {
             deploy();
             cancel(false);
@@ -35,15 +34,14 @@ const DeployForm = ({
             Deploy
           </button>
           <button
-          className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2 m-2  w-1/4 border dark:border-light border-dark"
-          onClick={() => {
-            cancel(false);
-          }}
-        >
-          Cancel
-        </button>
+            className="dark:bg-dark bg-light dark:text-light text-dark rounded p-2 m-2  w-1/4 border dark:border-light border-dark"
+            onClick={() => {
+              cancel(false);
+            }}
+          >
+            Cancel
+          </button>
         </form>
-        
       </div>
     </div>
   );
