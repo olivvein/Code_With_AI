@@ -605,9 +605,9 @@ export default function Component({ name }) {
           </div>
 
           {/* <h2 className="mt-2 mb-4 text-sm font-medium">{repo}</h2> */}
-          <div className="flex space-x-2 justify-between p-4">
+          <div>
             <form
-              className="flex w-full space-x-2 justify-between"
+              className="flex w-full space-x-2 ml-5 mt-3"
               onSubmit={(e) => {
                 e.preventDefault();
                 doFullClone();
@@ -618,39 +618,40 @@ export default function Component({ name }) {
                 placeholder="Enter repo name"
                 value={repo}
                 onChange={(e) => setRepo(e.target.value)}
-                className="mt-2 mb-4 text-sm font-medium text-black"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               />
               <button
                 onClick={doFullClone}
-                className="bg-blue-600 px-1 hover:bg-blue-700"
+                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-1 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
               >
                 Clone on Browser
               </button>
               <button
-                className="bg-blue-600 px-1 hover:bg-blue-700"
+                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-7 py-1 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                 onClick={gitStatus}
               >
                 Status
               </button>
             </form>
           </div>
-          <div className="flex space-x-2">
+          <br />
+          <div className="flex space-x-2 ml-5">
             <button
-              className="bg-blue-500 hover:bg-blue-600 px-1"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
               onClick={getAllPuterFiles}
             >
               Import From Puter
             </button>
             <button
               onClick={syncDirectory}
-              className="bg-blue-500 hover:bg-blue-600 px-1"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
             >
               Save to Puter
             </button>
-            <p className="text-xs">{dirName}</p>
           </div>
+          <p className="text-x ml-5 mt-3">{dirName}</p>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex ml-5 mt-3 items-center space-x-2">
           <GitBranchIcon className="w-5 h-5" />
           <h2>Select Commit to Compare...</h2>
         </div>

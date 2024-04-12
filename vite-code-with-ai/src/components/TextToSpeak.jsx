@@ -65,7 +65,7 @@ const TextToSpeak = ({ name }) => {
     <div className="w-full h-full flex flex-col items-center justify-center">
       <h1 className="text-2xl mb-4">Text-to-Speech App</h1>
       <select
-        className="w-64 p-2 mb-4 border border-gray-300 rounded"
+        className="w-64 text-white ml-2 mb-4 bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
         value={voice}
         onChange={(event) => setVoice(event.target.value)}
       >
@@ -78,13 +78,13 @@ const TextToSpeak = ({ name }) => {
       </select>
 
       <textarea
-        className="w-64 h-32 p-2 mb-4 border border-gray-300 rounded"
+        className="block p-2.5 w-64 mb-4 h-40 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         value={text}
         onChange={handleTextChange}
         placeholder="Enter text to generate speech"
       />
       <button
-        className="px-4 py-2 mb-4 bg-blue-600 text-white rounded"
+        className="w-64 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ml-2"
         onClick={handleGenerateAudio}
       >
         Generate Audio
