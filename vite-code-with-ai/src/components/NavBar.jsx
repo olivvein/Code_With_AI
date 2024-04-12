@@ -172,7 +172,7 @@ const NavBar = ({
             <div className="w-4/6 top-0 dark:bg-dark bg-light dark:text-light text-dark pt-1 px-0 flex">
               <span className="left-0 top-0  px-2 flex flex-col">
                 <span className=" left-0 top-0 text-sm px-2">
-                  <b>{`Code With Ai ${viewCount.toString()}`}</b>
+                  <b>{`Code With Ai ${viewCount.toString()} v1.42`}</b>
                 </span>
               </span>
               {menuConfig.map((menu, index) => (
