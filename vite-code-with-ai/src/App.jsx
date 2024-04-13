@@ -1693,7 +1693,7 @@ const App = () => {
       fetch("http://localhost:3002/health")
         .then((response) => response.text())
         .then((data) => {
-          if (data == "ok") {
+          if (data == "anthropic-proxy") {
             setAnthropicAvailable(true);
           } else {
             setAnthropicAvailable(false);
