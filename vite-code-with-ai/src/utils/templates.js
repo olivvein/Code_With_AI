@@ -552,6 +552,20 @@ const ThreeHtml = `<div id="threejs-app-container"></div>
 `;
 
 export const templates = [
+    {
+        name: "Full Page Wikipedia Viewer - React",
+        js: iframeReact,
+        html: "<div id='app' class='h-screen'></div>",
+        description: "A simple app to view Wikipedia",
+        framework: "react",
+      },
+      {
+        name: "Full Page Wikipedia Viewer - Vanilla JS",
+        js: iframeVanillaJs,
+        html: iframeVanillaJsHtml,
+        description: "A simple app to view Wikipedia",
+        framework: "vanilla js",
+      },
   {
     name: "Three.js React Template",
     js: ThreeJs,
@@ -571,20 +585,6 @@ export const templates = [
     js: puterFunctionalitiesVanillaJs,
     html: "<div id='app'></div>",
     description: "A simple app to explore Puter's functionalities",
-    framework: "vanilla js",
-  },
-  {
-    name: "Full Page Wikipedia Viewer - React",
-    js: iframeReact,
-    html: "<div id='app' class='h-screen'></div>",
-    description: "A simple app to view Wikipedia",
-    framework: "react",
-  },
-  {
-    name: "Full Page Wikipedia Viewer - Vanilla JS",
-    js: iframeVanillaJs,
-    html: iframeVanillaJsHtml,
-    description: "A simple app to view Wikipedia",
     framework: "vanilla js",
   },
   {
