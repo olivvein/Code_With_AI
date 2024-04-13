@@ -418,7 +418,147 @@ ReactDOM.render(<FileExplorer />, document.getElementById("app"));
 const FileExplorerHtml = `<div id="app" class="h-screen bg-gray-900 text-white"></div>
 `;
 
+const ThreeJs = `//appTitle: Three.js Puter Template
+
+import React, { useEffect, useRef,useState } from "https://esm.sh/react";
+import ReactDOM from "https://esm.sh/react-dom";
+import * as THREE from "https://esm.sh/three";
+import { OrbitControls } from 'https://esm.sh/three/examples/jsm/controls/OrbitControls';
+import { setup as twindSetup } from 'https://cdn.skypack.dev/twind/shim';
+import { FontLoader } from 'https://esm.sh/three/examples/jsm/loaders/FontLoader';
+import { TextGeometry } from 'https://esm.sh/three/examples/jsm/geometries/TextGeometry';
+
+twindSetup();
+
+const ThreeJsMouseInteractiveCubeAndTextApp = () => {
+  const mouse = useRef(new THREE.Vector2());
+  const raycaster = useRef(new THREE.Raycaster());
+  const pointLightRef = useRef(new THREE.PointLight(0xffffff, 100, 500));
+  const imageTextureForCube = 'https://corsproxy.io/?' + encodeURIComponent('https://puter.com/images/logo.png');
+
+  const [username,setUsername]=useState("");
+
+  useEffect(() => {
+     const signInAndFetchKeys = async () => {
+            if (!puter.auth.isSignedIn()) {
+                await puter.auth.signIn();
+            }
+            const user = await puter.auth.getUser();
+            setUsername(user.username);
+            console.log("set username");
+
+            
+        };
+        signInAndFetchKeys();
+  },[]);
+
+  useEffect(() => {
+    if(username==""){
+      return;
+    }
+    console.log(username);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById("threejs-app-container").appendChild(renderer.domElement);
+
+    const orbitControls = new OrbitControls(camera, renderer.domElement);
+    orbitControls.enableDamping = true;
+
+    camera.position.set(0, 0, 50);
+
+    const ambientLight = new THREE.AmbientLight(0x404040, 2);
+    scene.add(ambientLight);
+
+    scene.add(pointLightRef.current);
+    pointLightRef.current.position.set(0, 0, 50);
+
+    const textureLoader = new THREE.TextureLoader();
+    const cubeGeometry = new THREE.BoxGeometry(20, 20, 1);
+    cubeGeometry.scale(1, 1, -1); // Allows seeing inside the geometry for double-sided effect.
+    const cubeMaterial = new THREE.MeshPhongMaterial({
+      map: textureLoader.load(imageTextureForCube),
+      side: THREE.DoubleSide, // Ensures the material is visible from both sides.
+    });
+    const cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    cubeMesh.position.set(0, -10, 0);
+    scene.add(cubeMesh);
+
+    const loadText = (user) => {
+      const loader = new FontLoader();
+      loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+        console.log("loader");
+        const geometry = new TextGeometry(user, {
+          font: font,
+          size: 6,
+          height: 2,
+        });
+        const material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide }); // Double-sided material.
+        const mesh = new THREE.Mesh(geometry, material);
+        geometry.center();
+
+        mesh.position.set(0, 12, 0);
+        scene.add(mesh);
+
+        const animate = function() {
+          requestAnimationFrame(animate);
+          cubeMesh.rotation.y += 0.002;
+          mesh.rotation.y += 0.002;
+          orbitControls.update();
+          renderer.render(scene, camera);
+        };
+
+        animate();
+      });
+    };
+
+    loadText(username);
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }, false);
+
+    document.addEventListener('mousemove', (event) => {
+      mouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.current.setFromCamera(mouse.current, camera);
+      const intersects = raycaster.current.intersectObjects(scene.children, true);
+
+      if (intersects.length > 0) {
+        const { point, face } = intersects[0];
+        if (face && face.normal) {
+          pointLightRef.current.position.copy(point).add(face.normal.multiplyScalar(2));
+        }
+      }
+    }, false);
+    
+
+  }, [username]);
+
+  
+
+  return <div></div>;
+};
+
+ReactDOM.render(<ThreeJsMouseInteractiveCubeAndTextApp />, document.getElementById("threejs-app-container"));
+`;
+
+const ThreeHtml = `<div id="threejs-app-container"></div>
+<div id="background-image" class="bg-cover fixed inset-0 bg-no-repeat bg-center" style="background-image: url('https://puter.com/dist/images/wallpaper.webp'); z-index: -1;"></div>
+`;
+
 export const templates = [
+  {
+    name: "Three.js React Template",
+    js: ThreeJs,
+    html: ThreeHtml,
+    description: "A simple Three.js template",
+    framework: "react",
+  },
   {
     name: "Puter Functionalities Explorer - React",
     js: puterFunctionalitiesReact,
