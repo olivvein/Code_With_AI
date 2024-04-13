@@ -33,6 +33,19 @@ pnpm run build
 ## Building
 to build an app, just past the content of index.jsx in Code with AI
 
+## Git Client
+the git client is a implementation of Puter-Git:
+https://github.com/olivvein/puter-git
+https://puter.com/app/puter-git
+
+
+
+
+
+
+
+
+
 
 ## Fonctionalities:
 - Use Babel to compile jsx in js
