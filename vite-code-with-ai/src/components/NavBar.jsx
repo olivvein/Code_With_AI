@@ -3,6 +3,17 @@ import PropTypes from "prop-types";
 import PerformanceMonitor from "./PerformanceMonitor";
 
 let puter = window.puter;
+
+const WindowView = ({ colors }) => {
+
+  return (
+    <div className="flex flex-rox justify-between">
+      <div className={`w-4 h-4 rounded bg-${colors[0]}`}></div>
+      <div className={`w-4 h-4 rounded bg-${colors[1]}`}></div>
+      <div className={`w-4 h-4 rounded bg-${colors[2]}`}></div>
+    </div>
+  );
+};
 const NavBar = ({
   visibleApiKey,
   username,
@@ -138,19 +149,19 @@ const NavBar = ({
         { status: "inactive", name: "separator", action: "none" },
         {
           status: "active",
-          name: "Preview Fullscreen",
-          action: "fullscreen-preview",
+          name: MobileView ? <WindowView colors={["white","black","white"]} /> : <WindowView colors={["white","white","white"]} /> ,
+          action: "normal-view",
         },
         {
           status: "active",
-          name: MobileView ? "Chat + Preview" : "Chat + Code + Preview",
-          action: "normal-view",
+          name: <WindowView colors={["black","black","white"]} />,
+          action: "fullscreen-preview",
         },
+        { status: "active", name: <WindowView colors={["black","white","black"]} /> , action: "code-view" },
+        { status: "active", name: <WindowView colors={["black","white","white"]} /> , action: "code-preview" },
+        { status: "active", name: <WindowView colors={["white","black","white"]} /> , action: "chat-preview" },
         { status: "active", name: "Chat Settings", action: "chat-settings" },
         { status: "active", name: "Console", action: "console-log" },
-        { status: "active", name: "Code Fullscreen", action: "code-view" },
-        { status: "active", name: "Code + Preview", action: "code-preview" },
-        { status: "active", name: "Chat + Preview", action: "chat-preview" },
       ],
     },
     {

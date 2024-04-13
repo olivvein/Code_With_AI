@@ -27,6 +27,7 @@ import GitClient from "./components/GitClient";
 import FsExplorer from "./components/FsExplorer";
 import MenuBar from "./components/MenuBar";
 import FullView from "./components/FullView";
+import GenerativeUI from "./components/GenerativeUI";
 
 import {
   userSettings,
@@ -407,7 +408,7 @@ const App = () => {
     const codeString = "```";
     const codeBlockRegex = new RegExp(
       `${codeString}(jsx|tsx|js|html|javascript)\n([\\s\\S]*?)${codeString}\n`,
-      "g",
+      "g"
     );
     let match;
     const completed = [];
@@ -426,7 +427,7 @@ const App = () => {
 
     // Check for a partial code snippet at the end of the file
     const partialCodeRegex = new RegExp(
-      `${codeString}(jsx|js|javascript)\n([\\s\\S]*)(?!${codeString})`,
+      `${codeString}(jsx|js|javascript)\n([\\s\\S]*)(?!${codeString})`
     );
     const partialMatch = partialCodeRegex.exec(markdownContent);
 
@@ -657,7 +658,7 @@ const App = () => {
       .then((data) => {
         monaco.languages.typescript.javascriptDefaults.addExtraLib(
           data,
-          "file:///node_modules/@types/react/index.d.ts",
+          "file:///node_modules/@types/react/index.d.ts"
         );
       });
 
@@ -666,7 +667,7 @@ const App = () => {
       .then((data) => {
         monaco.languages.typescript.javascriptDefaults.addExtraLib(
           data,
-          "file:///node_modules/@types/react-dom/index.d.ts",
+          "file:///node_modules/@types/react-dom/index.d.ts"
         );
       });
 
@@ -674,7 +675,7 @@ const App = () => {
 
     monaco.languages.typescript.javascriptDefaults.addExtraLib(
       puterTypeDefinition,
-      "filename.ts", // Vous pouvez utiliser n'importe quel nom de fichier ici, il n'a pas besoin d'exister réellement
+      "filename.ts" // Vous pouvez utiliser n'importe quel nom de fichier ici, il n'a pas besoin d'exister réellement
     );
   }
 
@@ -769,7 +770,7 @@ const App = () => {
       const site = await puter.hosting.create(subdomain, dirName);
 
       console.log(
-        `Website hosted at: <a href="https://${site.subdomain}.puter.site" target="_blank">https://${site.subdomain}.puter.site</a>`,
+        `Website hosted at: <a href="https://${site.subdomain}.puter.site" target="_blank">https://${site.subdomain}.puter.site</a>`
       );
 
       const appList = await puter.apps.list();
@@ -786,7 +787,7 @@ const App = () => {
         const response = await puter.apps.create(appData);
         console.log(
           "App created:",
-          JSON.stringify(response).split(",").join("\n"),
+          JSON.stringify(response).split(",").join("\n")
         );
         alert("App created : Success");
         setShowLoading(false);
@@ -795,7 +796,7 @@ const App = () => {
         setShowLoading(false);
         console.log(
           "Failed to create app:",
-          JSON.stringify(error).split(",").join("\n"),
+          JSON.stringify(error).split(",").join("\n")
         );
       }
     })();
@@ -1267,13 +1268,14 @@ const App = () => {
   const [jsCode, setJsCode] = useState(templates[0].js);
   const [selectedCode, setSelectedCode] = useState("js");
 
-  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  const [theIds, setTheIds] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   const [visiblesIds, setVisiblesIds] = useState([
     true,
     true,
     true,
     true,
     true,
+    false,
     false,
     false,
     false,
@@ -1296,6 +1298,7 @@ const App = () => {
     "Text to Speak",
     "Git Client",
     "Fs Explorer",
+    "Generative UI",
   ];
   if (godMode) {
     availableWindows.push(
@@ -1303,7 +1306,7 @@ const App = () => {
       "Speak to Text",
       "Text to Speak",
       "Git Client",
-      "Fs Explorer",
+      "Fs Explorer"
     );
   }
 
@@ -1486,6 +1489,24 @@ const App = () => {
       id: 10,
       content: <FsExplorer name="Fs Explorer" setJsCode={setJsCodeForAll} />,
     },
+    {
+      id: 11,
+      content: (
+        <GenerativeUI
+          name="Generative UI"
+          inputSubmit={inputSubmit}
+          inputMessage={inputMessage}
+          setInputVal={setInputVal}
+          messageFinished={messageFinished}
+          resetChatMessages={resetChatMessages}
+          setChatMessages={setChatMessages}
+          jsCode={jsCode}
+          htmlCode={htmlCode}
+          transpileJSX={transpileJSXForIframe}
+          consoleLog={consoleLog}
+        />
+      ),
+    },
   ]);
 
   //handle fullMessage
@@ -1516,24 +1537,24 @@ const App = () => {
         if (codeSnippet.status == "completed") {
           codeSnippet.code = codeSnippet.code.replace(
             "import twindSetup",
-            "import { setup as twindSetup }",
+            "import { setup as twindSetup }"
           );
 
           codeSnippet.code = codeSnippet.code.replace(
             `from "react"`,
-            `from "https://esm.sh/react"`,
+            `from "https://esm.sh/react"`
           );
 
           codeSnippet.code = codeSnippet.code.replace("", "");
 
           codeSnippet.code = codeSnippet.code.replace(
             "/tailwind/'",
-            "/tailwind/shim'",
+            "/tailwind/shim'"
           );
 
           codeSnippet.code = codeSnippet.code.replace(
             '/tailwind/"',
-            '/tailwind/shim"',
+            '/tailwind/shim"'
           );
 
           if (codeSnippet.code.indexOf("import ReactDOM") === -1) {
@@ -1793,7 +1814,43 @@ const App = () => {
           };
         }
         return div;
-      }),
+      })
+    );
+  }, [
+    inputMessage,
+    messageFinished,
+    fullMessage,
+    chatMessages,
+    jsCode,
+    htmlCode,
+    showLeftMenu,
+  ]);
+
+  useEffect(() => {
+    setDivs((prevDivs) =>
+      prevDivs.map((div) => {
+        if (div.content.type === GenerativeUI) {
+          return {
+            ...div,
+            content: (
+              <GenerativeUI
+                name="Custom Prompt View"
+                inputSubmit={inputSubmit}
+                inputMessage={inputMessage}
+                setInputVal={setInputVal}
+                messageFinished={messageFinished}
+                resetChatMessages={resetChatMessages}
+                setChatMessages={setChatMessages}
+                jsCode={jsCode}
+                htmlCode={htmlCode}
+                transpileJSX={transpileJSXForIframe}
+                consoleLog={consoleLog}
+              />
+            ),
+          };
+        }
+        return div;
+      })
     );
   }, [
     inputMessage,
@@ -1838,7 +1895,7 @@ const App = () => {
           };
         }
         return div;
-      }),
+      })
     );
   }, [
     inputMessage,
@@ -1882,7 +1939,7 @@ const App = () => {
           };
         }
         return div;
-      }),
+      })
     );
   }, [chatProvider, ollamaConfig, openAiCongig, apiKey, selectedPrompt]);
 
@@ -1918,7 +1975,7 @@ const App = () => {
           };
         }
         return div;
-      }),
+      })
     );
   }, [jsCode, htmlCode, appName, selectedCode, babelCode]);
 
@@ -1943,7 +2000,7 @@ const App = () => {
           };
         }
         return div;
-      }),
+      })
     );
   }, [jsCode, htmlCode, messageFinished, previewMode]);
 
