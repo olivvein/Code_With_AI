@@ -1834,7 +1834,7 @@ const App = () => {
             ...div,
             content: (
               <GenerativeUI
-                name="Custom Prompt View"
+                name="Generative UI"
                 inputSubmit={inputSubmit}
                 inputMessage={inputMessage}
                 setInputVal={setInputVal}

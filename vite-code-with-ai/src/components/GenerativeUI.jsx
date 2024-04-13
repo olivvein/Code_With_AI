@@ -31,7 +31,6 @@ const GenerativeUI = ({
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center">
-      <h1>Generative UI</h1>
 
       {(messageFinished == 0 || htmlCode == "" || jsCode == "") && (
         <LoadingDiv message={"Loading ...."} />
