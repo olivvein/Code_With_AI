@@ -346,7 +346,6 @@ const App = () => {
       }
 
       if (chatProvider === "openai" && apiKey !== "") {
-        console.log(apiKey);
         const newMessage = [
           ...chatMessages,
           { role: "user", content: message },
@@ -601,20 +600,36 @@ const App = () => {
         jsxCode = jsxCode.replace(/import\s+.*\s+from\s+.*;/g, "");
         jsxCode = uniqueImports.join("\n") + jsxCode;
       }
-
-      const newCode = Babel.transform(jsxCode, {
-        presets: ["react"],
-      }).code;
+      let newCode = "";
+      try {
+        newCode = Babel.transform(jsxCode, {
+          presets: ["react"],
+        }).code;
+      } catch (error) {
+        console.log("Error in BABEL !!");
+        console.log(error);
+      }
 
       //editorBabelRef.current?.setValue(newCode);
       return newCode;
     } catch (error) {
+      console.log("Error transform tsx")
+      console.log(error);
       //console.error('Erreur de syntaxe dans le code JavaScript :', error);
       // Vous pouvez également afficher un message d'erreur à l'utilisateur ici
       //setBabelCode(`Error In JSX ${error}`);
       //editorBabelRef.current?.setValue(`Error In JSX ${error}`);
+      let newCode = "";
+      try {
+        newCode = Babel.transform(jsxCode, {
+          presets: ["react"],
+        }).code;
+      } catch (error) {
+        console.log("Error in BABEL !!");
+        console.log(error);
+      }
 
-      return jsxCode;
+      return newCode;
     }
   }
 
