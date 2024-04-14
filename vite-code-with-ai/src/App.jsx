@@ -1375,7 +1375,7 @@ const App = () => {
 
    
       var stack = new Error().stack;
-        logElement.innerHTML +=  '<span style="color:red">'+message+"\\n"+ stack.split("\\n").slice(2).join("\\n")+'</span> ' + '<br />';
+        logElement.innerHTML +=  '<span style="color:red">consoleError'+message+"\\nconsoleError"+ stack.split("\\n").slice(2).join("\\n")+'</span> ' + '<br />';
     
     oldError.apply(console, arguments);
     logElement.scrollTop = logElement.scrollHeight;
@@ -2209,7 +2209,7 @@ const App = () => {
                     size={`${sizeRows[1]}%`}
                     touchHandleSize={20}
                     trackSize={true}
-                    scrollable={false}
+                    scrollable={true}
                   >
                     <Space.Fill>
                       <DraggableUI
