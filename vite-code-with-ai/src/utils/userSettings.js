@@ -25,7 +25,7 @@ export const userSettings = [
   },
   {
     name: "use-liteLLM",
-    default: false,
+    default: true,
     description: "Use the liteLLM proxy to use LLM locally",
     value: "",
   },

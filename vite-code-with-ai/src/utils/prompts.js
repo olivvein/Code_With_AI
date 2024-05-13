@@ -282,17 +282,7 @@ ${puterPrompt}
 
 Based on the request, you do jsx
 
-For beatiful background, use one of the following component :
-\`\`\`
-import { Lumiflex ,Opulento,Zenitho,Novatrix,Velustro,Tranquiluxe} from "https://esm.sh/uvcanvas";
 
-<div className="w-screen h-screen">
-  <Tranquiluxe or Lumiflex or ... />
-  <div className="absolute inset-0 backdrop-filter transition-all ease-in-out delay-150 duration-500 backdrop-blur-lg bg-opacity-30 hover:bg-opacity-50 bg-gray-900 rounded-xl border-gray-500 hover:backdrop-blur-3xl border p-8 m-4 shadow-xl drop-shadow-xl text-white flex flex-col items-center justify-center text-center">
-    ... CONTENT HERE ...
-  </div>
-</div>
-\`\`\`
 
 always use backdrop-blur-xl, shadows and backdrop-filter for beautiful design
 always adapt to dark mode and light with dark:bg-dark and dark:text-light

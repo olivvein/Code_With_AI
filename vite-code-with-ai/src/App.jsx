@@ -353,6 +353,7 @@ const App = () => {
         newMessage[0].content = systemPrompt + " \n" + userStringPrompt;
         console.log(newMessage);
         const openai = new OpenAI({
+          //baseURL:"https://api.groq.com/openai/v1",
           apiKey: apiKey,
           dangerouslyAllowBrowser: true, // This is the default and can be omitted
         });
@@ -360,6 +361,8 @@ const App = () => {
         setChatMessages(newMessage);
         const stream = await openai.chat.completions.create({
           model: openAiCongig.selectedModel,
+          //model:"mixtral-8x7b-32768",
+
           messages: newMessage,
           stream: true,
         });
