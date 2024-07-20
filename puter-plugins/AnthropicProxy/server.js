@@ -6,7 +6,9 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // Ajout du middleware pour analyser les corps de requête JSON
 
-const client = new Anthropic();
+const client = new Anthropic(
+    {defaultHeaders: { 'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15' }}  //for 8192 max tokens
+);
 
 app.post('/stream', async (req, res) => { // Changement de GET à POST
     const { message, systeme } = req.body; // Extraction des données du corps de la requête
@@ -17,8 +19,8 @@ app.post('/stream', async (req, res) => { // Changement de GET à POST
 
     await client.messages.stream({
         messages: [{role: "user", content: message}], // Utilisation des données du corps de la requête
-        model: 'claude-3-opus-20240229',
-        max_tokens: 4000,
+        model: 'claude-3-5-sonnet-20240620',
+        max_tokens: 8192,
         system:systeme,
     }).on('text', (text) => {
         res.write(`${text}`);

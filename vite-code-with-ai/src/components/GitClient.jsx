@@ -99,6 +99,7 @@ const GitClient = ({ name }) => {
   const doFullClone = async () => {
     console.log("Clone started");
 
+
     await workerThread.setDir("/");
 
     await workerThread.clone({

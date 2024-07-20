@@ -46,7 +46,7 @@ export const userSettings = [
     default: false,
     description:
       "Use the Anthropic proxy to use Anthropic from your local machine",
-    value: "",
+    value: true,
   },
   {
     name: "anthropic-url",
